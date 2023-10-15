@@ -3,18 +3,19 @@
 use App\Lib\GoogleAuthenticator;
 use App\Lib\SendSms;
 use App\Models\Advertisement;
+use App\Models\EmailLog;
 use App\Models\EmailTemplate;
 use App\Models\Extension;
 use App\Models\Frontend;
 use App\Models\GeneralSetting;
 use App\Models\SmsTemplate;
-use App\Models\EmailLog;
 use Carbon\Carbon;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
-function sidebarVariation(){
+function sidebarVariation()
+{
 
     $variation['sidebar'] = 'bg--dark';
     $variation['selector'] = 'capsule--rounded';
@@ -108,7 +109,8 @@ function uploadImage($file, $location, $size = null, $old = null, $thumb = null)
     return $filename;
 }
 
-function uploadFile($file, $location, $size = null, $old = null){
+function uploadFile($file, $location, $size = null, $old = null)
+{
     $path = makeDirectory($location);
     if (!$path) throw new Exception('File could not been created.');
 
@@ -117,7 +119,7 @@ function uploadFile($file, $location, $size = null, $old = null){
     }
 
     $filename = uniqid() . time() . '.' . $file->getClientOriginalExtension();
-    $file->move($location,$filename);
+    $file->move($location, $filename);
     return $filename;
 }
 
@@ -180,13 +182,13 @@ function loadTawkto()
 
 function loadFbComment()
 {
-    $comment = Extension::where('act', 'fb-comment')->where('status',1)->first();
-    return  $comment ? $comment->generateScript() : '';
+    $comment = Extension::where('act', 'fb-comment')->where('status', 1)->first();
+    return $comment ? $comment->generateScript() : '';
 }
 
 function loadCustomCaptcha($height = 46, $width = '300px', $bgcolor = '#003', $textcolor = '#abc')
 {
-    $textcolor = '#'.GeneralSetting::first()->base_color;
+    $textcolor = '#' . GeneralSetting::first()->base_color;
     $captcha = Extension::where('act', 'custom-captcha')->where('status', 1)->first();
     if (!$captcha) {
         return 0;
@@ -233,15 +235,16 @@ function getAmount($amount, $length = 2)
     return $amount + 0;
 }
 
-function showAmount($amount, $decimal = 2, $separate = true, $exceptZeros = false){
+function showAmount($amount, $decimal = 2, $separate = true, $exceptZeros = false)
+{
     $separator = '';
-    if($separate){
+    if ($separate) {
         $separator = ',';
     }
     $printAmount = number_format($amount, $decimal, '.', $separator);
-    if($exceptZeros){
-    $exp = explode('.', $printAmount);
-        if($exp[1]*1 == 0){
+    if ($exceptZeros) {
+        $exp = explode('.', $printAmount);
+        if ($exp[1] * 1 == 0) {
             $printAmount = $exp[0];
         }
     }
@@ -314,10 +317,10 @@ function getIpInfo()
     $ip = $_SERVER["REMOTE_ADDR"];
 
     //Deep detect ip
-    if (filter_var(@$_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP)){
+    if (filter_var(@$_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP)) {
         $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
-    if (filter_var(@$_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP)){
+    if (filter_var(@$_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP)) {
         $ip = $_SERVER['HTTP_CLIENT_IP'];
     }
 
@@ -346,7 +349,8 @@ function getIpInfo()
 }
 
 //moveable
-function osBrowser(){
+function osBrowser()
+{
     $userAgent = $_SERVER['HTTP_USER_AGENT'];
     $osPlatform = "Unknown OS Platform";
     $osArray = array(
@@ -447,30 +451,29 @@ function getPageSections($arr = false)
 }
 
 
-function getImage($image,$size = null, $isAvatar = false)
+function getImage($image, $size = null, $isAvatar = false)
 {
     $clean = '';
     if (file_exists($image) && is_file($image)) {
         return asset($image) . $clean;
     }
 
-    if($isAvatar){
+    if ($isAvatar) {
         return asset('assets/images/avatar.jpg');
     }
 
     if ($size) {
-        return route('placeholder.image',$size);
+        return route('placeholder.image', $size);
     }
     return asset('assets/images/default.png');
 }
 
-function notify($user, $type, $shortCodes = null, $userType='user')
+function notify($user, $type, $shortCodes = null, $userType = 'user')
 {
 
     sendEmail($user, $type, $shortCodes, $userType);
     sendSms($user, $type, $shortCodes);
 }
-
 
 
 function sendSms($user, $type, $shortCodes = [])
@@ -486,11 +489,11 @@ function sendSms($user, $type, $shortCodes = [])
         }
         $message = shortCodeReplacer("{{message}}", $template, $general->sms_api);
         $message = shortCodeReplacer("{{name}}", $user->username, $message);
-        $sendSms->$gateway($user->mobile,$general->sitename,$message,$general->sms_config);
+        $sendSms->$gateway($user->mobile, $general->sitename, $message, $general->sms_config);
     }
 }
 
-function sendEmail($user, $type = null, $shortCodes = [], $userType='user')
+function sendEmail($user, $type = null, $shortCodes = [], $userType = 'user')
 {
     $general = GeneralSetting::first();
 
@@ -517,15 +520,15 @@ function sendEmail($user, $type = null, $shortCodes = [], $userType='user')
     $emailLog = new EmailLog();
 
 
-    if($userType == 'user'){
+    if ($userType == 'user') {
         $emailLog->user_id = $user->id;
-    }elseif($userType == 'merchant'){
+    } elseif ($userType == 'merchant') {
         $emailLog->merchant_id = $user->id;
     }
 
 
     $emailLog->mail_sender = $config->name;
-    $emailLog->email_from = $general->sitename.' '.$general->email_from;
+    $emailLog->email_from = $general->sitename . ' ' . $general->email_from;
     $emailLog->email_to = $user->email;
     $emailLog->subject = $emailTemplate->subj;
     $emailLog->message = $message;
@@ -533,18 +536,18 @@ function sendEmail($user, $type = null, $shortCodes = [], $userType='user')
 
 
     if ($config->name == 'php') {
-        sendPhpMail($user->email, $user->username,$emailTemplate->subj, $message, $general);
+        sendPhpMail($user->email, $user->username, $emailTemplate->subj, $message, $general);
     } else if ($config->name == 'smtp') {
-        sendSmtpMail($config, $user->email, $user->username, $emailTemplate->subj, $message,$general);
+        sendSmtpMail($config, $user->email, $user->username, $emailTemplate->subj, $message, $general);
     } else if ($config->name == 'sendgrid') {
-        sendSendGridMail($config, $user->email, $user->username, $emailTemplate->subj, $message,$general);
+        sendSendGridMail($config, $user->email, $user->username, $emailTemplate->subj, $message, $general);
     } else if ($config->name == 'mailjet') {
-        sendMailjetMail($config, $user->email, $user->username, $emailTemplate->subj, $message,$general);
+        sendMailjetMail($config, $user->email, $user->username, $emailTemplate->subj, $message, $general);
     }
 }
 
 
-function sendPhpMail($receiver_email, $receiver_name, $subject, $message,$general)
+function sendPhpMail($receiver_email, $receiver_name, $subject, $message, $general)
 {
     $headers = "From: $general->sitename <$general->email_from> \r\n";
     $headers .= "Reply-To: $general->sitename <$general->email_from> \r\n";
@@ -554,23 +557,23 @@ function sendPhpMail($receiver_email, $receiver_name, $subject, $message,$genera
 }
 
 
-function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $message,$general)
+function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $message, $general)
 {
     $mail = new PHPMailer(true);
 
     try {
         //Server settings
         $mail->isSMTP();
-        $mail->Host       = $config->host;
-        $mail->SMTPAuth   = true;
-        $mail->Username   = $config->username;
-        $mail->Password   = $config->password;
+        $mail->Host = $config->host;
+        $mail->SMTPAuth = true;
+        $mail->Username = $config->username;
+        $mail->Password = $config->password;
         if ($config->enc == 'ssl') {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        }else{
+        } else {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
-        $mail->Port       = $config->port;
+        $mail->Port = $config->port;
         $mail->CharSet = 'UTF-8';
         //Recipients
         $mail->setFrom($general->email_from, $general->sitename);
@@ -579,7 +582,7 @@ function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $messa
         // Content
         $mail->isHTML(true);
         $mail->Subject = $subject;
-        $mail->Body    = $message;
+        $mail->Body = $message;
         $mail->send();
     } catch (Exception $e) {
         throw new Exception($e);
@@ -587,7 +590,7 @@ function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $messa
 }
 
 
-function sendSendGridMail($config, $receiver_email, $receiver_name, $subject, $message,$general)
+function sendSendGridMail($config, $receiver_email, $receiver_name, $subject, $message, $general)
 {
     $sendgridMail = new \SendGrid\Mail\Mail();
     $sendgridMail->setFrom($general->email_from, $general->sitename);
@@ -603,7 +606,7 @@ function sendSendGridMail($config, $receiver_email, $receiver_name, $subject, $m
 }
 
 
-function sendMailjetMail($config, $receiver_email, $receiver_name, $subject, $message,$general)
+function sendMailjetMail($config, $receiver_email, $receiver_name, $subject, $message, $general)
 {
     $mj = new \Mailjet\Client($config->public_key, $config->secret_key, true, ['version' => 'v3.1']);
     $body = [
@@ -634,7 +637,8 @@ function getPaginate($paginate = 20)
     return $paginate;
 }
 
-function paginateLinks($data, $design = 'admin.partials.paginate'){
+function paginateLinks($data, $design = 'admin.partials.paginate')
+{
     return $data->appends(request()->all())->links($design);
 }
 
@@ -667,11 +671,11 @@ function imagePath()
         'size' => '800x800',
     ];
     $data['verify'] = [
-        'withdraw'=>[
-            'path'=>'assets/images/verify/withdraw'
+        'withdraw' => [
+            'path' => 'assets/images/verify/withdraw'
         ],
-        'deposit'=>[
-            'path'=>'assets/images/verify/deposit'
+        'deposit' => [
+            'path' => 'assets/images/verify/deposit'
         ]
     ];
     $data['image'] = [
@@ -705,25 +709,25 @@ function imagePath()
         'size' => '600x315'
     ];
     $data['profile'] = [
-        'user'=> [
-            'path'=>'assets/images/user/profile',
-            'size'=>'350x300'
+        'user' => [
+            'path' => 'assets/images/user/profile',
+            'size' => '350x300'
         ],
-        'merchant'=> [
-            'path'=>'assets/images/merchant/profile',
-            'size'=>'350x300'
+        'merchant' => [
+            'path' => 'assets/images/merchant/profile',
+            'size' => '350x300'
         ],
-        'merchant_cover'=> [
-            'path'=>'assets/images/merchant/cover',
-            'size'=>'1300x520'
+        'merchant_cover' => [
+            'path' => 'assets/images/merchant/cover',
+            'size' => '1300x520'
         ],
-        'admin'=> [
-            'path'=>'assets/admin/images/profile',
-            'size'=>'400x400'
+        'admin' => [
+            'path' => 'assets/admin/images/profile',
+            'size' => '400x400'
         ],
-        'admin_cover'=> [
-            'path'=>'assets/admin/images/cover',
-            'size'=>'1300x520'
+        'admin_cover' => [
+            'path' => 'assets/admin/images/cover',
+            'size' => '1300x520'
         ]
     ];
     $data['product'] = [
@@ -774,40 +778,41 @@ function sendGeneralEmail($email, $subject, $message, $receiver_name = '')
     } else if ($config->name == 'smtp') {
         sendSmtpMail($config, $email, $receiver_name, $subject, $message, $general);
     } else if ($config->name == 'sendgrid') {
-        sendSendGridMail($config, $email, $receiver_name,$subject, $message,$general);
+        sendSendGridMail($config, $email, $receiver_name, $subject, $message, $general);
     } else if ($config->name == 'mailjet') {
-        sendMailjetMail($config, $email, $receiver_name,$subject, $message, $general);
+        sendMailjetMail($config, $email, $receiver_name, $subject, $message, $general);
     }
 }
 
-function getContent($data_keys, $singleQuery = false, $limit = null,$orderById = false)
+function getContent($data_keys, $singleQuery = false, $limit = null, $orderById = false)
 {
     if ($singleQuery) {
-        $content = Frontend::where('data_keys', $data_keys)->orderBy('id','desc')->first();
+        $content = Frontend::where('data_keys', $data_keys)->orderBy('id', 'desc')->first();
     } else {
         $article = Frontend::query();
         $article->when($limit != null, function ($q) use ($limit) {
             return $q->limit($limit);
         });
-        if($orderById){
+        if ($orderById) {
             $content = $article->where('data_keys', $data_keys)->orderBy('id')->get();
-        }else{
-            $content = $article->where('data_keys', $data_keys)->orderBy('id','desc')->get();
+        } else {
+            $content = $article->where('data_keys', $data_keys)->orderBy('id', 'desc')->get();
         }
     }
     return $content;
 }
 
 
-function gatewayRedirectUrl($type = false){
+function gatewayRedirectUrl($type = false)
+{
     if ($type) {
         return 'user.deposit.history';
-    }else{
+    } else {
         return 'user.deposit';
     }
 }
 
-function verifyG2fa($user,$code,$secret = null)
+function verifyG2fa($user, $code, $secret = null)
 {
     $ga = new GoogleAuthenticator();
     if (!$secret) {
@@ -825,47 +830,50 @@ function verifyG2fa($user,$code,$secret = null)
 }
 
 
-function urlPath($routeName,$routeParam=null){
-    if($routeParam == null){
+function urlPath($routeName, $routeParam = null)
+{
+    if ($routeParam == null) {
         $url = route($routeName);
     } else {
-        $url = route($routeName,$routeParam);
+        $url = route($routeName, $routeParam);
     }
     $basePath = route('home');
-    $path = str_replace($basePath,'',$url);
+    $path = str_replace($basePath, '', $url);
     return $path;
 }
 
-function displayAvgRating($rating=0){
+function displayAvgRating($rating = 0)
+{
     $ratingStar = '';
 
-    for ($i=0; $i<floor($rating); $i++) {
+    for ($i = 0; $i < floor($rating); $i++) {
         $ratingStar .= '<i class="las la-star"></i>';
     }
 
-    if (0 < $rating-floor($rating) && $rating-floor($rating) <= 0.25) {
+    if (0 < $rating - floor($rating) && $rating - floor($rating) <= 0.25) {
         $ratingStar .= '<i class="lar la-star"></i>';
-    } elseif(0.25 < $rating-floor($rating) && $rating-floor($rating) <= 0.75) {
-       $ratingStar .= '<i class="las la-star-half-alt"></i>';
-    } elseif(0.75 <= $rating-floor($rating) && $rating-floor($rating)< 1){
-       $ratingStar .= '<i class="las la-star"></i>';
+    } elseif (0.25 < $rating - floor($rating) && $rating - floor($rating) <= 0.75) {
+        $ratingStar .= '<i class="las la-star-half-alt"></i>';
+    } elseif (0.75 <= $rating - floor($rating) && $rating - floor($rating) < 1) {
+        $ratingStar .= '<i class="las la-star"></i>';
     }
 
-    for ($i=0; $i<5-ceil($rating); $i++) {
+    for ($i = 0; $i < 5 - ceil($rating); $i++) {
         $ratingStar .= '<i class="lar la-star"></i>';
     }
 
     return $ratingStar;
 }
 
-function showAd($size){
+function showAd($size)
+{
     $ad = Advertisement::where('size', $size)->where('status', 1)->inRandomOrder()->first();
 
-    if($ad){
+    if ($ad) {
         $ad->impression += 1;
         $ad->save();
-        if($ad->type == 'image'){
-            $html = '<a href="'.route('adRedirect', encrypt($ad->id)).'" target="_blank"><img src="'.getImage(imagePath()['advertisement']['path'].'/'.$ad->value, $size).'"></a>';
+        if ($ad->type == 'image') {
+            $html = '<a href="' . route('adRedirect', encrypt($ad->id)) . '" target="_blank"><img src="' . getImage(imagePath()['advertisement']['path'] . '/' . $ad->value, $size) . '"></a>';
             echo $html;
             return true;
         }
@@ -875,12 +883,42 @@ function showAd($size){
 }
 
 
-function getSeoContents($collection, $imageData, $imageColumnName){
-    $seoContents['keywords']            = $collection->meta_keywords??[];
-    $seoContents['description']         = htmlspecialchars_decode($collection->meta_description);
-    $seoContents['social_title']        = htmlspecialchars_decode($collection->meta_title);
-    $seoContents['social_description']  = htmlspecialchars_decode($collection->meta_description);
-    $seoContents['image']               = getImage($imageData['path'] .'/'.$collection->$imageColumnName, $imageData['size']);
-    $seoContents['image_size']          = $imageData['size'];
+function getSeoContents($collection, $imageData, $imageColumnName)
+{
+    $seoContents['keywords'] = $collection->meta_keywords ?? [];
+    $seoContents['description'] = htmlspecialchars_decode($collection->meta_description);
+    $seoContents['social_title'] = htmlspecialchars_decode($collection->meta_title);
+    $seoContents['social_description'] = htmlspecialchars_decode($collection->meta_description);
+    $seoContents['image'] = getImage($imageData['path'] . '/' . $collection->$imageColumnName, $imageData['size']);
+    $seoContents['image_size'] = $imageData['size'];
     return $seoContents;
+}
+
+
+function responseJson($code, $status, $message, $data = null, $model = null)
+{
+    return response()->json([
+        'code' => $code,
+        'status' => $status,
+        'message' => $message,
+        'data' => $data,
+        'paginate' => $model,
+    ]);
+}
+
+
+function responseWithPaginagtion($model)
+{
+    return [
+        'total' => $model->total(),
+        'per_page' => $model->perPage(),
+        'current_page' => $model->currentPage(),
+        'last_page' => $model->lastPage(),
+        'total_pages' => $model->lastPage(),
+        'from' => $model->firstItem(),
+        'to' => $model->lastItem(),
+        "next_page_url" => $model->nextPageUrl(),
+        "prev_page_url" => $model->previousPageUrl(),
+        "path" => $model->path(),
+    ];
 }

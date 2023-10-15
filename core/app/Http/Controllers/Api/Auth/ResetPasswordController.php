@@ -44,21 +44,12 @@ class ResetPasswordController extends Controller
 
         $validator = Validator::make($request->all(),$this->rules());
         if ($validator->fails()) {
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['error'=>$validator->errors()->all()],
-                'data'=>null
-            ]);
+            return responseJson(422, 'failed', $validator->errors()->all());
         }
         $reset = PasswordReset::where('token', $request->token)->orderBy('created_at', 'desc')->first();
         if (!$reset) {
-            $notify[] = 'Invalid verification code';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['error'=>$notify],
-            ]);
+            $notify = 'Invalid verification code';
+            return responseJson(422, 'failed', $notify);
         }
 
         $user = User::where('email', $reset->email)->first();
@@ -76,13 +67,9 @@ class ResetPasswordController extends Controller
             'time' => @$userIpInfo['time']
         ]);
 
+        $notify = 'Password changed';
 
-        $notify[] = 'Password changed';
-        return response()->json([
-            'code'=>200,
-            'status'=>'ok',
-            'message'=>['error'=>$notify]
-        ]);
+        return responseJson(200, 'success', $notify);
     }
 
 

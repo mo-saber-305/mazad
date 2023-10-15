@@ -5,61 +5,52 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\GeneralSetting;
 use App\Models\Language;
-use Illuminate\Http\Request;
 
 class BasicController extends Controller
 {
-    public function generalSetting(){
-    	$general = GeneralSetting::first();
-		$notify[] = 'General setting data';
-		return response()->json([
-			'code'=>200,
-			'status'=>'ok',
-	        'message'=>['success'=>$notify],
-	        'data'=>['general_setting'=>$general]
-	    ]);
+    public function generalSetting()
+    {
+        $general = GeneralSetting::first();
+        $notify = 'General setting data';
+        return responseJson(200, 'success', $notify, $general);
     }
 
-    public function unauthenticate(){
-    	$notify[] = 'Unauthenticated user';
-		return response()->json([
-			'code'=>403,
-			'status'=>'unauthorized',
-	        'message'=>['error'=>$notify]
-	    ]);
+    public function unauthenticate()
+    {
+        $notify = 'Unauthenticated user';
+
+        return responseJson(403, 'unauthorized', $notify);
     }
 
-    public function languages(){
-    	$languages = Language::get();
-    	return response()->json([
-			'code'=>200,
-			'status'=>'ok',
-	        'data'=>[
-	        	'languages'=>$languages,
-	        	'image_path'=>imagePath()['language']['path']
-	        ]
-	    ]);
+    public function languages()
+    {
+        $languages = Language::get();
+        $notify = 'Language Data';
+        $data = [
+            'languages' => $languages,
+            'image_path' => imagePath()['language']['path']
+        ];
+        return responseJson(200, 'success', $notify, $data);
     }
 
-    public function languageData($code){
-    	$language = Language::where('code',$code)->first();
-    	if (!$language) {
-    		$notify[] = 'Language not found';
-    		return response()->json([
-				'code'=>404,
-				'status'=>'error',
-		        'message'=>['error'=>$notify]
-		    ]);
-    	}
-    	$jsonFile = strtolower($language->code) . '.json';
-    	$fileData = resource_path('lang/').$jsonFile;
-    	$languageData = json_decode(file_get_contents($fileData));
-		return response()->json([
-			'code'=>200,
-			'status'=>'ok',
-	        'message'=>[
-	        	'language_data'=>$languageData
-	        ]
-	    ]);
+    public function languageData($code)
+    {
+        $language = Language::where('code', $code)->first();
+        if (!$language) {
+            $notify = 'Language not found';
+            return responseJson(404, 'error', $notify);
+        }
+        $jsonFile = strtolower($language->code) . '.json';
+        $fileData = resource_path('lang/') . $jsonFile;
+        $languageData = json_decode(file_get_contents($fileData));
+        $notify = 'Language Data';
+        return responseJson(200, 'success', $notify, $languageData);
+    }
+
+    public function countries()
+    {
+        $countries = json_decode(file_get_contents(resource_path('views/partials/country.json')));
+        $notify = 'Countries Data';
+        return responseJson(200, 'success', $notify, $countries);
     }
 }

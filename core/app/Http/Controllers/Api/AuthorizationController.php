@@ -14,6 +14,7 @@ class AuthorizationController extends Controller
     {
         return $this->activeTemplate = activeTemplate();
     }
+
     public function checkValidCode($user, $code, $add_min = 10000)
     {
         if (!$code) return false;
@@ -30,14 +31,10 @@ class AuthorizationController extends Controller
         if (!$user->status) {
 
             auth()->user()->tokens()->delete();
-            $notify[] = 'Your account has been deactivated';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify],
-            ]);
+            $notify = 'Your account has been deactivated';
+            return responseJson(200, 'success', $notify);
 
-        }elseif (!$user->ev) {
+        } elseif (!$user->ev) {
             if (!$this->checkValidCode($user, $user->ver_code)) {
                 $user->ver_code = verificationCode(6);
                 $user->ver_code_send_at = Carbon::now();
@@ -46,20 +43,16 @@ class AuthorizationController extends Controller
                     'code' => $user->ver_code
                 ]);
             }
-            $notify[] = 'Email verification';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify],
-                'data'=>[
-                    'verification_url'=>route('api.user.verify.email'),
-                    'verification_method'=>'POST',
-                    'resend_url'=>route('api.user.send.verify.code').'?type=email',
-                    'resend_method'=>'GET',
-                    'verification_type'=>'email'
-                ]
-            ]);
-        }elseif (!$user->sv) {
+            $notify = 'Email verification';
+            $data = [
+                'verification_url' => route('api.user.verify.email'),
+                'verification_method' => 'POST',
+                'resend_url' => route('api.user.send.verify.code') . '?type=email',
+                'resend_method' => 'GET',
+                'verification_type' => 'email'
+            ];
+            return responseJson(200, 'success', $notify, $data);
+        } elseif (!$user->sv) {
             if (!$this->checkValidCode($user, $user->ver_code)) {
                 $user->ver_code = verificationCode(6);
                 $user->ver_code_send_at = Carbon::now();
@@ -68,31 +61,24 @@ class AuthorizationController extends Controller
                     'code' => $user->ver_code
                 ]);
             }
-            $notify[] = 'SMS verification';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify],
-                'data'=>[
-                    'verification_url'=>route('api.user.verify.sms'),
-                    'verification_method'=>'POST',
-                    'resend_url'=>route('api.user.send.verify.code').'?type=phone',
-                    'resend_method'=>'GET',
-                    'verification_type'=>'sms'
-                ]
-            ]);
-        }elseif (!$user->tv) {
-            $notify[] = 'Google Authenticator';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify],
-                'data'=>[
-                    'verification_url'=>route('api.user.go2fa.verify'),
-                    'verification_method'=>'POST',
-                    'verification_type'=>'2fa'
-                ]
-            ]);
+            $notify = 'SMS verification';
+            $data = [
+                'verification_url' => route('api.user.verify.sms'),
+                'verification_method' => 'POST',
+                'resend_url' => route('api.user.send.verify.code') . '?type=phone',
+                'resend_method' => 'GET',
+                'verification_type' => 'sms'
+            ];
+            return responseJson(200, 'success', $notify, $data);
+        } elseif (!$user->tv) {
+            $notify = 'Google Authenticator';
+            $data = [
+                'verification_url' => route('api.user.go2fa.verify'),
+                'verification_method' => 'POST',
+                'verification_type' => '2fa'
+            ];
+
+            return responseJson(200, 'success', $notify, $data);
         }
 
     }
@@ -105,12 +91,8 @@ class AuthorizationController extends Controller
         if ($this->checkValidCode($user, $user->ver_code, 2)) {
             $target_time = $user->ver_code_send_at->addMinutes(2)->timestamp;
             $delay = $target_time - time();
-            $notify[] = 'Please Try after ' . $delay . ' Seconds';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify]
-            ]);
+            $notify = 'Please Try after ' . $delay . ' Seconds';
+            return responseJson(200, 'success', $notify);
         }
         if (!$this->checkValidCode($user, $user->ver_code)) {
             $user->ver_code = verificationCode(6);
@@ -123,50 +105,33 @@ class AuthorizationController extends Controller
         }
 
 
-
         if ($request->type === 'email') {
-            sendEmail($user, 'EVER_CODE',[
+            sendEmail($user, 'EVER_CODE', [
                 'code' => $user->ver_code
             ]);
 
-            $notify[] = 'Email verification code sent successfully';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify]
-            ]);
+            $notify = 'Email verification code sent successfully';
+            return responseJson(200, 'success', $notify);
         } elseif ($request->type === 'phone') {
             sendSms($user, 'SVER_CODE', [
                 'code' => $user->ver_code
             ]);
-            $notify[] = 'SMS verification code sent successfully';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify]
-            ]);
+            $notify = 'SMS verification code sent successfully';
+            return responseJson(200, 'success', $notify);
         } else {
-            $notify[] = 'Sending Failed';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify]
-            ]);
+            $notify = 'Sending Failed';
+            return responseJson(200, 'success', $notify);
         }
     }
 
     public function emailVerification(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'email_verified_code'=>'required'
+        $validator = Validator::make($request->all(), [
+            'email_verified_code' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['error'=>$validator->errors()->all()],
-            ]);
+            return responseJson(422, 'failed', $validator->errors()->all());
         }
 
 
@@ -178,38 +143,26 @@ class AuthorizationController extends Controller
             $user->ver_code = null;
             $user->ver_code_send_at = null;
             $user->save();
-            $notify[] = 'Email verified successfully';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify],
-            ]);
+            $notify = 'Email verified successfully';
+            return responseJson(200, 'success', $notify);
         }
-        $notify[] = 'Verification code didn\'t match!';
-        return response()->json([
-            'code'=>200,
-            'status'=>'ok',
-            'message'=>['success'=>$notify],
-        ]);
+        $notify = 'Verification code didn\'t match!';
+        return responseJson(200, 'success', $notify);
     }
 
     public function smsVerification(Request $request)
     {
 
-        $validator = Validator::make($request->all(),[
-            'sms_verified_code'=>'required'
+        $validator = Validator::make($request->all(), [
+            'sms_verified_code' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['error'=>$validator->errors()->all()],
-            ]);
+            return responseJson(422, 'failed', $validator->errors()->all());
         }
 
 
-        $sms_verified_code =  $request->sms_verified_code;
+        $sms_verified_code = $request->sms_verified_code;
 
         $user = Auth::user();
         if ($this->checkValidCode($user, $sms_verified_code)) {
@@ -217,47 +170,32 @@ class AuthorizationController extends Controller
             $user->ver_code = null;
             $user->ver_code_send_at = null;
             $user->save();
-            $notify[] = 'SMS verified successfully';
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['success'=>$notify],
-            ]);
+            $notify = 'SMS verified successfully';
+            return responseJson(200, 'success', $notify);
         }
-        $notify[] = 'Verification code didn\'t match!';
-        return response()->json([
-            'code'=>200,
-            'status'=>'ok',
-            'message'=>['success'=>$notify],
-        ]);
+        $notify = 'Verification code didn\'t match!';
+        return responseJson(200, 'success', $notify);
     }
+
     public function g2faVerification(Request $request)
     {
         $user = auth()->user();
-        $validator = Validator::make($request->all(),[
-            'code'=>'required'
+        $validator = Validator::make($request->all(), [
+            'code' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'code'=>200,
-                'status'=>'ok',
-                'message'=>['error'=>$validator->errors()->all()],
-            ]);
+            return responseJson(422, 'failed', $validator->errors()->all());
         }
 
 
         $code = $request->code;
-        $response = verifyG2fa($user,$code);
+        $response = verifyG2fa($user, $code);
         if ($response) {
-            $notify[] = 'Verification successful';
-        }else{
-            $notify[] = 'Wrong verification code';
+            $notify = 'Verification successful';
+        } else {
+            $notify = 'Wrong verification code';
         }
-        return response()->json([
-            'code'=>200,
-            'status'=>'ok',
-            'message'=>['error'=>$notify],
-        ]);
+        return responseJson(422, 'failed', $notify);
     }
 }

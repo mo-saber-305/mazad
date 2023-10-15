@@ -5,14 +5,20 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::namespace('Api')->name('api.')->group(function(){
-	Route::get('general-setting','BasicController@generalSetting');
-	Route::get('unauthenticate','BasicController@unauthenticate')->name('unauthenticate');
-	Route::get('languages','BasicController@languages');
-	Route::get('language-data/{code}','BasicController@languageData');
+	Route::get('general-setting','BasicController@generalSetting'); //ok
+	Route::get('unauthenticate','BasicController@unauthenticate')->name('unauthenticate'); //ok
+	Route::get('languages','BasicController@languages'); //ok
+	Route::get('language-data/{code}','BasicController@languageData'); //ok
+	Route::get('countries','BasicController@countries'); //ok
+
+	Route::get('categories','CategoryController@categories'); //ok
+	Route::get('products','ProductController@products')->name('products.index'); //ok
+	Route::get('products/{product}','ProductController@product'); //ok
+	Route::get('merchant/profile','UserController@merchantProfile'); //ok
 
 	Route::namespace('Auth')->group(function(){
-		Route::post('login', 'LoginController@login');
-		Route::post('register', 'RegisterController@register');
+		Route::post('login', 'LoginController@login'); //ok
+		Route::post('register', 'RegisterController@register'); //ok
 		
 	    Route::post('password/email', 'ForgotPasswordController@sendResetCodeEmail');
 	    Route::post('password/verify-code', 'ForgotPasswordController@verifyCode');

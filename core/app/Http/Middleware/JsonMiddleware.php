@@ -2,8 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\GeneralSetting;
 use Closure;
-class CheckStatusApi
+use Illuminate\Auth\Middleware\Authenticate as Middleware;
+
+class JsonMiddleware
 {
     /**
      * Handle an incoming request.
@@ -14,13 +17,8 @@ class CheckStatusApi
      */
     public function handle($request, Closure $next)
     {
-        $user = auth('api')->user();
+        $request->headers->set('Accept', 'application/json');
 
-        if ($user->status  && $user->ev  && $user->sv  && $user->tv) {
-            return $next($request);
-        } else {
-            return redirect()->route('api.user.authorization');
-        }
-        
+        return $next($request);
     }
 }
