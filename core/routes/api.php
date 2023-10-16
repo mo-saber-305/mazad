@@ -14,7 +14,10 @@ Route::namespace('Api')->name('api.')->group(function(){
 	Route::get('categories','CategoryController@categories'); //ok
 	Route::get('products','ProductController@products')->name('products.index'); //ok
 	Route::get('products/{product}','ProductController@product'); //ok
-	Route::get('merchant/profile','UserController@merchantProfile'); //ok
+	Route::get('merchants','UserController@merchants')->name('merchants.index'); //ok
+	Route::get('merchant/profile','UserController@merchantProfile')->name('merchant.profile'); //ok
+	Route::get('posts','PostController@posts')->name('posts.index'); //ok
+	Route::get('posts/{id}','PostController@post')->name('posts.show'); //ok
 
 	Route::namespace('Auth')->group(function(){
 		Route::post('login', 'LoginController@login'); //ok

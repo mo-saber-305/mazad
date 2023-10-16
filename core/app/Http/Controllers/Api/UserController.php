@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MerchantProfileResource;
+use App\Http\Resources\MerchantsResource;
 use App\Models\Admin;
 use App\Models\AdminNotification;
 use App\Models\Deposit;
@@ -62,6 +63,16 @@ class UserController extends Controller
         $user->fill($in)->save();
         $notify = 'Profile updated successfully';
         return responseJson(200, 'success', $notify);
+    }
+
+    public function merchants(Request $request)
+    {
+        $merchants = Merchant::where('status', 1)->paginate(PAGINATION_COUNT);
+
+        $general = MerchantsResource::collection($merchants);
+
+        $notify = 'Merchants data';
+        return responseJson(200, 'success', $notify, $general, responseWithPaginagtion($merchants));
     }
 
     public function merchantProfile(Request $request)
@@ -189,7 +200,6 @@ class UserController extends Controller
             $notify = 'Withdraw request not found';
             return responseJson(404, 'error', $notify);
         }
-
 
         $rules = [];
         $inputField = [];

@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
+const PAGINATION_COUNT = 9;
 
 function sidebarVariation()
 {

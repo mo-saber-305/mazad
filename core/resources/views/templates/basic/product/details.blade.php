@@ -28,7 +28,7 @@
                                             </li>
 
                                             <li>
-                                                <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={{urlencode(url()->current()) }}&amp;title={{ __($product->name) }}&amp;summary={{ shortDescription(__($product->summary)) }}"
+                                                <a href="http://www.linkedin.com/shareArticle?mini=true&url={{urlencode(url()->current()) }}&title={{ __($product->name) }}&summary={{ shortDescription(__($product->summary)) }}"
                                                    title="@lang('Linkedin')" target="blank"><i class="fab fa-linkedin"></i></a>
                                             </li>
 
@@ -45,8 +45,7 @@
                             <div class="product-content">
                                 <h5 class="title mt-0 mb-2">{{ __($product->name) }}</h5>
                                 <div class="ratings mb-4">
-                                    @php echo displayAvgRating($product->avg_rating); @endphp
-                                        ({{ $product->review_count }})
+                                    @php echo displayAvgRating($product->avg_rating) . $product->review_count; @endphp
                                 </div>
                                 <p class="mb-4 mt-0">
                                     {{ __(shortDescription($product->short_description)) }}

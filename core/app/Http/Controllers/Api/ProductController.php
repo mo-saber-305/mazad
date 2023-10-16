@@ -39,7 +39,7 @@ class ProductController extends Controller
             $products->where('price', '<=', $request->max_price);
         }
 
-        $products = $products->paginate(9);
+        $products = $products->paginate(PAGINATION_COUNT);
         $general = ProductsResource::collection($products);
         $notify = 'products data';
         return responseJson(200, 'success', $notify, $general, responseWithPaginagtion($products));

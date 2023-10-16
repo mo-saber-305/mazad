@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\GeneralSetting;
 use App\Models\Merchant;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductResource extends JsonResource
@@ -34,9 +35,15 @@ class ProductResource extends JsonResource
             'short_description' => $this->short_description,
             'long_description' => $this->long_description,
             'specification' => $this->specification,
-            'reviews' => $this->reviews,
+            'reviews' => $this->reviews(),
             'seller' => $this->sellerData(),
             'related_products' => $relatedProducts,
+            'share' => [
+                'facebook' => "https://www.facebook.com/sharer/sharer.php?u=" . route('product.details', [$this->id, slug($this->name)]),
+                'pinterest' => "https://pinterest.com/pin/create/button/?url=" . route('product.details', [$this->id, slug($this->name)]) . "&description=" . __($this->name) . "&media=" . getImage('assets/images/product/' . $this->main_image),
+                'linkedin' => "https://www.linkedin.com/shareArticle?mini=true&url=" . route('product.details', [$this->id, slug($this->name)]) . "&title=" . __($this->name) . "&summary=" . shortDescription(__($this->summary)),
+                'twitter' => "https://twitter.com/intent/tweet?text=" . __($this->name) . "%0A" . route('product.details', [$this->id, slug($this->name)]),
+            ],
         ];
     }
 
@@ -66,5 +73,34 @@ class ProductResource extends JsonResource
             'product_count' => $seller->products->where('status', 1)->count(),
             'total_sale' => $seller->products->sum('total_bid'),
         ];
+    }
+
+    public function reviews(): array
+    {
+        $reviews = $this->reviews;
+        $data = [];
+        foreach ($reviews as $review) {
+            $data['id'] = $review->id;
+            $data['rating'] = $review->rating;
+            $data['description'] = $review->description;
+            $data['posted_on'] = showDateTime($review->created_at);
+            $user_type = $this->merchant_id == 0 ? 'merchant' : 'user';
+
+            if ($user_type == 'merchant') {
+                $user = Merchant::find($this->merchant_id);
+                $image = getImage(imagePath()['profile']['merchant']['path'] . '/' . $review->user->image, null, true);
+            } else {
+                $user = User::find($this->user_id);
+                $image = getImage(imagePath()['profile']['user']['path'] . '/' . $review->user->image, null, true);
+
+            }
+
+            $data['user'] = [
+                'name' => $review->user->fullname,
+                'image' => $image,
+            ];
+        }
+
+        return $data;
     }
 }

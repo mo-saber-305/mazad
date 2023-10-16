@@ -15,17 +15,27 @@
             @foreach ($blogs as $blog)
                 <div class="col-lg-4 col-md-6 col-sm-10">
                     <div class="post-item">
-                        <div class="post-thumb"> <a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}"><img src="{{ getImage('assets/images/frontend/blog/thumb_'.$blog->data_values->blog_image, '425x285') }}" alt="blog"></a></div>
+                        <div class="post-thumb"><a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}">
+                                @if (property_exists($blog->data_values, 'blog_image') && $blog->data_values->blog_image)
+                                    <img src="{{ getImage('assets/images/frontend/blog/thumb_'.$blog->data_values->blog_image, '425x285') }}" alt="blog">
+                                @else
+                                    <img src="{{ getImage('placeholder-image/425x285', '425x285') }}" alt="blog">
+                                @endif
+                            </a>
+                        </div>
                         <div class="post-content">
                             <ul class="meta-post d-flex flex-wrap justify-content-between">
                                 <li>
-                                    <a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}"><i class="far fa-calendar"></i>{{ showDateTime($blog->created_at) }}</a>
+                                    <a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}"><i
+                                                class="far fa-calendar"></i>{{ showDateTime($blog->created_at) }}</a>
                                 </li>
                             </ul>
-                            <h5 class="title"><a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}">{{ __($blog->data_values->title) }}</a></h5>
+                            <h5 class="title"><a
+                                        href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}">{{ __($blog->data_values->title) }}</a>
+                            </h5>
                             <p> @php
-                                echo shortDescription(strip_tags($blog->data_values->description_nic));
-                            @endphp</p>
+                                    echo shortDescription(strip_tags($blog->data_values->description_nic));
+                                @endphp</p>
                             <a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}" class="read-more">@lang('Read More')</a>
                         </div>
                     </div>

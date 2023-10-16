@@ -6,7 +6,12 @@
             <div class="col-lg-8">
                 <div class="blog-details-wrapper">
                     <div class="blog-details-thumb">
-                        <img src="{{ getImage('assets/images/frontend/blog/'.$blog->data_values->blog_image, '850x570') }}" alt="blog">
+                        @if (property_exists($blog->data_values, 'blog_image') && $blog->data_values->blog_image)
+                            <img src="{{ getImage('assets/images/frontend/blog/'.$blog->data_values->blog_image, '850x570') }}" alt="blog">
+                        @else
+                            <img src="{{ getImage('placeholder-image/850x570', '850x570') }}" alt="blog">
+                        @endif
+
                     </div>
                     <div class="blog-details-content">
                         <div class="blog-details-header">
@@ -27,7 +32,12 @@
 							@foreach ($recentBlogs as $blog)
 								<div class="blog__item recent-blog">
 									<div class="blog__thumb">
-										<img src="{{ getImage('assets/images/frontend/blog/thumb_'.$blog->data_values->blog_image, '425x285') }}" alt="blog">
+                                        @if (property_exists($blog->data_values, 'blog_image') && $blog->data_values->blog_image)
+                                            <img src="{{ getImage('assets/images/frontend/blog/thumb_'.$blog->data_values->blog_image, '425x285') }}" alt="blog">
+                                        @else
+                                            <img src="{{ getImage('placeholder-image/425x285', '425x285') }}" alt="blog">
+                                        @endif
+
 									</div>
 									<div class="blog__content">
 										<h6 class="title"><a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}">{{ __($blog->data_values->title) }}</a></h6>
