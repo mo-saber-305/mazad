@@ -18,6 +18,7 @@ Route::namespace('Api')->name('api.')->group(function(){
 	Route::get('merchant/profile','UserController@merchantProfile')->name('merchant.profile'); //ok
 	Route::get('posts','PostController@posts')->name('posts.index'); //ok
 	Route::get('posts/{id}','PostController@post')->name('posts.show'); //ok
+	Route::get('home','HomeController@home')->name('home.index'); //ok
 
 	Route::namespace('Auth')->group(function(){
 		Route::post('login', 'LoginController@login'); //ok
@@ -30,41 +31,45 @@ Route::namespace('Api')->name('api.')->group(function(){
 	});
 
 
-	Route::middleware('auth.api:sanctum')->name('user.')->prefix('user')->group(function(){
-		Route::get('logout', 'Auth\LoginController@logout');
-		Route::get('authorization', 'AuthorizationController@authorization')->name('authorization');
-	    Route::get('resend-verify', 'AuthorizationController@sendVerifyCode')->name('send.verify.code');
-	    Route::post('verify-email', 'AuthorizationController@emailVerification')->name('verify.email');
-	    Route::post('verify-sms', 'AuthorizationController@smsVerification')->name('verify.sms');
-	    Route::post('verify-g2fa', 'AuthorizationController@g2faVerification')->name('go2fa.verify');
+	Route::middleware('auth:api')->group(function(){
+        Route::post('product/bid', 'ProductController@bid');
 
-	    Route::middleware(['checkStatusApi'])->group(function(){
-	    	Route::get('dashboard',function(){
-	    		return auth()->user();
-	    	});
+        Route::prefix('user')->name('user')->group(function(){
+            Route::get('logout', 'Auth\LoginController@logout');
+            Route::get('authorization', 'AuthorizationController@authorization')->name('authorization');
+            Route::get('resend-verify', 'AuthorizationController@sendVerifyCode')->name('send.verify.code');
+            Route::post('verify-email', 'AuthorizationController@emailVerification')->name('verify.email');
+            Route::post('verify-sms', 'AuthorizationController@smsVerification')->name('verify.sms');
+            Route::post('verify-g2fa', 'AuthorizationController@g2faVerification')->name('go2fa.verify');
 
-            Route::post('profile-setting', 'UserController@submitProfile');
-            Route::post('change-password', 'UserController@submitPassword');
+            Route::middleware(['checkStatusApi'])->group(function(){
+                Route::get('dashboard',function(){
+                    return auth()->user();
+                });
 
-            // Withdraw
-            Route::get('withdraw/methods', 'UserController@withdrawMethods');
-            Route::post('withdraw/store', 'UserController@withdrawStore');
-            Route::post('withdraw/confirm', 'UserController@withdrawConfirm');
-            Route::get('withdraw/history', 'UserController@withdrawLog');
+                Route::post('profile-setting', 'UserController@submitProfile');
+                Route::post('change-password', 'UserController@submitPassword');
+
+                // Withdraw
+                Route::get('withdraw/methods', 'UserController@withdrawMethods');
+                Route::post('withdraw/store', 'UserController@withdrawStore');
+                Route::post('withdraw/confirm', 'UserController@withdrawConfirm');
+                Route::get('withdraw/history', 'UserController@withdrawLog');
 
 
-            // Deposit
-            Route::get('deposit/methods', 'PaymentController@depositMethods');
-            Route::post('deposit/insert', 'PaymentController@depositInsert');
-            Route::get('deposit/confirm', 'PaymentController@depositConfirm');
+                // Deposit
+                Route::get('deposit/methods', 'PaymentController@depositMethods');
+                Route::post('deposit/insert', 'PaymentController@depositInsert');
+                Route::get('deposit/confirm', 'PaymentController@depositConfirm');
 
-            Route::get('deposit/manual', 'PaymentController@manualDepositConfirm');
-            Route::post('deposit/manual', 'PaymentController@manualDepositUpdate');
+                Route::get('deposit/manual', 'PaymentController@manualDepositConfirm');
+                Route::post('deposit/manual', 'PaymentController@manualDepositUpdate');
 
-            Route::get('deposit/history', 'UserController@depositHistory');
+                Route::get('deposit/history', 'UserController@depositHistory');
 
-            Route::get('transactions', 'UserController@transactions');
+                Route::get('transactions', 'UserController@transactions');
 
-	    });
+            });
+        });
 	});
 });

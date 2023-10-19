@@ -54,18 +54,22 @@ class LoginController extends Controller
         }
 
         $credentials = request([$this->username, 'password']);
-        if (!Auth::attempt($credentials)) {
+        $token = auth('api')->attempt($credentials);
+        if (!$token) {
             $response = 'Unauthorized user';
             return responseJson(401, 'unauthorized', $response);
         }
 
-        $user = $request->user();
-        $tokenResult = $user->createToken('auth_token')->plainTextToken;
+//        $user = $request->user();
+        $user = auth('api')->user();
+
+//        $tokenResult = $user->createToken('personal-token')->plainTextToken;
         $this->authenticated($request, $user);
-        $response[] = 'Login Succesfull';
+        $response[] = 'Login Successfully';
         $data = [
-            'user' => auth()->user(),
-            'access_token' => $tokenResult,
+            'user' => auth('api')->user(),
+//            'access_token' => $tokenResult,
+            'access_token' => $token,
             'token_type' => 'Bearer'
         ];
         return responseJson(200, 'success', $response, $data);
@@ -108,13 +112,13 @@ class LoginController extends Controller
     public function authenticated(Request $request, $user)
     {
         if ($user->status == 0) {
-            auth()->user()->tokens()->delete();
+            auth('api')->user()->tokens()->delete();
             $notify = 'Your account has been deactivated';
             return responseJson(200, 'success', $notify);
         }
 
 
-        $user = auth()->user();
+        $user = auth('api')->user();
         $user->tv = $user->ts == 1 ? 0 : 1;
         $user->save();
         $ip = $_SERVER["REMOTE_ADDR"];

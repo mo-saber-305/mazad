@@ -83,15 +83,15 @@
 
         function getStatus($arr)
         {
-            $url = 'https://license.viserlab.com/api';
-            $arr['product'] = 'viserbid';
+            $url = 'https://license.mazzadak.com/api';
+            $arr['product'] = 'mazzadak';
             $call = $url . "?" . http_build_query($arr);
             return curlContent($call);
         }
 
         function sendAcknoledgement($val)
         {
-            $call = 'https://license.viserlab.com/done/' . $val->installcode;
+            $call = 'https://license.mazzadak.com/done/' . $val->installcode;
             return curlContent($call);
         }
 
@@ -541,7 +541,7 @@
 </div>
 <footer class="section-bg py-3 text-center">
     <div class="container">
-        <p class="m-0 font-weight-bold">&copy;<?php echo Date('Y') ?> - All Right Reserved by <a href="https://viserlab.com/">ViserLab</a></p>
+        <p class="m-0 font-weight-bold">&copy;<?php echo Date('Y') ?> - All Right Reserved by <a href="https://mazzadak.com/">ViserLab</a></p>
     </div>
 </footer>
 <style>

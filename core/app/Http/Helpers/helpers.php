@@ -28,7 +28,7 @@ function sidebarVariation()
 
 function systemDetails()
 {
-    $system['name'] = 'viserbid';
+    $system['name'] = 'mazzadak';
     $system['version'] = '1.0'; //3.1.51
     return $system;
 }
@@ -37,7 +37,7 @@ function getLatestVersion()
 {
     $param['purchasecode'] = env("PURCHASECODE");
     $param['website'] = @$_SERVER['HTTP_HOST'] . @$_SERVER['REQUEST_URI'] . ' - ' . env("APP_URL");
-    $url = 'https://license.viserlab.com/updates/version/' . systemDetails()['name'];
+    $url = 'https://license.mazzadak.com/updates/version/' . systemDetails()['name'];
     $result = curlPostContent($url, $param);
     if ($result) {
         return $result;
@@ -429,7 +429,7 @@ function getTemplates()
 {
     $param['purchasecode'] = env("PURCHASECODE");
     $param['website'] = @$_SERVER['HTTP_HOST'] . @$_SERVER['REQUEST_URI'] . ' - ' . env("APP_URL");
-    $url = 'https://license.viserlab.com/updates/templates/' . systemDetails()['name'];
+    $url = 'https://license.mazzadak.com/updates/templates/' . systemDetails()['name'];
     $result = curlPostContent($url, $param);
     if ($result) {
         return $result;

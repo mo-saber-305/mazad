@@ -52,6 +52,8 @@
       <excludeFolder url="file://$MODULE_DIR$/core/vendor/sebastian/comparator" />
       <excludeFolder url="file://$MODULE_DIR$/core/vendor/sebastian/complexity" />
       <excludeFolder url="file://$MODULE_DIR$/core/vendor/symfony/event-dispatcher-contracts" />
+      <excludeFolder url="file://$MODULE_DIR$/core/vendor/namshi/jose" />
+      <excludeFolder url="file://$MODULE_DIR$/core/vendor/tymon/jwt-auth" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

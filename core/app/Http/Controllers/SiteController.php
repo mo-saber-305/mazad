@@ -27,24 +27,24 @@ class SiteController extends Controller
     public function index()
     {
         $pageTitle = 'Home';
-        $sections = Page::where('tempname',$this->activeTemplate)->where('slug','home')->first();
-        return view($this->activeTemplate . 'home', compact('pageTitle','sections'));
+        $sections = Page::where('tempname', $this->activeTemplate)->where('slug', 'home')->first();
+        return view($this->activeTemplate . 'home', compact('pageTitle', 'sections'));
     }
 
     public function pages($slug)
     {
-        $page = Page::where('tempname',$this->activeTemplate)->where('slug',$slug)->firstOrFail();
+        $page = Page::where('tempname', $this->activeTemplate)->where('slug', $slug)->firstOrFail();
         $pageTitle = $page->name;
         $sections = $page->secs;
-        return view($this->activeTemplate . 'pages', compact('pageTitle','sections'));
+        return view($this->activeTemplate . 'pages', compact('pageTitle', 'sections'));
     }
 
     public function contact()
     {
         $pageTitle = "Contact Us";
-        $page = Page::where('tempname',$this->activeTemplate)->where('slug','contact')->first();
+        $page = Page::where('tempname', $this->activeTemplate)->where('slug', 'contact')->first();
         $sections = $page->secs;
-        return view($this->activeTemplate . 'contact',compact('pageTitle', 'sections'));
+        return view($this->activeTemplate . 'contact', compact('pageTitle', 'sections'));
     }
 
 
@@ -76,7 +76,7 @@ class SiteController extends Controller
         $adminNotification = new AdminNotification();
         $adminNotification->user_id = auth()->user() ? auth()->user()->id : 0;
         $adminNotification->title = 'A new support ticket has opened ';
-        $adminNotification->click_url = urlPath('admin.user.ticket.view',$ticket->id);
+        $adminNotification->click_url = urlPath('admin.user.ticket.view', $ticket->id);
         $adminNotification->save();
 
         $message = new SupportMessage();
@@ -99,53 +99,53 @@ class SiteController extends Controller
 
     public function blogs()
     {
-        $pageTitle      = 'Blog Posts';
-        $emptyMessage   = 'No blog post found';
-        $blogs          = Frontend::where('data_keys', 'blog.element')->latest()->paginate(getPaginate());
-        $page           = Page::where('tempname',$this->activeTemplate)->where('slug','blog')->first();
-        $sections       = $page->secs;
+        $pageTitle = 'Blog Posts';
+        $emptyMessage = 'No blog post found';
+        $blogs = Frontend::where('data_keys', 'blog.element')->latest()->paginate(getPaginate());
+        $page = Page::where('tempname', $this->activeTemplate)->where('slug', 'blog')->first();
+        $sections = $page->secs;
 
-        return view($this->activeTemplate.'blogs', compact('pageTitle', 'emptyMessage', 'blogs', 'sections'));
+        return view($this->activeTemplate . 'blogs', compact('pageTitle', 'emptyMessage', 'blogs', 'sections'));
     }
 
-    public function blogDetails($id,$slug)
+    public function blogDetails($id, $slug)
     {
         $pageTitle = 'Blog Details';
-        $blog = Frontend::where('id',$id)->where('data_keys','blog.element')->firstOrFail();
+        $blog = Frontend::where('id', $id)->where('data_keys', 'blog.element')->firstOrFail();
         $recentBlogs = Frontend::where('data_keys', 'blog.element')->where('id', '!=', $blog->id)->latest()->limit(10)->get();
 
-        return view($this->activeTemplate.'blog_details',compact('blog','pageTitle', 'recentBlogs'));
+        return view($this->activeTemplate . 'blog_details', compact('blog', 'pageTitle', 'recentBlogs'));
     }
 
     public function cookieAccept()
     {
-        session()->put('cookie_accepted',true);
+        session()->put('cookie_accepted', true);
         return back();
     }
 
     public function placeholderImage($size = null)
     {
-        $imgWidth = explode('x',$size)[0];
-        $imgHeight = explode('x',$size)[1];
+        $imgWidth = explode('x', $size)[0];
+        $imgHeight = explode('x', $size)[1];
         $text = $imgWidth . '×' . $imgHeight;
         $fontFile = realpath('assets/font') . DIRECTORY_SEPARATOR . 'RobotoMono-Regular.ttf';
         $fontSize = round(($imgWidth - 50) / 8);
         if ($fontSize <= 9) {
             $fontSize = 9;
         }
-        if($imgHeight < 100 && $fontSize > 30){
+        if ($imgHeight < 100 && $fontSize > 30) {
             $fontSize = 30;
         }
 
-        $image     = imagecreatetruecolor($imgWidth, $imgHeight);
+        $image = imagecreatetruecolor($imgWidth, $imgHeight);
         $colorFill = imagecolorallocate($image, 100, 100, 100);
-        $bgFill    = imagecolorallocate($image, 175, 175, 175);
+        $bgFill = imagecolorallocate($image, 175, 175, 175);
         imagefill($image, 0, 0, $bgFill);
         $textBox = imagettfbbox($fontSize, 0, $fontFile, $text);
-        $textWidth  = abs($textBox[4] - $textBox[0]);
+        $textWidth = abs($textBox[4] - $textBox[0]);
         $textHeight = abs($textBox[5] - $textBox[1]);
-        $textX      = ($imgWidth - $textWidth) / 2;
-        $textY      = ($imgHeight + $textHeight) / 2;
+        $textX = ($imgWidth - $textWidth) / 2;
+        $textY = ($imgHeight + $textHeight) / 2;
         header('Content-Type: image/jpeg');
         imagettftext($image, $fontSize, 0, $textX, $textY, $colorFill, $fontFile, $text);
         imagejpeg($image);
@@ -166,7 +166,7 @@ class SiteController extends Controller
         $emptyMessage = 'No merchant found';
         $merchants = Merchant::where('status', 1)->paginate(getPaginate());
 
-        return view($this->activeTemplate.'merchants', compact('pageTitle', 'emptyMessage', 'merchants'));
+        return view($this->activeTemplate . 'merchants', compact('pageTitle', 'emptyMessage', 'merchants'));
     }
 
     public function adminProfile($id, $name)
@@ -176,7 +176,7 @@ class SiteController extends Controller
         $products = Product::live()->where('admin_id', $id)->paginate(getPaginate());
         $admin = true;
 
-        return view($this->activeTemplate.'merchant_profile', compact('pageTitle', 'merchant', 'products', 'admin'));
+        return view($this->activeTemplate . 'merchant_profile', compact('pageTitle', 'merchant', 'products', 'admin'));
     }
 
     public function merchantProfile($id, $name)
@@ -186,52 +186,56 @@ class SiteController extends Controller
         $products = Product::live()->where('merchant_id', $id)->paginate(getPaginate());
         $admin = false;
 
-        return view($this->activeTemplate.'merchant_profile', compact('pageTitle', 'merchant', 'products', 'admin'));
+        return view($this->activeTemplate . 'merchant_profile', compact('pageTitle', 'merchant', 'products', 'admin'));
     }
 
     public function aboutUs()
     {
         $pageTitle = 'About Us';
-        $page = Page::where('tempname',$this->activeTemplate)->where('slug','about-us')->first();
+        $page = Page::where('tempname', $this->activeTemplate)->where('slug', 'about-us')->first();
         $sections = $page->secs;
-        return view($this->activeTemplate.'about_us', compact('pageTitle', 'sections'));
+        return view($this->activeTemplate . 'about_us', compact('pageTitle', 'sections'));
     }
 
-    function adRedirect($hash){
+    function adRedirect($hash)
+    {
         $id = decrypt($hash);
         $ad = Advertisement::findOrFail($id);
         $ad->click += 1;
         $ad->save();
-        if($ad->type == 'image'){
+        if ($ad->type == 'image') {
             return redirect($ad->redirect_url);
-        }else{
+        } else {
             return back();
         }
     }
 
-    public function categories(){
+    public function categories()
+    {
         $pageTitle = 'All Categories';
         $emptyMessage = 'No category found';
         $categories = Category::where('status', 1)->paginate(getPaginate());
 
-        return view($this->activeTemplate.'product.categories', compact('pageTitle', 'emptyMessage', 'categories'));
+        return view($this->activeTemplate . 'product.categories', compact('pageTitle', 'emptyMessage', 'categories'));
 
     }
 
-    public function liveProduct(){
+    public function liveProduct()
+    {
         $pageTitle = 'Live Products';
         $emptyMessage = 'No live product found';
         $products = Product::live()->latest()->paginate(getPaginate());
 
-        return view($this->activeTemplate.'product.live_products', compact('pageTitle', 'emptyMessage', 'products'));
+        return view($this->activeTemplate . 'product.live_products', compact('pageTitle', 'emptyMessage', 'products'));
     }
 
-    public function upcomingProduct(){
+    public function upcomingProduct()
+    {
         $pageTitle = 'Upcoming Products';
         $emptyMessage = 'No upcoming product found';
         $products = Product::upcoming()->latest()->paginate(getPaginate());
 
-        return view($this->activeTemplate.'product.upcoming_products', compact('pageTitle', 'emptyMessage', 'products'));
+        return view($this->activeTemplate . 'product.upcoming_products', compact('pageTitle', 'emptyMessage', 'products'));
     }
 
 }

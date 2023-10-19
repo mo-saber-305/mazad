@@ -1,0 +1,12 @@
+POST https://mzad.openai-systems.com/api/product/bid
+Content-Type: application/json
+Authorization: Bearer "0|U5quv2s55jIsXLljgHryPURINmFR4j2VeGjA7GH3"
+
+{
+}
+
+
+###
+
+
+###

@@ -56,7 +56,7 @@ class AdminController extends Controller
             ->orderBy('created_at')
             ->groupBy('months')->get();
 
-            $depositsMonth->map(function ($depositData) use ($report) {
+        $depositsMonth->map(function ($depositData) use ($report) {
             $report['months']->push($depositData->months);
             $report['deposit_month_amount']->push(showAmount($depositData->depositAmount));
         });
@@ -65,8 +65,8 @@ class AdminController extends Controller
             ->selectRaw("DATE_FORMAT(created_at,'%M-%Y') as months")
             ->orderBy('created_at')
             ->groupBy('months')->get();
-        $withdrawalMonth->map(function ($withdrawData) use ($report){
-            if (!in_array($withdrawData->months,$report['months']->toArray())) {
+        $withdrawalMonth->map(function ($withdrawData) use ($report) {
+            if (!in_array($withdrawData->months, $report['months']->toArray())) {
                 $report['months']->push($withdrawData->months);
             }
             $report['withdraw_month_amount']->push(showAmount($withdrawData->withdrawAmount));
@@ -74,16 +74,16 @@ class AdminController extends Controller
 
         $months = $report['months'];
 
-        for($i = 0; $i < $months->count(); ++$i) {
-            $monthVal      = Carbon::parse($months[$i]);
-            if(isset($months[$i+1])){
-                $monthValNext = Carbon::parse($months[$i+1]);
-                if($monthValNext < $monthVal){
+        for ($i = 0; $i < $months->count(); ++$i) {
+            $monthVal = Carbon::parse($months[$i]);
+            if (isset($months[$i + 1])) {
+                $monthValNext = Carbon::parse($months[$i + 1]);
+                if ($monthValNext < $monthVal) {
                     $temp = $months[$i];
-                    $months[$i]   = Carbon::parse($months[$i+1])->format('F-Y');
-                    $months[$i+1] = Carbon::parse($temp)->format('F-Y');
-                }else{
-                    $months[$i]   = Carbon::parse($months[$i])->format('F-Y');
+                    $months[$i] = Carbon::parse($months[$i + 1])->format('F-Y');
+                    $months[$i + 1] = Carbon::parse($temp)->format('F-Y');
+                } else {
+                    $months[$i] = Carbon::parse($months[$i])->format('F-Y');
                 }
             }
         }
@@ -129,14 +129,14 @@ class AdminController extends Controller
         })->sort()->reverse()->take(5);
 
 
-        $payment['total_deposit_amount'] = Deposit::where('status',1)->sum('amount');
-        $payment['total_deposit_charge'] = Deposit::where('status',1)->sum('charge');
-        $payment['total_deposit_pending'] = Deposit::where('status',2)->count();
+        $payment['total_deposit_amount'] = Deposit::where('status', 1)->sum('amount');
+        $payment['total_deposit_charge'] = Deposit::where('status', 1)->sum('charge');
+        $payment['total_deposit_pending'] = Deposit::where('status', 2)->count();
 
-        $paymentWithdraw['total_withdraw_amount'] = Withdrawal::where('status',1)->sum('amount');
-        $paymentWithdraw['total_withdraw_charge'] = Withdrawal::where('status',1)->sum('charge');
-        $paymentWithdraw['total_withdraw_pending'] = Withdrawal::where('status',2)->count();
-        return view('admin.dashboard', compact('pageTitle', 'widget', 'report', 'withdrawals', 'chart','payment','paymentWithdraw','depositsMonth','withdrawalMonth','months','deposits'));
+        $paymentWithdraw['total_withdraw_amount'] = Withdrawal::where('status', 1)->sum('amount');
+        $paymentWithdraw['total_withdraw_charge'] = Withdrawal::where('status', 1)->sum('charge');
+        $paymentWithdraw['total_withdraw_pending'] = Withdrawal::where('status', 2)->count();
+        return view('admin.dashboard', compact('pageTitle', 'widget', 'report', 'withdrawals', 'chart', 'payment', 'paymentWithdraw', 'depositsMonth', 'withdrawalMonth', 'months', 'deposits'));
     }
 
 
@@ -152,7 +152,7 @@ class AdminController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email',
-            'image' => ['nullable','image',new FileTypeValidate(['jpg','jpeg','png'])]
+            'image' => ['nullable', 'image', new FileTypeValidate(['jpg', 'jpeg', 'png'])]
         ]);
         $user = Auth::guard('admin')->user();
 
@@ -199,14 +199,16 @@ class AdminController extends Controller
         return redirect()->route('admin.password')->withNotify($notify);
     }
 
-    public function notifications(){
-        $notifications = AdminNotification::orderBy('id','desc')->with('user')->paginate(getPaginate());
+    public function notifications()
+    {
+        $notifications = AdminNotification::orderBy('id', 'desc')->with('user')->paginate(getPaginate());
         $pageTitle = 'Notifications';
-        return view('admin.notifications',compact('pageTitle','notifications'));
+        return view('admin.notifications', compact('pageTitle', 'notifications'));
     }
 
 
-    public function notificationRead($id){
+    public function notificationRead($id)
+    {
         $notification = AdminNotification::findOrFail($id);
         $notification->read_status = 1;
         $notification->save();
@@ -219,50 +221,52 @@ class AdminController extends Controller
         $arr['app_name'] = systemDetails()['name'];
         $arr['app_url'] = env('APP_URL');
         $arr['purchase_code'] = env('PURCHASE_CODE');
-        $url = "https://license.viserlab.com/issue/get?".http_build_query($arr);
+        $url = "https://license.mazzadak.com/issue/get?" . http_build_query($arr);
         $response = json_decode(curlContent($url));
         if ($response->status == 'error') {
             return redirect()->route('admin.dashboard')->withErrors($response->message);
         }
         $reports = $response->message[0];
-        return view('admin.reports',compact('reports','pageTitle'));
+        return view('admin.reports', compact('reports', 'pageTitle'));
     }
 
     public function reportSubmit(Request $request)
     {
         $request->validate([
-            'type'=>'required|in:bug,feature',
-            'message'=>'required',
+            'type' => 'required|in:bug,feature',
+            'message' => 'required',
         ]);
-        $url = 'https://license.viserlab.com/issue/add';
+        $url = 'https://license.mazzadak.com/issue/add';
 
         $arr['app_name'] = systemDetails()['name'];
         $arr['app_url'] = env('APP_URL');
         $arr['purchase_code'] = env('PURCHASE_CODE');
         $arr['req_type'] = $request->type;
         $arr['message'] = $request->message;
-        $response = json_decode(curlPostContent($url,$arr));
+        $response = json_decode(curlPostContent($url, $arr));
         if ($response->status == 'error') {
             return back()->withErrors($response->message);
         }
-        $notify[] = ['success',$response->message];
+        $notify[] = ['success', $response->message];
         return back()->withNotify($notify);
     }
 
-    public function systemInfo(){
+    public function systemInfo()
+    {
         $laravelVersion = app()->version();
         $serverDetails = $_SERVER;
         $currentPHP = phpversion();
         $timeZone = config('app.timezone');
         $pageTitle = 'System Information';
-        return view('admin.info',compact('pageTitle', 'currentPHP', 'laravelVersion', 'serverDetails','timeZone'));
+        return view('admin.info', compact('pageTitle', 'currentPHP', 'laravelVersion', 'serverDetails', 'timeZone'));
     }
 
-    public function readAll(){
-        AdminNotification::where('read_status',0)->update([
-            'read_status'=>1
+    public function readAll()
+    {
+        AdminNotification::where('read_status', 0)->update([
+            'read_status' => 1
         ]);
-        $notify[] = ['success','Notifications read successfully'];
+        $notify[] = ['success', 'Notifications read successfully'];
         return back()->withNotify($notify);
     }
 

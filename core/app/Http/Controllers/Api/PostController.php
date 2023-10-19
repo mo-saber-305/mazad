@@ -7,16 +7,25 @@ use App\Http\Resources\PostResource;
 use App\Http\Resources\PostsResource;
 use App\Models\Frontend;
 use App\Models\Post;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function posts()
+    public function posts(Request $request)
     {
-        $posts = Frontend::where('data_keys', 'blog.element')->latest()->paginate(PAGINATION_COUNT);
+        $posts = Frontend::where('data_keys', 'blog.element')->latest();
+
+        if ($request->has('limit')) {
+            $posts = $posts->limit($request->limit)->get();
+            $pagination = null;
+        } else {
+            $posts = $posts->paginate(PAGINATION_COUNT);
+            $pagination = responseWithPaginagtion($posts);
+        }
 
         $general = PostsResource::collection($posts);
         $notify = 'posts data';
-        return responseJson(200, 'success', $notify, $general, responseWithPaginagtion($posts));
+        return responseJson(200, 'success', $notify, $general, $pagination);
     }
 
     public function post($id)
