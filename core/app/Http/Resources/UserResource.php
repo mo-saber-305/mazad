@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductResource extends JsonResource
+class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -22,29 +22,24 @@ class ProductResource extends JsonResource
         $relatedProducts = Product::live()->where('category_id', $this->category_id)->where('id', '!=', $this->id)->limit(10)->get();
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'price' => $this->price,
-            'category_id' => $this->category_id,
-            'total_bid' => $this->total_bid,
-            'started_at' => showDateTime($this->started_at, 'Y_m_d h:i A'),
-            'expired_at' => showDateTime($this->expired_at, 'Y_m_d h:i A'),
-            'avg_rating' => $this->avg_rating,
-            'total_rating' => $this->total_rating,
-            'review_count' => $this->review_count,
-            'image' => getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']),
-            'short_description' => $this->short_description,
-            'long_description' => $this->long_description,
-            'specification' => $this->specification,
-            'user_bid' => $this->bids->where('user_id', auth('api')->id())->count(),
-            'reviews' => $this->reviews(),
-            'seller' => $this->sellerData(),
-            'related_products' => $relatedProducts,
-            'share' => [
-                'facebook' => "https://www.facebook.com/sharer/sharer.php?u=" . route('product.details', [$this->id, slug($this->name)]),
-                'pinterest' => "https://pinterest.com/pin/create/button/?url=" . route('product.details', [$this->id, slug($this->name)]) . "&description=" . __($this->name) . "&media=" . getImage('assets/images/product/' . $this->main_image),
-                'linkedin' => "https://www.linkedin.com/shareArticle?mini=true&url=" . route('product.details', [$this->id, slug($this->name)]) . "&title=" . __($this->name) . "&summary=" . shortDescription(__($this->summary)),
-                'twitter' => "https://twitter.com/intent/tweet?text=" . __($this->name) . "%0A" . route('product.details', [$this->id, slug($this->name)]),
-            ],
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'username' => $this->username,
+            'country_code' => $this->country_code,
+            'mobile' => $this->mobile,
+            'balance' => $this->balance,
+            'image' => getImage(imagePath()['profile']['user']['path'] . '/' . $this->image, null, true),
+            'address' => $this->address,
+            'status' => $this->status,
+            'ev' => $this->ev,
+            'sv' => $this->sv,
+            'ver_code' => $this->ver_code,
+            'ver_code_send_at' => $this->ver_code_send_at,
+            'ts' => $this->ts,
+            'tv' => $this->tv,
+            'tsc' => $this->tsc,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 

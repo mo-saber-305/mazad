@@ -20,22 +20,23 @@ class UserController extends Controller
     public function __construct()
     {
         $this->activeTemplate = activeTemplate();
+        $this->middleware('auth:web');
     }
 
     public function home()
     {
         $pageTitle = 'Dashboard';
-        $widget['balance']              = Auth::user()->balance;
-        $widget['total_deposit']        = Deposit::where('user_id', auth()->id())->where('status', 1)->sum('amount');
-        $widget['total_bid']            = Bid::where('user_id', auth()->id())->count();
-        $widget['total_bid_amount']     = Bid::where('user_id', auth()->id())->sum('amount');
-        $widget['total_wining_product'] = Winner::where('user_id', auth()->id())->count();
-        $widget['total_transactions']   = Transaction::where('user_id', auth()->id())->count();
-        $widget['total_tickets']        = SupportTicket::where('user_id', auth()->id())->count();
+        $widget['balance']              = Auth::guard('web')->user()->balance;
+        $widget['total_deposit']        = Deposit::where('user_id', auth('web')->id())->where('status', 1)->sum('amount');
+        $widget['total_bid']            = Bid::where('user_id', auth('web')->id())->count();
+        $widget['total_bid_amount']     = Bid::where('user_id', auth('web')->id())->sum('amount');
+        $widget['total_wining_product'] = Winner::where('user_id', auth('web')->id())->count();
+        $widget['total_transactions']   = Transaction::where('user_id', auth('web')->id())->count();
+        $widget['total_tickets']        = SupportTicket::where('user_id', auth('web')->id())->count();
         $widget['waiting_for_result']   = $widget['total_bid'] - Winner::with('product.bids')->whereHas('product.bids', function($bid){
-            $bid->where('user_id', auth()->id());
+            $bid->where('user_id', auth('web')->id());
         })->count();
-        $transactions                   = Transaction::where('user_id', auth()->id())->latest()->limit(8)->get();
+        $transactions                   = Transaction::where('user_id', auth('web')->id())->latest()->limit(8)->get();
 
         return view($this->activeTemplate . 'user.dashboard', compact('pageTitle', 'widget', 'transactions'));
     }
@@ -43,7 +44,7 @@ class UserController extends Controller
     public function biddingHistory(){
         $pageTitle = 'My Bidding History';
         $emptyMessage = 'No bidding history found';
-        $biddingHistories = Bid::where('user_id', auth()->id())->with('user', 'product')->latest()->paginate(getPaginate());
+        $biddingHistories = Bid::where('user_id', auth('web')->id())->with('user', 'product')->latest()->paginate(getPaginate());
 
         return view($this->activeTemplate.'user.bidding_history', compact('pageTitle', 'emptyMessage', 'biddingHistories'));
     }
@@ -51,7 +52,7 @@ class UserController extends Controller
     public function winningHistory(){
         $pageTitle = 'My Winning History';
         $emptyMessage = 'No winning history found';
-        $winningHistories = Winner::where('user_id', auth()->id())->with('user','product', 'bid')->latest()->paginate(getPaginate());
+        $winningHistories = Winner::where('user_id', auth('web')->id())->with('user','product', 'bid')->latest()->paginate(getPaginate());
 
         return view($this->activeTemplate.'user.winning_history', compact('pageTitle', 'emptyMessage', 'winningHistories'));
     }
@@ -59,7 +60,7 @@ class UserController extends Controller
     public function transactions(){
         $pageTitle = 'All Transaction';
         $emptyMessage = 'No transaction history found';
-        $transactions = Transaction::where('user_id', auth()->id())->latest()->paginate(getPaginate());
+        $transactions = Transaction::where('user_id', auth('web')->id())->latest()->paginate(getPaginate());
 
         return view($this->activeTemplate.'user.transactions', compact('pageTitle', 'emptyMessage', 'transactions'));
     }
@@ -67,7 +68,7 @@ class UserController extends Controller
     public function profile()
     {
         $pageTitle = "Profile Setting";
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
         return view($this->activeTemplate. 'user.profile_setting', compact('pageTitle','user'));
     }
 
@@ -86,7 +87,7 @@ class UserController extends Controller
             'lastname.required'=>'Last name field is required'
         ]);
 
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
 
         $in['firstname'] = $request->firstname;
         $in['lastname'] = $request->lastname;
@@ -133,7 +134,7 @@ class UserController extends Controller
 
 
         try {
-            $user = auth()->user();
+            $user = auth('web')->user();
             if (Hash::check($request->current_password, $user->password)) {
                 $password = Hash::make($request->password);
                 $user->password = $password;
@@ -157,7 +158,7 @@ class UserController extends Controller
     {
         $pageTitle = 'Deposit History';
         $emptyMessage = 'No deposit history found.';
-        $logs = auth()->user()->deposits()->with(['gateway'])->orderBy('id','desc')->paginate(getPaginate());
+        $logs = auth('web')->user()->deposits()->with(['gateway'])->orderBy('id','desc')->paginate(getPaginate());
         return view($this->activeTemplate.'user.deposit_history', compact('pageTitle', 'emptyMessage', 'logs'));
     }
 
@@ -165,7 +166,7 @@ class UserController extends Controller
     {
         $general = GeneralSetting::first();
         $ga = new GoogleAuthenticator();
-        $user = auth()->user();
+        $user = auth('web')->user();
         $secret = $ga->createSecret();
         $qrCodeUrl = $ga->getQRCodeGoogleUrl($user->username . '@' . $general->sitename, $secret);
         $pageTitle = 'Two Factor';
@@ -174,7 +175,7 @@ class UserController extends Controller
 
     public function create2fa(Request $request)
     {
-        $user = auth()->user();
+        $user = auth('web')->user();
         $this->validate($request, [
             'key' => 'required',
             'code' => 'required',
@@ -207,7 +208,7 @@ class UserController extends Controller
             'code' => 'required',
         ]);
 
-        $user = auth()->user();
+        $user = auth('web')->user();
         $response = verifyG2fa($user,$request->code);
         if ($response) {
             $user->tsc = null;

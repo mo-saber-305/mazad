@@ -16,25 +16,27 @@
         </div>
         <div class="clients__slider owl-theme owl-carousel">
             @foreach ($testimonials as $testimonial)
-                <div class="client__item">
-                    <div class="client__thumb">
-                        <img src="{{ getImage('assets/images/frontend/testimonial/'.$testimonial->data_values->user_image, '120x120') }}" alt="winner">
-                    </div>
-                    <div class="client__content bg--body">
-                        <div class="client__content-header">
-                            <div>
-                                <h6 class="client__title">{{ __($testimonial->data_values->name) }}</h6>
-                                <span class="info text--base">{{ __($testimonial->data_values->designation) }}</span>
-                            </div>
-                            <div class="rating">
-                                @for($i=0; $i<$testimonial->data_values->star; $i++)
-                                    <span><i class="las la-star"></i></span>
-                                @endfor
-                            </div>
+                <div class="client__item-parent">
+                    <div class="client__item bg--body">
+                        <div class="client__thumb">
+                            <img src="{{ getImage('assets/images/frontend/testimonial/'.$testimonial->data_values->user_image, '120x120') }}" alt="winner">
                         </div>
-                        <p class="quote">
-                            {{ __($testimonial->data_values->description) }}
-                        </p>
+                        <div class="client__content">
+                            <div class="client__content-header">
+                                <div>
+                                    <h6 class="client__title">{{ __($testimonial->data_values->name) }}</h6>
+                                    <span class="info text--base">{{ __($testimonial->data_values->designation) }}</span>
+                                </div>
+                                <div class="rating">
+                                    @for($i=0; $i<$testimonial->data_values->star; $i++)
+                                        <span><i class="las la-star"></i></span>
+                                    @endfor
+                                </div>
+                            </div>
+                            <p class="quote">
+                                {{ __($testimonial->data_values->description) }}
+                            </p>
+                        </div>
                     </div>
                 </div>
             @endforeach

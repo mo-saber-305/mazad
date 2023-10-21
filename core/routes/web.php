@@ -494,7 +494,7 @@ Route::name('user.')->group(function () {
 });
 
 Route::name('user.')->prefix('user')->group(function () {
-    Route::middleware('auth')->group(function () {
+    Route::middleware('auth:web')->group(function () {
         Route::get('authorization', 'AuthorizationController@authorizeForm')->name('authorization');
         Route::get('resend-verify', 'AuthorizationController@sendVerifyCode')->name('send.verify.code');
         Route::post('verify-email', 'AuthorizationController@emailVerification')->name('verify.email');

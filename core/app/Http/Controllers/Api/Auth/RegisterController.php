@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -92,9 +93,9 @@ class RegisterController extends Controller
         }
 
         $user = $this->create($request->all());
-
-        $response['access_token'] = $user->createToken('auth_token')->plainTextToken;
+//        $response['access_token'] = $user->createToken('auth_token')->plainTextToken;
         $response['user'] = $user;
+        $response['access_token'] = Auth::guard('api')->login($user);
         $response['token_type'] = 'Bearer';
         $notify = 'Registration successfully';
         return responseJson(202, 'created', $notify, $response);

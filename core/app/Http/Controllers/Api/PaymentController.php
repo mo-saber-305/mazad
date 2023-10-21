@@ -39,7 +39,7 @@ class PaymentController extends Controller
             return responseJson(422, 'failed', $validator->errors()->all());
         }
 
-        $user = auth()->user();
+        $user = auth('api')->user();
         $gate = GatewayCurrency::whereHas('method', function ($gate) {
             $gate->where('status', 1);
         })->where('method_code', $request->method_code)->where('currency', $request->currency)->first();

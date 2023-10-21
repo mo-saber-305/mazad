@@ -8,7 +8,9 @@ use App\Http\Resources\ProductsResource;
 use App\Models\AdminNotification;
 use App\Models\Bid;
 use App\Models\GeneralSetting;
+use App\Models\Merchant;
 use App\Models\Product;
+use App\Models\Review;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -119,7 +121,7 @@ class ProductController extends Controller
 
         if ($product->admin) {
             $adminNotification = new AdminNotification();
-            $adminNotification->user_id = auth()->user()->id;
+            $adminNotification->user_id = auth('api')->user()->id;
             $adminNotification->title = 'A user has been bidden on your product';
             $adminNotification->click_url = urlPath('admin.product.bids', $product->id);
             $adminNotification->save();
@@ -150,6 +152,79 @@ class ProductController extends Controller
         ], 'merchant');
 
         $notify = 'Bidden successfully';
+        return responseJson(200, 'success', $notify);
+    }
+
+    public function saveProductReview(Request $request)
+    {
+
+        $request->validate([
+            'rating' => 'required|integer|between:1,5',
+            'product_id' => 'required|integer'
+        ]);
+
+        Bid::where('user_id', auth()->id())->where('product_id', $request->product_id)->firstOrFail();
+
+
+        $review = Review::where('user_id', auth()->id())->where('product_id', $request->product_id)->first();
+        $product = Product::find($request->product_id);
+
+        if (!$review) {
+            $review = new Review();
+            $product->total_rating += $request->rating;
+            $product->review_count += 1;
+            $notify = 'Review given successfully';
+        } else {
+            $product->total_rating = $product->total_rating - $review->rating + $request->rating;
+            $notify = 'Review updated successfully';
+        }
+
+        $product->avg_rating = $product->total_rating / $product->review_count;
+        $product->save();
+
+        $review->rating = $request->rating;
+        $review->description = $request->description;
+        $review->user_id = auth()->id();
+        $review->product_id = $request->product_id;
+        $review->save();
+
+        return responseJson(200, 'success', $notify);
+
+    }
+
+    public function saveMerchantReview(Request $request)
+    {
+        $request->validate([
+            'rating' => 'required|integer|between:1,5',
+            'merchant_id' => 'required|integer'
+        ]);
+
+        $merchant = Merchant::with('bids')->whereHas('bids', function ($bid) {
+            $bid->where('user_id', auth('api')->id());
+        })
+            ->findOrFail($request->merchant_id);
+
+        $review = Review::where('user_id', auth('api')->id())->where('merchant_id', $request->merchant_id)->first();
+
+        if (!$review) {
+            $review = new Review();
+            $merchant->total_rating += $request->rating;
+            $merchant->review_count += 1;
+            $notify = 'Review given successfully';
+        } else {
+            $merchant->total_rating = $merchant->total_rating - $review->rating + $request->rating;
+            $notify = 'Review updated successfully';
+        }
+
+        $merchant->avg_rating = $merchant->total_rating / $merchant->review_count;
+        $merchant->save();
+
+        $review->rating = $request->rating;
+        $review->description = $request->description;
+        $review->user_id = auth('api')->id();
+        $review->merchant_id = $request->merchant_id;
+        $review->save();
+
         return responseJson(200, 'success', $notify);
 
     }

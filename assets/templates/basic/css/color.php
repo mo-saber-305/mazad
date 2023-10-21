@@ -37,6 +37,7 @@ color: <?php echo $color; ?> !important;
 
 .cmn--btn, .btn--base, .badge--base, .bg--base, .scrollToTop, .footer-wrapper .footer-widget .title::after, .about-seller::after, .filter-widget .sub-title::after, .form--check .form-check-input:checked, .pagination .page-item.active span, .pagination .page-item.active a, .pagination .page-item:hover span, .pagination .page-item:hover a, .ticket__wrapper-title::after, .video__btn, .video__btn::before, .video__btn::after, .about--list li::before, .faq__item.open .faq__title .right--icon::before, .account__section-wrapper .account__section-content .section__header .section__title::after, .filter-btn, .filter-widget .ui-slider-range,.cmn--btn.active:hover, .read-more:hover::before, .dashboard__item .dashboard__icon{
 background-color: <?php echo $color; ?> !important;
+border: 2px solid <?php echo $color; ?>;
 }
 
 .nav--tabs li a.active, .sidebar-countdown li, .form--check .form-check-input:checked, .side__menu li a.active, .side__menu li a:hover, .cmn--btn.active, .account__section-content .form-control:focus {
@@ -141,6 +142,10 @@ color: <?php echo $color; ?>;
 background: <?php echo $color; ?> !important;
 }
 
+.feature__item.bg--section:hover .feature__item-icon {
+box-shadow: 0px 0px 50px <?php echo $color; ?>;
+}
+
 div[class*="col"]:nth-of-type(4n + 1) .feature__item-icon {
 background: <?php echo $color; ?> !important;
 border-color: <?php echo $color; ?> !important;
@@ -152,4 +157,58 @@ color: <?php echo $color; ?>;
 
 .product__single-item .meta-post .meta-item .social-share li {
 background-color: <?php echo $color; ?>;
+}
+
+
+.btn__grp .cmn--btn.active {
+background-color: <?php echo $secondColor; ?> !important;
+border-color: <?php echo $secondColor; ?> !important;
+}
+
+.btn__grp .cmn--btn:hover,
+.auction-section .cmn--btn:hover ,
+.categories-section .cmn--btn:hover ,
+.btn__grp .cmn--btn.active:hover {
+background-color: <?php echo $color; ?> !important;
+border-color: <?php echo $color; ?> !important;
+}
+
+.auction__item-thumb .total-bids {
+background-color: <?php echo $color; ?>;
+}
+
+.clients-section .client__item-parent,
+.counter-section .counter-item,
+.categories__wrapper .category__item,
+.auction-section .slide-item .auction__item,
+.quick-banner-section .quick-banner-item a ,
+.post-item {
+border: 3px solid <?php echo $color; ?>;
+}
+
+.clients-section .client__item-parent:after,
+.clients-section .client__item-parent:before,
+.counter-section .counter-item:after,
+.categories__wrapper .category__item:after,
+.categories__wrapper .category__item:before,
+.auction-section .slide-item .auction__item:after,
+.auction-section .slide-item .auction__item:before,
+.quick-banner-section .quick-banner-item a:after ,
+.quick-banner-section .quick-banner-item a:before ,
+.post-item:after,
+.post-item:before {
+background-color: <?php echo $color; ?> !important;
+}
+
+.quick-banner-item .quick-banner-content .cmn--btn {
+background: <?php echo $color; ?> !important;
+}
+
+.auction-section .slide-item .auction__item .auction__item-content .auction__item-countdown ,
+.auction-section .slide-item .auction__item .auction__item-content .auction__item-title {
+border-bottom: 2px dashed <?php echo $color; ?>;
+}
+
+.auction__item-countdown .inner__grp .total-price {
+color: <?php echo $color; ?>;
 }

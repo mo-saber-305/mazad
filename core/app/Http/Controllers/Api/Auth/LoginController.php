@@ -103,7 +103,8 @@ class LoginController extends Controller
 
     public function logout()
     {
-        auth()->user()->tokens()->delete();
+//        auth('api')->user()->tokens()->delete();
+        auth('api')->logout();
 
         $notify = 'Logout Successfully';
         return responseJson(200, 'success', $notify);

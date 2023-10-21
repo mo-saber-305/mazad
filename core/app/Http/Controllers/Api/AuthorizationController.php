@@ -27,10 +27,10 @@ class AuthorizationController extends Controller
 
     public function authorization()
     {
-        $user = auth()->user();
+        $user = auth('api')->user();
         if (!$user->status) {
 
-            auth()->user()->tokens()->delete();
+            auth('api')->user()->tokens()->delete();
             $notify = 'Your account has been deactivated';
             return responseJson(200, 'success', $notify);
 
@@ -179,7 +179,7 @@ class AuthorizationController extends Controller
 
     public function g2faVerification(Request $request)
     {
-        $user = auth()->user();
+        $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'code' => 'required'
         ]);

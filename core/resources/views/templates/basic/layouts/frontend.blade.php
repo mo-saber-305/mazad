@@ -20,7 +20,8 @@
     <link rel="stylesheet" href="{{ asset($activeTemplateTrue.'css/main.css') }}">
     <link rel="stylesheet" href="{{ asset($activeTemplateTrue.'css/bootstrap-fileinput.css') }}">
     <link rel="stylesheet" href="{{ asset($activeTemplateTrue.'css/custom.css') }}">
-    <link rel="stylesheet" href="{{ asset($activeTemplateTrue.'css/color.php')}}?color={{ $general->base_color }}">
+    <link rel="stylesheet" href="{{ asset($activeTemplateTrue.'css/color.php')}}?color={{ $general->base_color }}&secondColor={{ $general->second_color }}">
+    <link rel="stylesheet" href="{{ asset($activeTemplateTrue.'css/new_style.css')}}">
 
 
     <link rel="icon" type="image/png" href="{{ getImage(imagePath()['logoIcon']['path'] .'/favicon.png') }}" sizes="16x16">

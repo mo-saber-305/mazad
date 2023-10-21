@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MerchantProfileResource;
 use App\Http\Resources\MerchantsResource;
+use App\Http\Resources\UserResource;
 use App\Models\Admin;
 use App\Models\AdminNotification;
 use App\Models\Deposit;
@@ -40,7 +41,7 @@ class UserController extends Controller
             return responseJson(422, 'failed', $validator->errors()->all());
         }
 
-        $user = auth()->user();
+        $user = auth('api')->user();
 
         $in['firstname'] = $request->firstname;
         $in['lastname'] = $request->lastname;
@@ -115,7 +116,7 @@ class UserController extends Controller
             return responseJson(422, 'failed', $validator->errors()->all());
         }
 
-        $user = auth()->user();
+        $user = auth('api')->user();
         if (Hash::check($request->current_password, $user->password)) {
             $password = Hash::make($request->password);
             $user->password = $password;
@@ -155,7 +156,7 @@ class UserController extends Controller
             $notify = 'Method not found.';
             return responseJson(404, 'error', $notify);
         }
-        $user = auth()->user();
+        $user = auth('api')->user();
         if ($request->amount < $method->min_limit) {
             $notify = 'Your requested amount is smaller than minimum amount.';
             return responseJson(422, 'failed', $notify);
@@ -227,7 +228,7 @@ class UserController extends Controller
             return responseJson(422, 'failed', $validator->errors()->all());
         }
 
-        $user = auth()->user();
+        $user = auth('api')->user();
         if ($user->ts) {
             $response = verifyG2fa($user, $request->authenticator_code);
             if (!$response) {
@@ -322,7 +323,7 @@ class UserController extends Controller
 
     public function withdrawLog()
     {
-        $withdrawals = Withdrawal::where('user_id', auth()->user()->id)->where('status', '!=', 0)->with('method')->orderBy('id', 'desc')->paginate(getPaginate());
+        $withdrawals = Withdrawal::where('user_id', auth('api')->user()->id)->where('status', '!=', 0)->with('method')->orderBy('id', 'desc')->paginate(getPaginate());
         $notify = 'Withdraw Log';
         $data = [
             'withdrawals' => $withdrawals,
@@ -333,7 +334,7 @@ class UserController extends Controller
 
     public function depositHistory()
     {
-        $deposits = Deposit::where('user_id', auth()->user()->id)->where('status', '!=', 0)->with('gateway')->orderBy('id', 'desc')->paginate(getPaginate());
+        $deposits = Deposit::where('user_id', auth('api')->user()->id)->where('status', '!=', 0)->with('gateway')->orderBy('id', 'desc')->paginate(getPaginate());
         $notify = 'Deposit History';
         $data = [
             'deposit' => $deposits,
@@ -344,9 +345,17 @@ class UserController extends Controller
 
     public function transactions()
     {
-        $user = auth()->user();
-        $transactions = $user->transactions()->paginate(getPaginate());
+        $user = auth('api')->user();
+        $transactions = $user->transactions()->paginate(PAGINATION_COUNT);
         $notify = 'transactions';
         return responseJson(200, 'success', $notify, $transactions);
+    }
+
+    public function dashboard()
+    {
+        $user = auth('api')->user();
+        $data = new UserResource($user);
+        $notify = 'user data';
+        return responseJson(200, 'success', $notify, $user);
     }
 }

@@ -22,8 +22,8 @@ class ProductsResource extends JsonResource
             'name' => $this->name,
             'price' => $this->price,
             'total_bid' => $this->total_bid,
-            'started_at' => showDateTime($this->started_at, 'd-m-Y h:i A'),
-            'expired_at' => showDateTime($this->expired_at, 'd-m-Y h:i A'),
+            'started_at' => showDateTime($this->started_at, 'Y_m_d h:i A'),
+            'expired_at' => showDateTime($this->expired_at, 'Y_m_d h:i A'),
             'image' => getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']),
         ];
     }
