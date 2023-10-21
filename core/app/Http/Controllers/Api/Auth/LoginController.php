@@ -113,7 +113,8 @@ class LoginController extends Controller
     public function authenticated(Request $request, $user)
     {
         if ($user->status == 0) {
-            auth('api')->user()->tokens()->delete();
+//            auth('api')->user()->tokens()->delete();
+            auth('api')->logout();
             $notify = 'Your account has been deactivated';
             return responseJson(200, 'success', $notify);
         }
