@@ -73,6 +73,13 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
     });
 
     Route::middleware('admin')->group(function () {
+        Route::prefix('export')->name('export.')->group(function () {
+            Route::get('products', 'ProductController@export')->name('products');
+            Route::get('winners', 'ProductController@exportWinners')->name('winners');
+            Route::get('users', 'ManageUsersController@export')->name('users');
+            Route::get('merchants', 'ManageMerchantsController@export')->name('merchants');
+        });
+
         Route::get('dashboard', 'AdminController@dashboard')->name('dashboard');
         Route::get('profile', 'AdminController@profile')->name('profile');
         Route::post('profile', 'AdminController@profileUpdate')->name('profile.update');

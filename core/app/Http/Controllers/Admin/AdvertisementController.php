@@ -21,10 +21,16 @@ class AdvertisementController extends Controller
     public function store(Request $request)
     {
         $validation = [
-            'type'               => 'required',
-            'size'               => 'required',
-            'image'              => ['nullable', 'image', new FileTypeValidate(['jpeg', 'jpg', 'png', 'gif'])],
+            'type' => 'required',
+            'size' => 'required'
         ];
+
+        if ($request->has('type') && $request->type == 'video') {
+            $validation['video'] = ['nullable', 'max:20000', new FileTypeValidate(['mp4', 'mov', 'ogg', 'qt', 'flv', '3gp', 'avi', 'wmv'])];
+        } else {
+            $validation['image'] = ['nullable', 'image', new FileTypeValidate(['jpeg', 'jpg', 'png', 'gif'])];
+        }
+
 
         //==========validation for request image ===============
         $conditionalValidation = $this->advertisementValidation($request);
@@ -39,6 +45,8 @@ class AdvertisementController extends Controller
         //========upload image if request has ================
         if ($request->hasFile('image')) {
             $value = uploadFile($request->file('image'), imagePath()['advertisement']['path']);
+        } elseif ($request->hasFile('video')) {
+            $value = uploadFile($request->file('video'), imagePath()['advertisement']['path']);
         } else {
             $value = $request->script;
         }
@@ -56,12 +64,23 @@ class AdvertisementController extends Controller
 
     public function update(Request $request, $id)
     {
+//        $validation = [
+//            'type' => 'required',
+//            'size' => 'required',
+//            'image' => ['nullable', 'image', new FileTypeValidate(['jpeg', 'jpg', 'png', 'gif'])],
+//        ];
         $validation = [
-            'type'               => 'required',
-            'size'               => 'required',
-            'image'              => ['nullable', 'image', new FileTypeValidate(['jpeg', 'jpg', 'png', 'gif'])],
+            'type' => 'required',
+            'size' => 'required'
         ];
 
+        if ($request->has('type') && $request->type == 'video' && $request->file('video')) {
+            $validation['video'] = ['required', 'max:20000', new FileTypeValidate(['mp4', 'mov', 'ogg', 'qt', 'flv', '3gp', 'avi', 'wmv'])];
+        }
+
+        if ($request->has('type') && $request->type == 'image') {
+            $validation['image'] = ['nullable', 'image', new FileTypeValidate(['jpeg', 'jpg', 'png', 'gif'])];
+        }
 
         $advertisement = Advertisement::findOrFail($id);
         $value = $advertisement->value;
@@ -69,7 +88,7 @@ class AdvertisementController extends Controller
         $conditionalValidation = [];
 
         //=======validation request data, if file upload,type change or change image size ===================
-        if ($request->type == "image"  && $request->hasFile('image') || $request->size != $advertisement->image_size || $advertisement->type = 'script' && $request->type == 'image'){
+        if (($request->type == "image" && $request->hasFile('image')) ||  ($request->size != $advertisement->image_size) || ($advertisement->type == 'script' && $request->type == 'image') ) {
             $conditionalValidation = $this->advertisementValidation($request, 'nullable');
         }
 
@@ -86,6 +105,18 @@ class AdvertisementController extends Controller
             $oldImage = $advertisement->value;
             removeFile(imagePath()['advertisement']['path'] . '/' . $oldImage);
         }
+
+        if ($request->hasFile('video')) {
+
+            /////=================upload new video==================
+            $value = uploadFile($request->file('video'), imagePath()['advertisement']['path']);
+
+
+            ///===================Remove Old Image===============
+            $oldVideo = $advertisement->value;
+            removeFile(imagePath()['advertisement']['path'] . '/' . $oldVideo);
+        }
+
         if ($request->type == "script") {
             $value = $request->script;
         }
@@ -99,10 +130,16 @@ class AdvertisementController extends Controller
         return redirect()->route('admin.advertisement.index')->withNotify($notify);
     }
 
-    public function delete(Request $request){
+    public function delete(Request $request)
+    {
         $advertisement = Advertisement::findOrFail($request->advertisement_id);
+
+        if ($advertisement->type == 'image' || $advertisement->type == 'video') {
+            $oldImage = $advertisement->value;
+            removeFile(imagePath()['advertisement']['path'] . '/' . $oldImage);
+        }
         $advertisement->delete();
-        
+
         $notify[] = ['success', 'Advertisement Deleted Successfully'];
         return back()->withNotify($notify);
     }
@@ -113,12 +150,14 @@ class AdvertisementController extends Controller
         if ($request->type == "image") {
             $size = explode('x', $request->size);
             $validation = [
-                'size'               => 'required',
-                'image'              => [$imgValidation, 'image', 'dimensions:width=' . $size[0] . ',height=' . $size[1]],
+                'size' => 'required',
+                'image' => [$imgValidation, 'image', 'dimensions:width=' . $size[0] . ',height=' . $size[1]],
             ];
+        } elseif ($request->type == "video") {
+            $validation = [];
         } else {
             $validation = [
-                'script'              => 'required',
+                'script' => 'required',
             ];
         }
 

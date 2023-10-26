@@ -150,6 +150,11 @@
       <path value="$PROJECT_DIR$/core/vendor/symfony/event-dispatcher-contracts" />
       <path value="$PROJECT_DIR$/core/vendor/namshi/jose" />
       <path value="$PROJECT_DIR$/core/vendor/tymon/jwt-auth" />
+      <path value="$PROJECT_DIR$/core/vendor/maennchen/zipstream-php" />
+      <path value="$PROJECT_DIR$/core/vendor/phpoffice/phpspreadsheet" />
+      <path value="$PROJECT_DIR$/core/vendor/markbaker/complex" />
+      <path value="$PROJECT_DIR$/core/vendor/markbaker/matrix" />
+      <path value="$PROJECT_DIR$/core/vendor/maatwebsite/excel" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.3" />

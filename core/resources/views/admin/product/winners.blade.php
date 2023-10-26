@@ -145,6 +145,23 @@
 </div>
 @endsection
 
+@push('breadcrumb-plugins')
+
+    <div class="d-flex flex-wrap justify-content-sm-end header-search-wrapper">
+        <div class="dropdown">
+            <button class="btn btn--primary box--shadow1 btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                @lang('Export')
+            </button>
+            <div class="dropdown-menu text-center">
+                <a class="dropdown-item"
+                   href="{{ route('admin.export.winners', ['file_type' => 'excel']) }}">@lang('Excel')</a>
+                <a class="dropdown-item"
+                   href="{{ route('admin.export.winners', ['file_type' => 'csv']) }}">@lang('Csv')</a>
+            </div>
+        </div>
+    </div>
+
+@endpush
 
 @push('script')
     <script>

@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\Product;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Excel;
+
+class ProductsExport implements FromCollection, WithHeadings
+{
+    use Exportable;
+    
+    public $model_type;
+    
+    public function __construct($model_type) {
+        $this->model_type = $model_type;
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function collection()
+    {
+        $products = Product::query();
+        $model =$this->model_type;
+        if ($this->model_type != 'all') {
+            $products = Product::$model();
+        }
+
+        $products = $products->latest()->get();
+
+        return $products->map(function ($product) {
+            return [
+                'name' => $product->name,
+                'price' => $product->price,
+                'category' => $product->category->name,
+                'total_bid' => $product->total_bid,
+                'started_at' => showDateTime($product->started_at, 'Y m d h:i A'),
+                'expired_at' => showDateTime($product->expired_at, 'Y m d h:i A'),
+                'avg_rating' => $product->avg_rating,
+                'total_rating' => $product->total_rating ?? 0,
+                'review_count' => $product->review_count ?? 0,
+                'image' => getImage(imagePath()['product']['path'] . '/' . $product->image, imagePath()['product']['size']),
+                'short_description' => $product->short_description,
+                'long_description' => strip_tags($product->long_description),
+                'created_at' => showDateTime($product->created_at, 'Y m d h:i A'),
+            ];
+        });
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Name',
+            'Price',
+            'Category',
+            'Total Bid',
+            'Started At',
+            'Expired At',
+            'Avg Rating',
+            'Total Rating',
+            'Review Count',
+            'Image',
+            'Short Description',
+            'Long Description',
+            'Created At',
+        ];
+    }
+}

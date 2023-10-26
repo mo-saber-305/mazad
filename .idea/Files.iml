@@ -54,6 +54,11 @@
       <excludeFolder url="file://$MODULE_DIR$/core/vendor/symfony/event-dispatcher-contracts" />
       <excludeFolder url="file://$MODULE_DIR$/core/vendor/namshi/jose" />
       <excludeFolder url="file://$MODULE_DIR$/core/vendor/tymon/jwt-auth" />
+      <excludeFolder url="file://$MODULE_DIR$/core/vendor/maennchen/zipstream-php" />
+      <excludeFolder url="file://$MODULE_DIR$/core/vendor/phpoffice/phpspreadsheet" />
+      <excludeFolder url="file://$MODULE_DIR$/core/vendor/markbaker/complex" />
+      <excludeFolder url="file://$MODULE_DIR$/core/vendor/markbaker/matrix" />
+      <excludeFolder url="file://$MODULE_DIR$/core/vendor/maatwebsite/excel" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

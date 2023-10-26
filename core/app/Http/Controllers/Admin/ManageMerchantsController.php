@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\MerchantsExport;
 use App\Http\Controllers\Controller;
 use App\Models\EmailLog;
 use App\Models\GeneralSetting;
@@ -12,6 +13,7 @@ use App\Models\Withdrawal;
 use App\Models\WithdrawMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Excel;
 
 class ManageMerchantsController extends Controller
 {
@@ -359,5 +361,19 @@ class ManageMerchantsController extends Controller
         $email = EmailLog::findOrFail($id);
         $pageTitle = 'Email details';
         return view('admin.merchants.email_details', compact('pageTitle','email'));
+    }
+
+
+    public function export(Request $request)
+    {
+        $model_type = $request->model_type;
+        $file_type = $request->file_type;
+        if ($file_type == 'excel') {
+            $data = (new MerchantsExport($model_type))->download($model_type . ".xlsx");
+        } else {
+            $data = (new MerchantsExport($model_type))->download("$model_type.csv", Excel::CSV, ['Content-Type' => 'text/csv']);
+        }
+
+        return $data;
     }
 }

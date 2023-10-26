@@ -74,7 +74,7 @@ class HomeController extends Controller
         $data['blogs']['heading'] = $blog->data_values->heading;
         $data['blogs']['subheading'] = $blog->data_values->subheading;
         $blogs = getContent('blog.element', false, 3);
-        $data['blogs']['lists'][] = PostsResource::collection($blogs);
+        $data['blogs']['lists'] = PostsResource::collection($blogs);
 
         $faq = getContent('faq.content', true);
         $data['faqs']['heading'] = $faq->data_values->heading;

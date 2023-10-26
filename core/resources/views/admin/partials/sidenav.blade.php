@@ -710,13 +710,13 @@
                     </a>
                 </li>
 
-                <li class="sidebar-menu-item  {{menuActive('admin.request.report')}}">
-                    <a href="{{route('admin.request.report')}}" class="nav-link"
-                       data-default-url="{{ route('admin.request.report') }}">
-                        <i class="menu-icon las la-bug"></i>
-                        <span class="menu-title">@lang('Report & Request') </span>
-                    </a>
-                </li>
+{{--                <li class="sidebar-menu-item  {{menuActive('admin.request.report')}}">--}}
+{{--                    <a href="{{route('admin.request.report')}}" class="nav-link"--}}
+{{--                       data-default-url="{{ route('admin.request.report') }}">--}}
+{{--                        <i class="menu-icon las la-bug"></i>--}}
+{{--                        <span class="menu-title">@lang('Report & Request') </span>--}}
+{{--                    </a>--}}
+{{--                </li>--}}
             </ul>
             <div class="text-center mb-3 text-uppercase">
                 <span class="text--primary">{{__(systemDetails()['name'])}}</span>
