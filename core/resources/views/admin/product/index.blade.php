@@ -1,5 +1,35 @@
 @extends('admin.layouts.app')
 @section('panel')
+    <div class="d-flex justify-content-center align-items-center my-4 products-btn-list">
+        <a href="{{route('admin.product.live')}}" class="btn bg--gradi-1 border-0 mr-3 py-2">
+            @lang('Live Products')
+            @if($live_product_count)
+                <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$live_product_count}}</span>
+            @endif
+        </a>
+        <a href="{{route('admin.product.pending')}}" class="btn bg--gradi-6 border-0 mr-3 py-2">
+            @lang('Pending Products')
+            @if($pending_product_count)
+                <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$pending_product_count}}</span>
+            @endif
+        </a>
+        <a href="{{route('admin.product.upcoming')}}" class="btn bg--gradi-8 border-0 mr-3 py-2">
+            @lang('Upcoming Products')
+            @if($upcoming_product_count)
+                <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$upcoming_product_count}}</span>
+            @endif
+        </a>
+        <a href="{{route('admin.product.expired')}}" class="btn bg--gradi-11 border-0 mr-3 py-2">
+            @lang('Expired Products')
+            @if($expired_product_count)
+                <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$expired_product_count}}</span>
+            @endif
+        </a>
+        <a href="{{route('admin.product.winners')}}" class="btn bg--gradi-9 border-0 mr-3 py-2">
+            @lang('Winner Logs')
+        </a>
+    </div>
+
     <div class="row">
         <div class="col-lg-12">
             <div class="card b-radius--10 ">

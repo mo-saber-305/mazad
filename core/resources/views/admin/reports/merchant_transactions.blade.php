@@ -69,6 +69,7 @@
 
 
 @push('breadcrumb-plugins')
+    <div class="d-flex flex-wrap justify-content-sm-end ">
     @if(request()->routeIs('admin.users.transactions'))
         <form action="" method="GET" class="form-inline float-sm-right bg--white">
             <div class="input-group has_append">
@@ -88,6 +89,19 @@
             </div>
         </form>
     @endif
+
+    <div class="dropdown ml-3">
+        <button class="btn btn--primary box--shadow1 btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+            @lang('Export')
+        </button>
+        <div class="dropdown-menu text-center">
+            <a class="dropdown-item"
+               href="{{ route('admin.export.merchants-transactions-report', ['file_type' => 'excel']) }}">@lang('Excel')</a>
+            <a class="dropdown-item"
+               href="{{ route('admin.export.merchants-transactions-report', ['file_type' => 'csv']) }}">@lang('Csv')</a>
+        </div>
+    </div>
+    </div>
 @endpush
 
 

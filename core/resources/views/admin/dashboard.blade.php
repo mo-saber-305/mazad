@@ -1,252 +1,285 @@
 @extends('admin.layouts.app')
 
 @section('panel')
-      @if(@json_decode($general->sys_version)->version > systemDetails()['version'])
+    @if(@json_decode($general->sys_version)->version > systemDetails()['version'])
         <div class="row">
             <div class="col-md-12">
                 <div class="card text-white bg-warning mb-3">
                     <div class="card-header">
-                        <h3 class="card-title"> @lang('New Version Available') <button class="btn btn--dark float-right">@lang('Version') {{json_decode($general->sys_version)->version}}</button> </h3>
+                        <h3 class="card-title"> @lang('New Version Available')
+                            <button class="btn btn--dark float-right">@lang('Version') {{json_decode($general->sys_version)->version}}</button>
+                        </h3>
                     </div>
                     <div class="card-body">
                         <h5 class="card-title text-dark">@lang('What is the Update ?')</h5>
-                        <p><pre  class="f-size--24">{{json_decode($general->sys_version)->details}}</pre></p>
+                        <p>
+                        <pre class="f-size--24">{{json_decode($general->sys_version)->details}}</pre>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-        @endif
-        @if(@json_decode($general->sys_version)->message)
+    @endif
+
+    @if(@json_decode($general->sys_version)->message)
         <div class="row">
             @foreach(json_decode($general->sys_version)->message as $msg)
-              <div class="col-md-12">
-                  <div class="alert border border--primary" role="alert">
-                      <div class="alert__icon bg--primary"><i class="far fa-bell"></i></div>
-                      <p class="alert__message">@php echo $msg; @endphp</p>
-                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                <div class="col-md-12">
+                    <div class="alert border border--primary" role="alert">
+                        <div class="alert__icon bg--primary"><i class="far fa-bell"></i></div>
+                        <p class="alert__message">@php echo $msg; @endphp</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
                 </div>
-              </div>
             @endforeach
         </div>
-        @endif
-    
-    <div class="mb-2"><span class="border border--primary bg--white text--primary px-3 py-1 rounded">@lang('Users')</span></div>
+    @endif
+
+    <div class="mb-4"><span class="border border--primary bg--white text--primary px-3 py-1 rounded">@lang('Users')</span></div>
     <div class="row mb-none-30">
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--blue b-radius--10 box-shadow">
-                <div class="icon">
-                    <i class="fa fa-users"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['total_users']}}</span>
+            <a href="{{route('admin.users.all')}}">
+                <div class="dashboard-w1 bg--gradi-1 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="fa fa-users"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('Total')</span>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['total_users']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('Total')</span>
+                        </div>
+                        {{--                    <a href="{{route('admin.users.all')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
                     </div>
-                    <a href="{{route('admin.users.all')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
                 </div>
-            </div>
+            </a>
         </div><!-- dashboard-w1 end -->
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--success b-radius--10 box-shadow">
-                <div class="icon">
-                    <i class="fa fa-user-check"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['active_users']}}</span>
+            <a href="{{route('admin.users.active')}}">
+                <div class="dashboard-w1 bg--gradi-12 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="fa fa-user-check"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('Active')</span>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['active_users']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('Active')</span>
+                        </div>
+                        {{-- <a href="{{route('admin.users.active')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a> --}}
                     </div>
-                    <a href="{{route('admin.users.active')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--5 b-radius--10 box-shadow ">
-                <div class="icon">
-                    <i class="fa fa-comment-slash"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['email_unverified_users']}}</span>
+            <a href="{{route('admin.users.email.unverified')}}">
+                <div class="dashboard-w1 bg--gradi-18 b-radius--10 box-shadow ">
+                    <div class="icon">
+                        <i class="fa fa-comment-slash"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('Email Unverified')</span>
-                    </div>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['email_unverified_users']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('Email Unverified')</span>
+                        </div>
 
-                    <a href="{{route('admin.users.email.unverified')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
+                        {{--                    <a href="{{route('admin.users.email.unverified')}}"--}}
+                        {{--                       class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
+                    </div>
                 </div>
-            </div>
+            </a>
         </div><!-- dashboard-w1 end -->
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--red b-radius--10 box-shadow ">
-                <div class="icon">
-                    <i class="fa fa-phone-slash"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['sms_unverified_users']}}</span>
+            <a href="{{route('admin.users.sms.unverified')}}">
+                <div class="dashboard-w1 bg--gradi-10 b-radius--10 box-shadow ">
+                    <div class="icon">
+                        <i class="fa fa-phone-slash"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('SMS Unverified')</span>
-                    </div>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['sms_unverified_users']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('SMS Unverified')</span>
+                        </div>
 
-                    <a href="{{route('admin.users.sms.unverified')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
+                        {{--                    <a href="{{route('admin.users.sms.unverified')}}"--}}
+                        {{--                       class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
+                    </div>
                 </div>
-            </div>
+            </a>
         </div><!-- dashboard-w1 end -->
 
 
     </div><!-- row end-->
 
-    <div class="mt-4 mb-2"><span class="border border--primary bg--white text--primary px-3 py-1 rounded">@lang('Merchants')</span></div>
+    <div class="mt-4 mb-4"><span class="border border--primary bg--white text--primary px-3 py-1 rounded">@lang('Merchants')</span></div>
     <div class="row mb-none-30">
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--info b-radius--10 box-shadow">
-                <div class="icon">
-                    <i class="la la-users"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['total_merchants']}}</span>
+            <a href="{{route('admin.merchants.all')}}">
+                <div class="dashboard-w1 bg--gradi-26 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="la la-users"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('Total')</span>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['total_merchants']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('Total')</span>
+                        </div>
+                        {{--                    <a href="{{route('admin.merchants.all')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
                     </div>
-                    <a href="{{route('admin.merchants.all')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
                 </div>
-            </div>
+            </a>
         </div><!-- dashboard-w1 end -->
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--green b-radius--10 box-shadow">
-                <div class="icon">
-                    <i class="la la-user-check"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['active_merchants']}}</span>
+            <a href="{{route('admin.merchants.active')}}">
+                <div class="dashboard-w1 bg--gradi-3 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="la la-user-check"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('Active')</span>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['active_merchants']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('Active')</span>
+                        </div>
+                        {{--                    <a href="{{route('admin.merchants.active')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
                     </div>
-                    <a href="{{route('admin.merchants.active')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--danger b-radius--10 box-shadow ">
-                <div class="icon">
-                    <i class="la la-comment-slash"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['email_unverified_merchants']}}</span>
+            <a href="{{route('admin.merchants.email.unverified')}}">
+                <div class="dashboard-w1 bg--gradi-6 b-radius--10 box-shadow ">
+                    <div class="icon">
+                        <i class="la la-comment-slash"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('Email Unverified')</span>
-                    </div>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['email_unverified_merchants']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('Email Unverified')</span>
+                        </div>
 
-                    <a href="{{route('admin.merchants.email.unverified')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
+                        {{--                    <a href="{{route('admin.merchants.email.unverified')}}"--}}
+                        {{--                       class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
+                    </div>
                 </div>
-            </div>
+            </a>
         </div><!-- dashboard-w1 end -->
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--16 b-radius--10 box-shadow ">
-                <div class="icon">
-                    <i class="la la-phone-slash"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{$widget['sms_unverified_merchants']}}</span>
+            <a href="{{route('admin.merchants.sms.unverified')}}">
+                <div class="dashboard-w1 bg--gradi-16 b-radius--10 box-shadow ">
+                    <div class="icon">
+                        <i class="la la-phone-slash"></i>
                     </div>
-                    <div class="desciption">
-                        <span class="text--small">@lang('SMS Unverified')</span>
-                    </div>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{$widget['sms_unverified_merchants']}}</span>
+                        </div>
+                        <div class="desciption">
+                            <span class="text--small">@lang('SMS Unverified')</span>
+                        </div>
 
-                    <a href="{{route('admin.merchants.sms.unverified')}}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
+                        {{--                        <a href="{{route('admin.merchants.sms.unverified')}}"--}}
+                        {{--                           class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
+                    </div>
                 </div>
-            </div>
+            </a>
         </div><!-- dashboard-w1 end -->
 
 
     </div><!-- row end-->
 
-    <div class="mt-4 mb-2"><span class="border border--primary bg--white text--primary px-3 py-1 rounded">@lang('Others')</span></div>
+    <div class="mt-4 mb-4"><span class="border border--primary bg--white text--primary px-3 py-1 rounded">@lang('Others')</span></div>
     <div class="row mb-none-30">
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--19 b-radius--10 box-shadow" >
-                <div class="icon">
-                    <i class="fab fa-product-hunt"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{ $widget['all_product'] }}</span>
+            <a href="{{ route('admin.product.index') }}">
+                <div class="dashboard-w1 bg--gradi-7 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="fab fa-product-hunt"></i>
                     </div>
-                    <div class="desciption">
-                        <span>@lang('Total Products')</span>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{ $widget['all_product'] }}</span>
+                        </div>
+                        <div class="desciption">
+                            <span>@lang('Total Products')</span>
+                        </div>
+                        {{--                    <a href="{{ route('admin.product.index') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
                     </div>
-                    <a href="{{ route('admin.product.index') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
                 </div>
-            </div>
+            </a>
         </div>
 
 
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--teal b-radius--10 box-shadow" >
-                <div class="icon">
-                    <i class="lab la-product-hunt"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{ $widget['live_product'] }}</span>
+            <a href="{{ route('admin.product.live') }}">
+                <div class="dashboard-w1 bg--gradi-8 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="lab la-product-hunt"></i>
                     </div>
-                    <div class="desciption">
-                        <span>@lang('Live Product')</span>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{ $widget['live_product'] }}</span>
+                        </div>
+                        <div class="desciption">
+                            <span>@lang('Live Product')</span>
+                        </div>
+                        {{--                    <a href="{{ route('admin.product.live') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
                     </div>
-                    <a href="{{ route('admin.product.live') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--18 b-radius--10 box-shadow" >
-                <div class="icon">
-                    <i class="fa fa-hammer"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="amount">{{ $widget['total_bid'] }}</span>
+            <a href="{{ route('admin.product.index') }}">
+                <div class="dashboard-w1 bg--gradi-9 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="fa fa-hammer"></i>
                     </div>
-                    <div class="desciption">
-                        <span>@lang('Total Bid')</span>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="amount">{{ $widget['total_bid'] }}</span>
+                        </div>
+                        <div class="desciption">
+                            <span>@lang('Total Bid')</span>
+                        </div>
+                        {{--                    <a href="{{ route('admin.product.index') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
                     </div>
-                    <a href="{{ route('admin.product.index') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-xl-3 col-sm-6 mb-30">
-            <div class="dashboard-w1 bg--10 b-radius--10 box-shadow">
-                <div class="icon">
-                    <i class="fas fa-money-check"></i>
-                </div>
-                <div class="details">
-                    <div class="numbers">
-                        <span class="currency-sign">{{__($general->cur_sym)}}</span>
-                        <span class="amount">{{ showAmount($widget['total_bid_amount']) }}</span>
+            <a href="{{ route('admin.product.index') }}">
+                <div class="dashboard-w1 bg--gradi-19 b-radius--10 box-shadow">
+                    <div class="icon">
+                        <i class="fas fa-money-check"></i>
                     </div>
-                    <div class="desciption">
-                        <span>@lang('Total Bid Amount')</span>
-                    </div>
+                    <div class="details">
+                        <div class="numbers">
+                            <span class="currency-sign">{{__($general->cur_sym)}}</span>
+                            <span class="amount">{{ showAmount($widget['total_bid_amount']) }}</span>
+                        </div>
+                        <div class="desciption">
+                            <span>@lang('Total Bid Amount')</span>
+                        </div>
 
-                    <a href="{{ route('admin.product.index') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>
+                        {{--                    <a href="{{ route('admin.product.index') }}" class="btn btn-sm text--small bg--white text--black box--shadow3 mt-3">@lang('View All')</a>--}}
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -255,14 +288,14 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">@lang('Monthly Deposit & Withdraw Report')</h5>
-                    <div id="apex-bar-chart"> </div>
+                    <div id="apex-bar-chart"></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-6 mb-30">
             <div class="row mb-none-30">
                 <div class="col-lg-6 col-sm-6 mb-30">
-                    <div class="widget-three box--shadow2 b-radius--5 bg--success text-white">
+                    <div class="widget-three box--shadow2 b-radius--5 bg--gradi-13 text-white">
                         <div class="widget-three__content">
                             <h2 class="numbers text-white">{{showAmount($payment['total_deposit_amount'])}} {{$general->cur_text}}</h2>
                             <p class="text--small">@lang('Total Deposit')</p>
@@ -271,9 +304,9 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-lg-6 col-sm-6 mb-30">
-                    <div class="widget-three box--shadow2 b-radius--5 bg--danger text-white">
+                    <div class="widget-three box--shadow2 b-radius--5 bg--gradi-5 text-white">
                         <div class="widget-three__content">
                             <h2 class="numbers text-white">{{showAmount($paymentWithdraw['total_withdraw_amount'])}} {{$general->cur_text}}</h2>
                             <p class="text--small">@lang('Total Withdraw')</p>
@@ -283,10 +316,9 @@
                     </div>
                 </div>
 
-
                 <div class="col-lg-6 col-sm-6 mb-30">
                     <div class="widget-three box--shadow2 b-radius--5 bg--white">
-                        <div class="widget-three__icon b-radius--rounded bg--6  box--shadow2">
+                        <div class="widget-three__icon b-radius--rounded bg--gradi-14  box--shadow2">
                             <i class="las la-cloud-download-alt"></i>
                         </div>
                         <div class="widget-three__content">
@@ -297,7 +329,7 @@
                 </div>
                 <div class="col-lg-6 col-sm-6 mb-30">
                     <div class="widget-three box--shadow2 b-radius--5 bg--white">
-                        <div class="widget-three__icon b-radius--rounded bg--5  box--shadow2">
+                        <div class="widget-three__icon b-radius--rounded bg--gradi-15  box--shadow2">
                             <i class="las la-file-export"></i>
                         </div>
                         <div class="widget-three__content">
@@ -372,16 +404,16 @@
             series: [{
                 name: 'Total Deposit',
                 data: [
-                  @foreach($months as $month)
-                    {{ getAmount(@$depositsMonth->where('months',$month)->first()->depositAmount) }},
-                  @endforeach
+                    @foreach($months as $month)
+                            {{ getAmount(@$depositsMonth->where('months',$month)->first()->depositAmount) }},
+                    @endforeach
                 ]
             }, {
                 name: 'Total Withdraw',
                 data: [
-                  @foreach($months as $month)
-                    {{ getAmount(@$withdrawalMonth->where('months',$month)->first()->withdrawAmount) }},
-                  @endforeach
+                    @foreach($months as $month)
+                            {{ getAmount(@$withdrawalMonth->where('months',$month)->first()->withdrawAmount) }},
+                    @endforeach
                 ]
             }],
             chart: {
@@ -513,75 +545,73 @@
         chart.render();
 
 
-
-
-         // apex-line chart
-            var options = {
-                chart: {
-                    height: 430,
-                    type: "area",
-                    toolbar: {
-                        show: false
-                    },
-                    dropShadow: {
-                        enabled: true,
-                        enabledSeries: [0],
-                        top: -2,
-                        left: 0,
-                        blur: 10,
-                        opacity: 0.08
-                    },
-                    animations: {
-                        enabled: true,
-                        easing: 'linear',
-                        dynamicAnimation: {
-                            speed: 1000
-                        }
-                    },
+        // apex-line chart
+        var options = {
+            chart: {
+                height: 430,
+                type: "area",
+                toolbar: {
+                    show: false
                 },
-                 colors: ['#00E396', '#0090FF'],
-                dataLabels: {
-                    enabled: false
+                dropShadow: {
+                    enabled: true,
+                    enabledSeries: [0],
+                    top: -2,
+                    left: 0,
+                    blur: 10,
+                    opacity: 0.08
                 },
-                series: [
-                    {
-                        name: "Series 1",
-                        data: @json($deposits['per_day_amount']->flatten())
+                animations: {
+                    enabled: true,
+                    easing: 'linear',
+                    dynamicAnimation: {
+                        speed: 1000
                     }
-                ],
-                fill: {
-                    type: "gradient",
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.7,
-                        opacityTo: 0.9,
-                        stops: [0, 90, 100]
-                    }
+                },
+            },
+            colors: ['#00E396', '#0090FF'],
+            dataLabels: {
+                enabled: false
+            },
+            series: [
+                {
+                    name: "Series 1",
+                    data: @json($deposits['per_day_amount']->flatten())
+                }
+            ],
+            fill: {
+                type: "gradient",
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.9,
+                    stops: [0, 90, 100]
+                }
+            },
+            xaxis: {
+                categories: @json($deposits['per_day']->flatten())
+            },
+            grid: {
+                padding: {
+                    left: 5,
+                    right: 5
                 },
                 xaxis: {
-                    categories: @json($deposits['per_day']->flatten())
+                    lines: {
+                        show: false
+                    }
                 },
-                grid: {
-                    padding: {
-                        left: 5,
-                        right: 5
-                    },
-                    xaxis: {
-                        lines: {
-                            show: false
-                        }
-                    },
-                    yaxis: {
-                        lines: {
-                            show: false
-                        }
-                    },
+                yaxis: {
+                    lines: {
+                        show: false
+                    }
                 },
-            };
+            },
+        };
 
-            var chart = new ApexCharts(document.querySelector("#deposit-line"), options);
+        var chart = new ApexCharts(document.querySelector("#deposit-line"), options);
 
-            chart.render();
+        chart.render();
 
 
         var ctx = document.getElementById('userBrowserChart');
@@ -646,7 +676,6 @@
                 }
             }
         });
-
 
 
         var ctx = document.getElementById('userOsChart');
@@ -774,6 +803,6 @@
                 }
             }
         });
-        
+
     </script>
 @endpush

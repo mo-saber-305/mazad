@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
 
-Route::get('/clear', function(){
+Route::get('/clear', function () {
 //    \Illuminate\Support\Facades\Artisan::call('cache:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
@@ -78,6 +77,12 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
             Route::get('winners', 'ProductController@exportWinners')->name('winners');
             Route::get('users', 'ManageUsersController@export')->name('users');
             Route::get('merchants', 'ManageMerchantsController@export')->name('merchants');
+            Route::get('users-transactions-report', 'ReportController@exportUsersTransactions')->name('users-transactions-report');
+            Route::get('merchants-transactions-report', 'ReportController@exportMerchantsTransactions')->name('merchants-transactions-report');
+            Route::get('user-logins', 'ReportController@exportUserLogins')->name('user-logins-report');
+            Route::get('merchant-logins', 'ReportController@exportMerchantLogins')->name('merchant-logins-report');
+            Route::get('user-emails', 'ReportController@exportUserEmails')->name('user-emails-report');
+            Route::get('merchant-emails', 'ReportController@exportMerchantEmails')->name('merchant-emails-report');
         });
 
         Route::get('dashboard', 'AdminController@dashboard')->name('dashboard');
@@ -87,15 +92,15 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('password', 'AdminController@passwordUpdate')->name('password.update');
 
         //Notification
-        Route::get('notifications','AdminController@notifications')->name('notifications');
-        Route::get('notification/read/{id}','AdminController@notificationRead')->name('notification.read');
-        Route::get('notifications/read-all','AdminController@readAll')->name('notifications.readAll');
+        Route::get('notifications', 'AdminController@notifications')->name('notifications');
+        Route::get('notification/read/{id}', 'AdminController@notificationRead')->name('notification.read');
+        Route::get('notifications/read-all', 'AdminController@readAll')->name('notifications.readAll');
 
         //Report Bugs
-        Route::get('request-report','AdminController@requestReport')->name('request.report');
-        Route::post('request-report','AdminController@reportSubmit');
+        Route::get('request-report', 'AdminController@requestReport')->name('request.report');
+        Route::post('request-report', 'AdminController@reportSubmit');
 
-        Route::get('system-info','AdminController@systemInfo')->name('system.info');
+        Route::get('system-info', 'AdminController@systemInfo')->name('system.info');
 
         //Manage Category
         Route::get('categories', 'CategoryController@index')->name('categories');
@@ -174,7 +179,6 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('merchant/withdrawals/via/{method}/{type?}/{merchantId}', 'ManageMerchantsController@withdrawalsViaMethod')->name('merchants.withdrawals.method');
 
 
-
         // Login History
         Route::get('users/login/history/{id}', 'ManageUsersController@userLoginHistory')->name('users.login.history.single');
 
@@ -192,7 +196,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('merchants/email-details/{id}', 'ManageMerchantsController@emailDetails')->name('merchants.email.details');
 
         // Deposit Gateway
-        Route::name('gateway.')->prefix('gateway')->group(function(){
+        Route::name('gateway.')->prefix('gateway')->group(function () {
             // Automatic Gateway
             Route::get('automatic', 'GatewayController@index')->name('automatic.index');
             Route::get('automatic/edit/{alias}', 'GatewayController@edit')->name('automatic.edit');
@@ -214,7 +218,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
 
 
         // DEPOSIT SYSTEM
-        Route::name('deposit.')->prefix('deposit')->group(function(){
+        Route::name('deposit.')->prefix('deposit')->group(function () {
             Route::get('/', 'DepositController@deposit')->name('list');
             Route::get('pending', 'DepositController@pending')->name('pending');
             Route::get('rejected', 'DepositController@rejected')->name('rejected');
@@ -232,7 +236,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
 
 
         // WITHDRAW SYSTEM
-        Route::name('withdraw.')->prefix('withdraw')->group(function(){
+        Route::name('withdraw.')->prefix('withdraw')->group(function () {
             Route::get('pending', 'WithdrawalController@pending')->name('pending');
             Route::get('approved', 'WithdrawalController@approved')->name('approved');
             Route::get('rejected', 'WithdrawalController@rejected')->name('rejected');
@@ -298,11 +302,9 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('/language/import', 'LanguageController@langImport')->name('language.importLang');
 
 
-
         Route::post('language/store/key/{id}', 'LanguageController@storeLanguageJson')->name('language.store.key');
         Route::post('language/delete/key/{id}', 'LanguageController@deleteLanguageJson')->name('language.delete.key');
         Route::post('language/update/key/{id}', 'LanguageController@updateLanguageJson')->name('language.update.key');
-
 
 
         // General Setting
@@ -317,13 +319,13 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('setting/logo-icon', 'GeneralSettingController@logoIconUpdate')->name('setting.logo.icon');
 
         //Custom CSS
-        Route::get('custom-css','GeneralSettingController@customCss')->name('setting.custom.css');
-        Route::post('custom-css','GeneralSettingController@customCssSubmit');
+        Route::get('custom-css', 'GeneralSettingController@customCss')->name('setting.custom.css');
+        Route::post('custom-css', 'GeneralSettingController@customCssSubmit');
 
 
         //Cookie
-        Route::get('cookie','GeneralSettingController@cookie')->name('setting.cookie');
-        Route::post('cookie','GeneralSettingController@cookieSubmit');
+        Route::get('cookie', 'GeneralSettingController@cookie')->name('setting.cookie');
+        Route::post('cookie', 'GeneralSettingController@cookieSubmit');
 
 
         // Plugin
@@ -331,7 +333,6 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('extensions/update/{id}', 'ExtensionController@update')->name('extensions.update');
         Route::post('extensions/activate', 'ExtensionController@activate')->name('extensions.activate');
         Route::post('extensions/deactivate', 'ExtensionController@deactivate')->name('extensions.deactivate');
-
 
 
         // Email Setting
@@ -348,7 +349,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         // SMS Setting
         Route::get('sms-template/global', 'SmsTemplateController@smsTemplate')->name('sms.template.global');
         Route::post('sms-template/global', 'SmsTemplateController@smsTemplateUpdate')->name('sms.template.global');
-        Route::get('sms-template/setting','SmsTemplateController@smsSetting')->name('sms.templates.setting');
+        Route::get('sms-template/setting', 'SmsTemplateController@smsSetting')->name('sms.templates.setting');
         Route::post('sms-template/setting', 'SmsTemplateController@smsSettingUpdate')->name('sms.template.setting');
         Route::get('sms-template/index', 'SmsTemplateController@index')->name('sms.template.index');
         Route::get('sms-template/edit/{id}', 'SmsTemplateController@edit')->name('sms.template.edit');
@@ -390,8 +391,8 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::namespace('Merchant')->prefix('merchant')->name('merchant.')->group(function(){
-    Route::namespace('Auth')->group(function(){
+Route::namespace('Merchant')->prefix('merchant')->name('merchant.')->group(function () {
+    Route::namespace('Auth')->group(function () {
         Route::get('/', 'LoginController@showLoginForm')->name('login');
         Route::post('/', 'LoginController@login')->name('login');
         Route::get('logout', 'LoginController@logout')->name('logout');
@@ -408,7 +409,7 @@ Route::namespace('Merchant')->prefix('merchant')->name('merchant.')->group(funct
         Route::post('password/verify-code', 'ForgotPasswordController@verifyCode')->name('password.verify.code');
     });
 
-    Route::middleware('merchant')->group(function(){
+    Route::middleware('merchant')->group(function () {
 
         Route::get('authorization', 'AuthorizationController@authorizeForm')->name('authorization');
         Route::get('resend-verify', 'AuthorizationController@sendVerifyCode')->name('send.verify.code');
@@ -416,7 +417,7 @@ Route::namespace('Merchant')->prefix('merchant')->name('merchant.')->group(funct
         Route::post('verify-sms', 'AuthorizationController@smsVerification')->name('verify.sms');
         Route::post('verify-g2fa', 'AuthorizationController@g2faVerification')->name('go2fa.verify');
 
-        Route::middleware('merchant.checkStatus')->group(function(){
+        Route::middleware('merchant.checkStatus')->group(function () {
 
             Route::get('dashboard', 'MerchantController@dashboard')->name('dashboard');
 
@@ -471,9 +472,6 @@ Route::namespace('Merchant')->prefix('merchant')->name('merchant.')->group(funct
 
     });
 });
-
-
-
 
 
 /*

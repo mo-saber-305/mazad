@@ -54,3 +54,17 @@
         </div>
     </div>
 @endsection
+
+@push('breadcrumb-plugins')
+    <div class="dropdown ml-3">
+        <button class="btn btn--primary box--shadow1 btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+            @lang('Export')
+        </button>
+        <div class="dropdown-menu text-center">
+            <a class="dropdown-item"
+               href="{{ route('admin.export.merchant-emails-report', ['file_type' => 'excel']) }}">@lang('Excel')</a>
+            <a class="dropdown-item"
+               href="{{ route('admin.export.merchant-emails-report', ['file_type' => 'csv']) }}">@lang('Csv')</a>
+        </div>
+    </div>
+@endpush

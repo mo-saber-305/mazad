@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
         view()->share($viewShare);
         
 
-        view()->composer('admin.partials.sidenav', function ($view) {
+        view()->composer(['admin.partials.sidenav', 'admin.product.index', 'admin.users.list','admin.merchants.list'], function ($view) {
             $view->with([
                 'banned_users_count'           => User::banned()->count(),
                 'email_unverified_users_count' => User::emailUnverified()->count(),

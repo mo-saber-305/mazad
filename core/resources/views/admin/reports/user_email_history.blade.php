@@ -16,34 +16,35 @@
                             </tr>
                             </thead>
                             <tbody>
-                                @forelse($logs as $log)
-                                    <tr>
-                                        <td data-label="@lang('User')">
-                                            <span class="font-weight-bold">{{ @$log->user->fullname }}</span>
-                                                <br>
-                                            <span class="small">
-                                                <a href="{{ route('admin.users.detail', $log->user_id) }}"><span>@</span>{{ @$log->user->username }}</a>
-                                            </span>
-                                        </td>
+                            @forelse($logs as $log)
+                                <tr>
+                                    <td data-label="@lang('User')">
+                                        <span class="font-weight-bold">{{ @$log->user->fullname }}</span>
+                                        <br>
+                                        <span class="small">
+                                            <a href="{{ route('admin.users.detail', $log->user_id) }}"><span>@</span>{{ @$log->user->username }}</a>
+                                        </span>
+                                    </td>
 
-                                        <td data-label="@lang('Sent')">
-                                            {{ showDateTime($log->created_at) }}
-                                            <br>
-                                            {{ $log->created_at->diffForHumans() }}
-                                        </td>
-                                        <td data-label="@lang('Mail Sender')">
-                                            <span class="font-weight-bold">{{ __($log->mail_sender) }}</span>
-                                        </td>
-                                        <td data-label="@lang('Subject')">{{ __($log->subject) }}</td>
-                                        <td data-label="@lang('Action')">
-                                            <a href="{{ route('admin.users.email.details',$log->id) }}" class="icon-btn btn--primary" target="_blank"><i class="fas fa-desktop"></i></a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td class="text-muted text-center" colspan="100%">{{ __($emptyMessage) }}</td>
-                                    </tr>
-                                @endforelse
+                                    <td data-label="@lang('Sent')">
+                                        {{ showDateTime($log->created_at) }}
+                                        <br>
+                                        {{ $log->created_at->diffForHumans() }}
+                                    </td>
+                                    <td data-label="@lang('Mail Sender')">
+                                        <span class="font-weight-bold">{{ __($log->mail_sender) }}</span>
+                                    </td>
+                                    <td data-label="@lang('Subject')">{{ __($log->subject) }}</td>
+                                    <td data-label="@lang('Action')">
+                                        <a href="{{ route('admin.users.email.details',$log->id) }}" class="icon-btn btn--primary" target="_blank"><i
+                                                    class="fas fa-desktop"></i></a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="text-muted text-center" colspan="100%">{{ __($emptyMessage) }}</td>
+                                </tr>
+                            @endforelse
                             </tbody>
                         </table><!-- table end -->
                     </div>
@@ -55,3 +56,17 @@
         </div>
     </div>
 @endsection
+
+@push('breadcrumb-plugins')
+    <div class="dropdown ml-3">
+        <button class="btn btn--primary box--shadow1 btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+            @lang('Export')
+        </button>
+        <div class="dropdown-menu text-center">
+            <a class="dropdown-item"
+               href="{{ route('admin.export.user-emails-report', ['file_type' => 'excel']) }}">@lang('Excel')</a>
+            <a class="dropdown-item"
+               href="{{ route('admin.export.user-emails-report', ['file_type' => 'csv']) }}">@lang('Csv')</a>
+        </div>
+    </div>
+@endpush

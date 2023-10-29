@@ -1,5 +1,35 @@
 @extends('admin.layouts.app')
 @section('panel')
+    <div class="d-flex justify-content-center align-items-center my-4 products-btn-list">
+        <a href="{{route('admin.merchants.active')}}" class="btn bg--gradi-1 border-0 mr-3 py-2">
+            @lang('Active Users')
+        </a>
+        <a href="{{route('admin.merchants.banned')}}" class="btn bg--gradi-6 border-0 mr-3 py-2">
+            @lang('Banned Users')
+            @if($banned_merchants_count)
+                <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$banned_merchants_count}}</span>
+            @endif
+        </a>
+        <a href="{{route('admin.merchants.email.unverified')}}" class="btn bg--gradi-8 border-0 mr-3 py-2">
+            @lang('Email Unverified')
+            @if($email_unverified_merchants_count)
+                <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$email_unverified_merchants_count}}</span>
+            @endif
+        </a>
+        <a href="{{route('admin.merchants.sms.unverified')}}" class="btn bg--gradi-11 border-0 mr-3 py-2">
+            @lang('SMS Unverified')
+            @if($sms_unverified_merchants_count)
+                <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$sms_unverified_merchants_count}}</span>
+            @endif
+        </a>
+        <a href="{{route('admin.merchants.with.balance')}}" class="btn bg--gradi-9 border-0 mr-3 py-2">
+            @lang('With Balance')
+        </a>
+        <a href="{{route('admin.merchants.email.all')}}" class="btn bg--gradi-10 border-0 mr-3 py-2">
+            @lang('Email to All')
+        </a>
+    </div>
+
     <div class="row">
         <div class="col-lg-12">
             <div class="card b-radius--10 ">
