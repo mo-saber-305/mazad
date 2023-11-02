@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DepositResource;
 use App\Models\AdminNotification;
 use App\Models\Deposit;
 use App\Models\GatewayCurrency;
@@ -19,11 +20,12 @@ class PaymentController extends Controller
         $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
             $gate->where('status', 1);
         })->with('method')->orderby('method_code')->get();
+        $data = DepositResource::collection($gatewayCurrency);
         $notify = 'Payment Methods';
-        $data = [
-            'methods' => $gatewayCurrency,
-            'image_path' => imagePath()['gateway']['path']
-        ];
+//        $data = [
+//            'methods' => $gatewayCurrency,
+//            'image_path' => imagePath()['gateway']['path']
+//        ];
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -74,7 +76,7 @@ class PaymentController extends Controller
         $data->save();
 
         $notify = 'Deposit Created';
-        return responseJson(202, 'created', $notify, ['deposit' => $data]);
+        return responseJson(202, 'created', $notify, $data);
     }
 
     public function depositConfirm(Request $request)

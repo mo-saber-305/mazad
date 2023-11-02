@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneralSetting;
+use App\Models\Merchant;
 use App\Models\PasswordReset;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
@@ -42,7 +43,7 @@ class ResetPasswordController extends Controller
     public function reset(Request $request)
     {
 
-        $validator = Validator::make($request->all(),$this->rules());
+        $validator = Validator::make($request->all(), $this->rules());
         if ($validator->fails()) {
             return responseJson(422, 'failed', $validator->errors()->all());
         }
@@ -56,6 +57,37 @@ class ResetPasswordController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
+
+        $userIpInfo = getIpInfo();
+        $userBrowser = osBrowser();
+        sendEmail($user, 'PASS_RESET_DONE', [
+            'operating_system' => @$userBrowser['os_platform'],
+            'browser' => @$userBrowser['browser'],
+            'ip' => @$userIpInfo['ip'],
+            'time' => @$userIpInfo['time']
+        ]);
+
+        $notify = 'Password changed';
+
+        return responseJson(200, 'success', $notify);
+    }
+
+    public function merchantReset(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), $this->rules());
+        if ($validator->fails()) {
+            return responseJson(422, 'failed', $validator->errors()->all());
+        }
+        $reset = PasswordReset::where('token', $request->token)->orderBy('created_at', 'desc')->first();
+        if (!$reset) {
+            $notify = 'Invalid verification code';
+            return responseJson(422, 'failed', $notify);
+        }
+
+        $user = Merchant::where('email', $reset->email)->first();
+        $user->password = bcrypt($request->password);
+        $user->save();
 
 
         $userIpInfo = getIpInfo();
@@ -73,7 +105,6 @@ class ResetPasswordController extends Controller
     }
 
 
-
     /**
      * Get the password reset validation rules.
      *
@@ -89,7 +120,7 @@ class ResetPasswordController extends Controller
         return [
             'token' => 'required',
             'email' => 'required|email',
-            'password' => ['required','confirmed',$password_validation],
+            'password' => ['required', 'confirmed', $password_validation],
         ];
     }
 

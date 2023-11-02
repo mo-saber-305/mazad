@@ -91,7 +91,7 @@
                                     <p class="text-muted font-weight-bold my-3">
                                         @lang('Posted on') {{ showDateTime($message->created_at, 'l, dS F Y @ H:i') }}</p>
                                     <p>{{ $message->message }}</p>
-                                    @if($message->attachments()->count() > 0)
+                                    @if($message->attachments->count() > 0)
                                         <div class="my-3">
                                             @foreach($message->attachments as $k=> $image)
                                                 <a href="{{route('admin.user.ticket.download',encrypt($image->id))}}" class="mr-3"><i class="fa fa-file"></i>@lang('Attachment') {{++$k}}</a>

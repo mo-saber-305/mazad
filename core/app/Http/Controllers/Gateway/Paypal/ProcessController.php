@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Gateway\Paypal;
 
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Gateway\PaymentController;
 use App\Models\Deposit;
 use App\Models\GeneralSetting;
-use App\Http\Controllers\Gateway\PaymentController;
-use App\Http\Controllers\Controller;
 
 class ProcessController extends Controller
 {
 
     public static function process($deposit)
     {
-        $basic =  GeneralSetting::first();
+        $basic = GeneralSetting::first();
         $paypalAcc = json_decode($deposit->gatewayCurrency()->gateway_parameter);
         $val['cmd'] = '_xclick';
         $val['business'] = trim($paypalAcc->paypal_email);
@@ -21,18 +21,23 @@ class ProcessController extends Controller
         $val['quantity'] = 1;
         $val['item_name'] = "Payment To $basic->sitename Account";
         $val['custom'] = "$deposit->trx";
-        $val['amount'] = round($deposit->final_amo,2);
+        $val['amount'] = round($deposit->final_amo, 2);
         $val['return'] = route(gatewayRedirectUrl(true));
         $val['cancel_return'] = route(gatewayRedirectUrl());
-        $val['notify_url'] = route('ipn.'.$deposit->gateway->alias);
+        $val['notify_url'] = route('ipn.' . $deposit->gateway->alias);
         $send['val'] = $val;
         $send['view'] = 'user.payment.redirect';
         $send['method'] = 'post';
-        // $send['url'] = 'https://www.sandbox.paypal.com/'; // use for sandbod text
-        $send['url'] = 'https://www.paypal.com/cgi-bin/webscr';
+
+        if (getenv('PAYPAL_ENVIROMENT') == 'sandbox') {
+            $send['url'] = 'https://www.sandbox.paypal.com/'; // use for sandbod text
+        } else {
+            $send['url'] = 'https://www.paypal.com/cgi-bin/webscr';
+        }
+
         return json_encode($send);
     }
-    
+
     public function ipn()
     {
         $raw_post_data = file_get_contents('php://input');
@@ -50,12 +55,16 @@ class ProcessController extends Controller
             $req .= "&$key=$value";
             $details[$key] = $value;
         }
-        
-        // $paypalURL = "https://ipnpb.sandbox.paypal.com/cgi-bin/webscr?"; // use for sandbox text
-        $paypalURL = "https://ipnpb.paypal.com/cgi-bin/webscr?";
+
+        if (getenv('PAYPAL_ENVIROMENT') == 'sandbox') {
+            $paypalURL = "https://ipnpb.sandbox.paypal.com/cgi-bin/webscr?"; // use for sandbox text
+        } else {
+            $paypalURL = "https://ipnpb.paypal.com/cgi-bin/webscr?";
+        }
+
         $callUrl = $paypalURL . $req;
         $verify = curlContent($callUrl);
-        
+
         if ($verify == "VERIFIED") {
             $deposit = Deposit::where('trx', $_POST['custom'])->orderBy('id', 'DESC')->first();
             $deposit->detail = $details;

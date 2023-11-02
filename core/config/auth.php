@@ -56,6 +56,11 @@ return [
             'driver' => 'session',
             'provider' => 'merchants',
         ],
+
+        'api_merchant' => [
+            'driver' => 'jwt',
+            'provider' => 'merchants',
+        ],
     ],
 
     /*

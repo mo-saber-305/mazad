@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Merchant;
 use App\Models\PasswordReset;
 use App\Models\User;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
@@ -58,6 +59,61 @@ class ForgotPasswordController extends Controller
 
         if (!$user) {
             $notify = 'User not found.';
+            return responseJson(404, 'failed', $notify);
+        }
+
+        PasswordReset::where('email', $user->email)->delete();
+        $code = verificationCode(6);
+        $password = new PasswordReset();
+        $password->email = $user->email;
+        $password->token = $code;
+        $password->created_at = \Carbon\Carbon::now();
+        $password->save();
+
+        $userIpInfo = getIpInfo();
+        $userBrowserInfo = osBrowser();
+        sendEmail($user, 'PASS_RESET_CODE', [
+            'code' => $code,
+            'operating_system' => @$userBrowserInfo['os_platform'],
+            'browser' => @$userBrowserInfo['browser'],
+            'ip' => @$userIpInfo['ip'],
+            'time' => @$userIpInfo['time']
+        ]);
+        $email = $user->email;
+        $notify = 'Password reset email sent successfully';
+
+        return responseJson(200, 'success', $notify, ['email' => $email]);
+    }
+
+
+    public function merchantSendResetCodeEmail(Request $request)
+    {
+        if ($request->type == 'email') {
+            $validationRule = [
+                'value' => 'required|email'
+            ];
+            $validationMessage = [
+                'value.required' => 'Email field is required',
+                'value.email' => 'Email must be an valide email'
+            ];
+        } elseif ($request->type == 'username') {
+            $validationRule = [
+                'value' => 'required'
+            ];
+            $validationMessage = ['value.required' => 'Username field is required'];
+        } else {
+            $notify = 'Invalid selection';
+            return responseJson(422, 'failed', $notify);
+        }
+        $validator = Validator::make($request->all(), $validationRule, $validationMessage);
+        if ($validator->fails()) {
+            return responseJson(422, 'failed', $validator->errors()->all());
+        }
+
+        $user = Merchant::where($request->type, $request->value)->first();
+
+        if (!$user) {
+            $notify = 'Merchant not found.';
             return responseJson(404, 'failed', $notify);
         }
 

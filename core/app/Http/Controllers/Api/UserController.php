@@ -5,16 +5,28 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MerchantProfileResource;
 use App\Http\Resources\MerchantsResource;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\UserBiddingResource;
+use App\Http\Resources\UserDashboardResource;
+use App\Http\Resources\UserDepositHistoryResource;
+use App\Http\Resources\UserTicketResource;
+use App\Http\Resources\UserTransactionsResource;
+use App\Http\Resources\UserViewTicketResource;
+use App\Http\Resources\UserWinningResource;
 use App\Models\Admin;
 use App\Models\AdminNotification;
+use App\Models\Bid;
 use App\Models\Deposit;
 use App\Models\GeneralSetting;
 use App\Models\Merchant;
+use App\Models\SupportAttachment;
+use App\Models\SupportMessage;
+use App\Models\SupportTicket;
 use App\Models\Transaction;
+use App\Models\Winner;
 use App\Models\Withdrawal;
 use App\Models\WithdrawMethod;
 use App\Rules\FileTypeValidate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -334,28 +346,220 @@ class UserController extends Controller
 
     public function depositHistory()
     {
-        $deposits = Deposit::where('user_id', auth('api')->user()->id)->where('status', '!=', 0)->with('gateway')->orderBy('id', 'desc')->paginate(getPaginate());
+        $deposits = Deposit::where('user_id', auth('api')->user()->id)->where('status', '!=', 0)->with('gateway')->orderBy('id', 'desc')->paginate(PAGINATION_COUNT);
         $notify = 'Deposit History';
-        $data = [
-            'deposit' => $deposits,
-            'verification_file_path' => imagePath()['verify']['deposit']['path'],
-        ];
-        return responseJson(200, 'success', $notify, $data);
+        $data = UserDepositHistoryResource::collection($deposits);
+//        $data = [
+//            'deposit' => $deposits,
+//            'verification_file_path' => imagePath()['verify']['deposit']['path'],
+//        ];
+        return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($deposits));
     }
 
     public function transactions()
     {
         $user = auth('api')->user();
-        $transactions = $user->transactions()->paginate(PAGINATION_COUNT);
-        $notify = 'transactions';
-        return responseJson(200, 'success', $notify, $transactions);
+        $transactions = $user->transactions()->latest()->paginate(PAGINATION_COUNT);
+        $data = UserTransactionsResource::collection($transactions);
+        $notify = 'transactions data';
+        return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($transactions));
     }
 
     public function dashboard()
     {
+        $data = new UserDashboardResource();
+        $notify = 'Dashboard Data';
+        return responseJson(200, 'success', $notify, $data);
+    }
+
+    public function biddingHistory()
+    {
         $user = auth('api')->user();
-        $data = new UserResource($user);
-        $notify = 'user data';
-        return responseJson(200, 'success', $notify, $user);
+        $biddingHistories = Bid::where('user_id', $user->id)->with('user', 'product')->latest()->paginate(PAGINATION_COUNT);
+        $data = UserBiddingResource::collection($biddingHistories);
+        $notify = 'Bidding History Data';
+        return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($biddingHistories));
+    }
+
+    public function winningHistory()
+    {
+        $user = auth('api')->user();
+        $winningHistories = Winner::where('user_id', $user->id)->with('user', 'product', 'bid')->latest()->paginate(PAGINATION_COUNT);
+        $data = UserWinningResource::collection($winningHistories);
+        $notify = 'Winning History Data';
+        return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($winningHistories));
+    }
+
+    public function ticket()
+    {
+        $user = auth('api')->user();
+        $supports = SupportTicket::where('user_id', $user->id)->orderBy('priority', 'desc')->orderBy('id', 'desc')->paginate(PAGINATION_COUNT);
+
+        $data = UserTicketResource::collection($supports);
+        $notify = 'Ticket Data';
+        return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($supports));
+    }
+
+    public function viewTicket($id)
+    {
+        $userId = auth('api')->user()->id;
+        $my_ticket = SupportTicket::where('id', $id)->where('user_id', $userId)->orderBy('id', 'desc')->firstOrFail();
+        $data = new UserViewTicketResource($my_ticket);
+        $notify = 'Ticket Details Data';
+        return responseJson(200, 'success', $notify, $data);
+    }
+
+    public function closeTicket(Request $request, $id)
+    {
+        $userId = auth('api')->user()->id;
+        $ticket = SupportTicket::where('user_id', $userId)->where('id', $id)->firstOrFail();
+        $ticket->status = 3;
+        $ticket->last_reply = Carbon::now();
+        $ticket->save();
+        $notify = 'Support ticket closed successfully!';
+        return responseJson(200, 'success', $notify);
+    }
+
+    public function storeTicket(Request $request)
+    {
+        $ticket = new SupportTicket();
+        $message = new SupportMessage();
+
+        $files = $request->file('attachments');
+        $allowedExts = array('jpg', 'png', 'jpeg', 'pdf', 'doc', 'docx');
+
+        $validator = Validator::make($request->all(), [
+            'attachments' => [
+                'max:4096',
+                function ($attribute, $value, $fail) use ($files, $allowedExts) {
+                    foreach ($files as $file) {
+                        $ext = strtolower($file->getClientOriginalExtension());
+                        if (($file->getSize() / 1000000) > 2) {
+                            return $fail("Miximum 2MB file size allowed!");
+                        }
+                        if (!in_array($ext, $allowedExts)) {
+                            return $fail("Only png, jpg, jpeg, pdf, doc, docx files are allowed");
+                        }
+                    }
+                    if (count($files) > 5) {
+                        return $fail("Maximum 5 files can be uploaded");
+                    }
+                },
+            ],
+            'name' => 'required|max:191',
+            'email' => 'required|email|max:191',
+            'subject' => 'required|max:100',
+            'message' => 'required',
+            'priority' => 'required|in:1,2,3',
+        ]);
+
+        if ($validator->fails()) {
+            return responseJson(422, 'failed', $validator->errors()->all());
+        }
+
+        $user = auth('api')->user();
+        $ticket->user_id = $user->id;
+        $random = rand(100000, 999999);
+        $ticket->ticket = $random;
+        $ticket->name = $request->name;
+        $ticket->email = $request->email;
+        $ticket->subject = $request->subject;
+        $ticket->last_reply = Carbon::now();
+        $ticket->status = 0;
+        $ticket->priority = $request->priority;
+        $ticket->save();
+
+        $message->supportticket_id = $ticket->id;
+        $message->message = $request->message;
+        $message->save();
+
+
+        $adminNotification = new AdminNotification();
+        $adminNotification->user_id = $user->id;
+        $adminNotification->title = 'New support ticket has opened';
+        $adminNotification->click_url = urlPath('admin.user.ticket.view', $ticket->id);
+        $adminNotification->save();
+
+
+        $path = imagePath()['ticket']['path'];
+        if ($request->hasFile('attachments')) {
+            foreach ($files as $file) {
+                try {
+                    $attachment = new SupportAttachment();
+                    $attachment->support_message_id = $message->id;
+                    $attachment->attachment = uploadFile($file, $path);
+                    $attachment->save();
+                } catch (\Exception $exp) {
+                    $notify = 'Could not upload your file';
+                    return responseJson(422, 'failed', $notify);
+                }
+            }
+        }
+        $notify = 'ticket created successfully!';
+        return responseJson(200, 'success', $notify);
+    }
+
+
+    public function replyTicket(Request $request, $id)
+    {
+        $userId = auth('api')->user()->id;
+        $ticket = SupportTicket::where('user_id', $userId)->where('id', $id)->firstOrFail();
+        $message = new SupportMessage();
+
+        $attachments = $request->file('attachments');
+        $allowedExts = array('jpg', 'png', 'jpeg', 'pdf', 'doc', 'docx');
+
+        $validator = Validator::make($request->all(), [
+            'attachments' => [
+                'max:4096',
+                function ($attribute, $value, $fail) use ($attachments, $allowedExts) {
+                    foreach ($attachments as $file) {
+                        $ext = strtolower($file->getClientOriginalExtension());
+                        if (($file->getSize() / 1000000) > 2) {
+                            return $fail("Miximum 2MB file size allowed!");
+                        }
+                        if (!in_array($ext, $allowedExts)) {
+                            return $fail("Only png, jpg, jpeg, pdf doc docx files are allowed");
+                        }
+                    }
+                    if (count($attachments) > 5) {
+                        return $fail("Maximum 5 files can be uploaded");
+                    }
+                },
+            ],
+            'message' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return responseJson(422, 'failed', $validator->errors()->all());
+        }
+
+        $ticket->status = 2;
+        $ticket->last_reply = Carbon::now();
+        $ticket->save();
+
+        $message->supportticket_id = $ticket->id;
+        $message->message = $request->message;
+        $message->save();
+
+        $path = imagePath()['ticket']['path'];
+
+        if ($request->hasFile('attachments')) {
+            foreach ($attachments as $file) {
+                try {
+                    $attachment = new SupportAttachment();
+                    $attachment->support_message_id = $message->id;
+                    $attachment->attachment = uploadFile($file, $path);
+                    $attachment->save();
+
+                } catch (\Exception $exp) {
+                    $notify = 'Could not upload your ' . $file;
+                    return responseJson(422, 'failed', $notify);
+                }
+            }
+        }
+
+        $notify = 'Support ticket replied successfully!';
+        return responseJson(200, 'success', $notify);
     }
 }

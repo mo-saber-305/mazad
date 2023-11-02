@@ -22,6 +22,13 @@ class BasicController extends Controller
         return responseJson(403, 'unauthorized', $notify);
     }
 
+    public function merchantUnauthenticate()
+    {
+        $notify = 'Unauthenticated merchant';
+
+        return responseJson(403, 'unauthorized', $notify);
+    }
+
     public function languages()
     {
         $languages = Language::get();

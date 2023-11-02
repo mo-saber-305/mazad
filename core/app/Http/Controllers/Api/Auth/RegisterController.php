@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\AdminNotification;
 use App\Models\GeneralSetting;
+use App\Models\Merchant;
 use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -73,7 +74,7 @@ class RegisterController extends Controller
             'mobile_code' => 'required|in:' . $mobileCodes,
             'country_code' => 'required|in:' . $countryCodes,
             'country' => 'required|in:' . $countries,
-            'agree' => $agree
+            'agree' => $agree,
         ]);
         return $validate;
     }
@@ -96,6 +97,28 @@ class RegisterController extends Controller
 //        $response['access_token'] = $user->createToken('auth_token')->plainTextToken;
         $response['user'] = $user;
         $response['access_token'] = Auth::guard('api')->login($user);
+        $response['token_type'] = 'Bearer';
+        $notify = 'Registration successfully';
+        return responseJson(202, 'created', $notify, $response);
+    }
+
+    public function merchantRegister(Request $request)
+    {
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+            return responseJson(422, 'failed', $validator->errors()->all());
+        }
+
+        $exist = Merchant::where('mobile', $request->mobile_code . $request->mobile)->first();
+        if ($exist) {
+            $response = 'The mobile number already exists';
+            return responseJson(409, 'conflict', $response);
+        }
+
+        $user = $this->merchantCreate($request->all());
+//        $response['access_token'] = $user->createToken('auth_token')->plainTextToken;
+        $response['user'] = $user;
+        $response['access_token'] = Auth::guard('api_merchant')->login($user);
         $response['token_type'] = 'Bearer';
         $notify = 'Registration successfully';
         return responseJson(202, 'created', $notify, $response);
@@ -184,6 +207,81 @@ class RegisterController extends Controller
 
 
         return $user;
+    }
+
+
+    /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param array $data
+     * @return \App\User
+     */
+    protected function merchantCreate(array $data)
+    {
+
+        $general = GeneralSetting::first();
+
+        //Merchant Create
+        $merchant = new Merchant();
+        $merchant->firstname = isset($data['firstname']) ? $data['firstname'] : null;
+        $merchant->lastname = isset($data['lastname']) ? $data['lastname'] : null;
+        $merchant->email = strtolower(trim($data['email']));
+        $merchant->password = Hash::make($data['password']);
+        $merchant->username = trim($data['username']);
+        $merchant->country_code = $data['country_code'];
+        $merchant->mobile = $data['mobile_code'].$data['mobile'];
+        $merchant->address = [
+            'address' => '',
+            'state' => '',
+            'zip' => '',
+            'country' => isset($data['country']) ? $data['country'] : null,
+            'city' => ''
+        ];
+        $merchant->status = 1;
+        $merchant->ev = $general->ev ? 0 : 1;
+        $merchant->sv = $general->sv ? 0 : 1;
+        $merchant->ts = 0;
+        $merchant->tv = 1;
+        $merchant->save();
+
+
+        $adminNotification = new AdminNotification();
+        $adminNotification->merchant_id = $merchant->id;
+        $adminNotification->title = 'New merchant registered';
+        $adminNotification->click_url = urlPath('admin.merchants.detail',$merchant->id);
+        $adminNotification->save();
+
+        //Login Log Create
+        $ip = $_SERVER["REMOTE_ADDR"];
+        $exist = UserLogin::where('user_ip',$ip)->first();
+        $userLogin = new UserLogin();
+
+        //Check exist or not
+        if ($exist) {
+            $userLogin->longitude =  $exist->longitude;
+            $userLogin->latitude =  $exist->latitude;
+            $userLogin->city =  $exist->city;
+            $userLogin->country_code = $exist->country_code;
+            $userLogin->country =  $exist->country;
+        }else{
+            $info = json_decode(json_encode(getIpInfo()), true);
+            $userLogin->longitude =  @implode(',',$info['long']);
+            $userLogin->latitude =  @implode(',',$info['lat']);
+            $userLogin->city =  @implode(',',$info['city']);
+            $userLogin->country_code = @implode(',',$info['code']);
+            $userLogin->country =  @implode(',', $info['country']);
+        }
+
+        $userMerchant = osBrowser();
+        $userLogin->merchant_id = $merchant->id;
+        $userLogin->user_ip =  $ip;
+
+        $userLogin->browser = @$userMerchant['browser'];
+        $userLogin->os = @$userMerchant['os_platform'];
+        $userLogin->save();
+
+
+        return $merchant;
     }
 
 }

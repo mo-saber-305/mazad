@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\UserLogin;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
@@ -75,6 +74,35 @@ class LoginController extends Controller
         return responseJson(200, 'success', $response, $data);
     }
 
+
+    public function merchantLogin(Request $request)
+    {
+
+        $validator = $this->validateLogin($request);
+
+        if ($validator->fails()) {
+            return responseJson(422, 'failed', $validator->errors()->all());
+        }
+
+        $credentials = request([$this->username, 'password']);
+        $token = auth('api_merchant')->attempt($credentials);
+        if (!$token) {
+            $response = 'Unauthorized merchant';
+            return responseJson(401, 'unauthorized', $response);
+        }
+
+        $user = auth('api_merchant')->user();
+
+        $this->merchantAuthenticated($request, $user);
+        $response[] = 'Login Successfully';
+        $data = [
+            'user' => auth('api_merchant')->user(),
+            'access_token' => $token,
+            'token_type' => 'Bearer'
+        ];
+        return responseJson(200, 'success', $response, $data);
+    }
+
     public function findUsername()
     {
         $login = request()->input('username');
@@ -105,6 +133,14 @@ class LoginController extends Controller
     {
 //        auth('api')->user()->tokens()->delete();
         auth('api')->logout();
+
+        $notify = 'Logout Successfully';
+        return responseJson(200, 'success', $notify);
+    }
+
+    public function merchantLogout()
+    {
+        auth('api_merchant')->logout();
 
         $notify = 'Logout Successfully';
         return responseJson(200, 'success', $notify);
@@ -143,6 +179,45 @@ class LoginController extends Controller
 
         $userAgent = osBrowser();
         $userLogin->user_id = $user->id;
+        $userLogin->user_ip = $ip;
+
+        $userLogin->browser = @$userAgent['browser'];
+        $userLogin->os = @$userAgent['os_platform'];
+        $userLogin->save();
+    }
+
+    public function merchantAuthenticated(Request $request, $user)
+    {
+        if ($user->status == 0) {
+            auth('api_merchant')->logout();
+            $notify = 'Your account has been deactivated';
+            return responseJson(200, 'success', $notify);
+        }
+
+
+        $user = auth('api_merchant')->user();
+        $user->tv = $user->ts == 1 ? 0 : 1;
+        $user->save();
+        $ip = $_SERVER["REMOTE_ADDR"];
+        $exist = UserLogin::where('user_ip', $ip)->first();
+        $userLogin = new UserLogin();
+        if ($exist) {
+            $userLogin->longitude = $exist->longitude;
+            $userLogin->latitude = $exist->latitude;
+            $userLogin->city = $exist->city;
+            $userLogin->country_code = $exist->country_code;
+            $userLogin->country = $exist->country;
+        } else {
+            $info = json_decode(json_encode(getIpInfo()), true);
+            $userLogin->longitude = @implode(',', $info['long']);
+            $userLogin->latitude = @implode(',', $info['lat']);
+            $userLogin->city = @implode(',', $info['city']);
+            $userLogin->country_code = @implode(',', $info['code']);
+            $userLogin->country = @implode(',', $info['country']);
+        }
+
+        $userAgent = osBrowser();
+        $userLogin->merchant_id = $user->id;
         $userLogin->user_ip = $ip;
 
         $userLogin->browser = @$userAgent['browser'];
