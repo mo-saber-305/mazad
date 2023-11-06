@@ -123,6 +123,22 @@ class ProductController extends Controller
                 return back()->withNotify($notify);
             }
         }
+        if ($request->hasFile('video')) {
+            try {
+                $product->image = uploadFile($request->file('video'), imagePath()['product']['path']);
+            } catch (\Exception $exp) {
+                $notify[] = ['error', 'Video could not be uploaded.'];
+                return back()->withNotify($notify);
+            }
+        }
+        if ($request->hasFile('upload_report')) {
+            try {
+                $product->report_file = uploadFile($request->file('upload_report'), imagePath()['reports']['path']);
+            } catch (\Exception $exp) {
+                $notify[] = ['error', 'Report could not be uploaded.'];
+                return back()->withNotify($notify);
+            }
+        }
 
         $product->name = $request->name;
         $product->category_id = $request->category;
@@ -131,6 +147,8 @@ class ProductController extends Controller
         $product->expired_at = $request->expired_at;
         $product->short_description = $request->short_description;
         $product->long_description = $request->long_description;
+        $product->file_type = $request->file_type;
+        $product->sponsor = $request->sponsor;
         $product->specification = $request->specification ?? null;
 
         $product->save();
@@ -139,7 +157,7 @@ class ProductController extends Controller
 
     protected function validation($request, $imgValidation)
     {
-        $request->validate([
+        $validator = [
             'name' => 'required',
             'category' => 'required|exists:categories,id',
             'price' => 'required|numeric|gte:0',
@@ -148,8 +166,18 @@ class ProductController extends Controller
             'long_description' => 'required',
             'specification' => 'nullable|array',
             'started_at' => 'required_if:schedule,1|date|after:yesterday|before:expired_at',
-            'image' => [$imgValidation, 'image', new FileTypeValidate(['jpeg', 'jpg', 'png'])]
-        ]);
+        ];
+
+        if ($request->file_type == 'image') {
+            $validator['image'] = [$imgValidation, 'image', new FileTypeValidate(['jpeg', 'jpg', 'png'])];
+        } else {
+            $validator['video'] = [$imgValidation, new FileTypeValidate(['mp4', 'mov', 'ogg', 'qt', 'flv', '3gp', 'avi', 'wmv'])];
+        }
+
+        if ($request->has('upload_report')) {
+            $validator['upload_report'] = [$imgValidation, new FileTypeValidate(['pdf', 'xls', 'xlsx', 'csv'])];
+        }
+        $request->validate($validator);
     }
 
 

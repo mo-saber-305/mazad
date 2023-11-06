@@ -549,7 +549,6 @@ Route::get('search-products/filter', 'ProductController@filter')->name('product.
 Route::get('product-details/{id}/{slug}', 'ProductController@productDetails')->name('product.details');
 Route::get('reviews', 'ProductController@loadMore')->name('product.review.load');
 
-
 Route::get('products-live', 'SiteController@liveProduct')->name('live.products');
 Route::get('products-upcoming', 'SiteController@upcomingProduct')->name('upcoming.products');
 Route::get('categories', 'SiteController@categories')->name('categories');

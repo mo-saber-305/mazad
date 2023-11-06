@@ -24,7 +24,10 @@ class ProductsResource extends JsonResource
             'total_bid' => $this->total_bid,
             'started_at' => showDateTime($this->started_at, 'Y_m_d h:i A'),
             'expired_at' => showDateTime($this->expired_at, 'Y_m_d h:i A'),
-            'image' => getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']),
+            'sponsor' => $this->sponsor,
+            'report_file' => $this->report_file ? asset(imagePath()['reports']['path'] . '/' . $this->report_file) : null,
+            'file_type' => $this->file_type,
+            'image' => $this->file_type == 'image' ? getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']) : getImage(imagePath()['product']['path'] . '/' . $this->image),
         ];
     }
 }

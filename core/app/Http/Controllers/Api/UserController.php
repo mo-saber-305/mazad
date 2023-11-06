@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MerchantDashboardResource;
 use App\Http\Resources\MerchantProfileResource;
 use App\Http\Resources\MerchantsResource;
 use App\Http\Resources\UserBiddingResource;
@@ -34,6 +35,26 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
+    public function profile(Request $request)
+    {
+
+        $user = auth('api')->user();
+
+        $data = [
+            'firstname' => $user->firstname,
+            'lastname' => $user->lastname,
+            'address' => $user->address->address,
+            'state' => $user->address->state,
+            'zip' => $user->address->zip,
+            'country' => $user->address->country,
+            'city' => $user->address->city,
+            'image' => imagePath()['profile']['user']['path'] . '/' . $user->image,
+        ];
+
+        $notify = 'Profile Data';
+        return responseJson(200, 'success', $notify, $data);
+    }
+
     public function submitProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -368,6 +389,13 @@ class UserController extends Controller
     public function dashboard()
     {
         $data = new UserDashboardResource();
+        $notify = 'Dashboard Data';
+        return responseJson(200, 'success', $notify, $data);
+    }
+
+    public function merchantDashboard()
+    {
+        $data = new MerchantDashboardResource();
         $notify = 'Dashboard Data';
         return responseJson(200, 'success', $notify, $data);
     }

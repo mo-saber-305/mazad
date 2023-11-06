@@ -19,6 +19,11 @@ Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
     Route::get('posts', 'PostController@posts')->name('posts.index'); //ok
     Route::get('posts/{id}', 'PostController@post')->name('posts.show'); //ok
     Route::get('home', 'HomeController@home')->name('home.index'); //ok
+    Route::post('submit-contact', 'BasicController@submitContact')->name('contact.store'); //ok
+    Route::get('terms-conditions', 'BasicController@termsConditions')->name('terms-conditions'); //ok
+    Route::get('privacy-policy', 'BasicController@privacyPolicy')->name('privacy-policy'); //ok
+    Route::get('contact-content', 'BasicController@contactContent')->name('contact-content'); //ok
+    Route::get('about-content', 'BasicController@aboutContent')->name('about-content'); //ok
 
     Route::namespace('Auth')->group(function () {
         Route::post('login', 'LoginController@login'); //ok
@@ -34,8 +39,23 @@ Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
     });
 
     Route::middleware(['auth.api_merchant:api_merchant'])->group(function () {
-        Route::prefix('merchant')->name('merchant')->group(function () {
+        Route::prefix('merchant')->name('merchant.')->group(function () {
             Route::get('logout', 'Auth\LoginController@merchantLogout'); //ok
+            Route::get('authorization', 'AuthorizationController@merchantAuthorization')->name('authorization'); //ok
+            Route::middleware(['checkStatusMerchantApi'])->group(function () {
+                Route::get('dashboard', 'MerchantController@dashboard'); //ok
+                Route::get('products', 'MerchantController@products'); //ok
+                Route::post('store-product', 'MerchantController@storeProduct'); //ok
+                Route::post('update-product/{id}', 'MerchantController@updateProduct'); //ok
+                Route::get('product/{id}/bids', 'MerchantController@productBids'); //ok
+                Route::post('bid/winner', 'MerchantController@bidWinner'); //ok
+                Route::get('product/winners', 'MerchantController@productWinner'); //ok
+                Route::post('product/delivered', 'MerchantController@deliveredProduct'); //ok
+                Route::get('transactions', 'MerchantController@transactions'); //ok
+
+                Route::post('profile-setting', 'MerchantController@submitProfile'); //ok
+                Route::post('change-password', 'MerchantController@submitPassword'); //ok
+            });
         });
     });
 
@@ -64,6 +84,7 @@ Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
                 Route::post('ticket/store', 'UserController@storeTicket'); //ok
                 Route::post('ticket/reply/{id}', 'UserController@replyTicket'); //ok
 
+                Route::get('profile-details', 'UserController@profile'); //ok
                 Route::post('profile-setting', 'UserController@submitProfile'); //ok
                 Route::post('change-password', 'UserController@submitPassword'); //ok
 

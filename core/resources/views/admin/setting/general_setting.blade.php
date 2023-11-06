@@ -38,20 +38,20 @@
 
                         </div>
                         <div class="row">
-                            <div class="form-group col-md-4">
-                                <label class="font-weight-bold"> @lang('Site Base Color')</label>
-                                <div class="input-group">
-                                <span class="input-group-addon ">
-                                    <input type='text' class="form-control form-control-lg colorPicker" value="{{$general->base_color}}"/>
-                                </span>
-                                    <input type="text" class="form-control form-control-lg colorCode" name="base_color" value="{{ $general->base_color }}"/>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-4">
+{{--                            <div class="form-group col-md-4">--}}
+{{--                                <label class="font-weight-bold"> @lang('Site Base Color')</label>--}}
+{{--                                <div class="input-group">--}}
+{{--                                <span class="input-group-addon ">--}}
+{{--                                    <input type='text' class="form-control form-control-lg colorPicker" value="{{$general->base_color}}"/>--}}
+{{--                                </span>--}}
+{{--                                    <input type="text" class="form-control form-control-lg colorCode" name="base_color" value="{{ $general->base_color }}"/>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+                            <div class="form-group col-md-6">
                                 <label class="font-weight-bold">@lang('Force Secure Password')</label>
                                 <input type="checkbox" data-width="100%" data-size="large" data-onstyle="-success" data-offstyle="-danger" data-toggle="toggle" data-on="@lang('Enable')" data-off="@lang('Disabled')" name="secure_password" @if($general->secure_password) checked @endif>
                             </div>
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-6">
                                 <label class="font-weight-bold">@lang('Agree policy')</label>
                                 <input type="checkbox" data-width="100%" data-size="large" data-onstyle="-success" data-offstyle="-danger" data-toggle="toggle" data-on="@lang('Enable')" data-off="@lang('Disabled')" name="agree" @if($general->agree) checked @endif>
                             </div>

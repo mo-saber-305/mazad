@@ -9,14 +9,43 @@
                         <div class="payment-method-item">
                             <div class="payment-method-header">
                                 <div class="form-group">
-                                    <label class="font-weight-bold">@lang('Image') <span class="text-danger">*</span></label>
-                                    <div class="thumb">
-                                        <div class="avatar-preview">
-                                            <div class="profilePicPreview" style="background-image: url('{{getImage(imagePath()['product']['path'],imagePath()['product']['size'])}}')"></div>
+                                    <label class="w-100 font-weight-bold">@lang('File Type') <span class="text-danger">*</span></label>
+                                    <select name="file_type" class="form-control mb-3" id="fileType" required>
+                                        <option value="image">@lang('Image')</option>
+                                        <option value="video">@lang('Video')</option>
+                                    </select>
+
+                                    <div class="image-sec">
+                                        <label class="font-weight-bold">@lang('Image') <span class="text-danger">*</span></label>
+                                        <div class="thumb">
+                                            <div class="avatar-preview">
+                                                <div class="profilePicPreview"
+                                                     style="background-image: url('{{getImage(imagePath()['product']['path'],imagePath()['product']['size'])}}')"></div>
+                                            </div>
+                                            <div class="avatar-edit">
+                                                <input type="file" name="image" class="profilePicUpload" id="image" accept=".png, .jpg, .jpeg"/>
+                                                <label for="image" class="bg--primary"><i class="la la-pencil"></i></label>
+                                            </div>
                                         </div>
-                                        <div class="avatar-edit">
-                                            <input type="file" name="image" class="profilePicUpload" id="image" accept=".png, .jpg, .jpeg"/>
-                                            <label for="image" class="bg--primary"><i class="la la-pencil"></i></label>
+                                    </div>
+                                    <div class="video-sec d-none">
+                                        <label class="font-weight-bold">@lang('Video') <span class="text-danger">*</span></label>
+                                        <div class="thumb">
+                                            <div class="avatar-preview">
+                                                <div class="profilePicPreview" style="display: flex;align-items: center;height: 220px;overflow: hidden;">
+                                                    <video controls style="display: block; width: 100%;max-height: 220px;">
+                                                        <source src="{{ asset('assets/default_ads.mp4') }}" id="video_here">
+                                                        @lang('Your browser does not support HTML5 video')
+                                                    </video>
+                                                </div>
+                                            </div>
+                                            <div class="avatar-edit">
+                                                <input type="file" name="video" class="profilePicUpload" id="video"
+                                                       accept=".mp4, .mov, .ogg, .qt, .flv, .3gp, .avi, .wmv"/>
+
+
+                                                <label for="video" class="bg--primary"><i class="la la-pencil"></i></label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -26,7 +55,8 @@
                                         <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
                                             <div class="form-group">
                                                 <label class="w-100 font-weight-bold">@lang('Name') <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control " placeholder="@lang('Product Name')" name="name" value="{{ old('name') }}" required/>
+                                                <input type="text" class="form-control " placeholder="@lang('Product Name')" name="name"
+                                                       value="{{ old('name') }}" required/>
                                             </div>
                                         </div>
                                         <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
@@ -61,19 +91,38 @@
                                         <div class="col-sm-12 col-xl-4 col-lg-6 mb-15 started_at">
                                             <div class="form-group">
                                                 <label class="w-100 font-weight-bold">@lang('Started at') <span class="text-danger">*</span></label>
-                                                <input type="text" name="started_at" placeholder="@lang('Select Date & Time')" id="startDateTime" data-position="bottom left" class="form-control border-radius-5" value="{{ old('date_time') }}" autocomplete="off" required/>
+                                                <input type="text" name="started_at" placeholder="@lang('Select Date & Time')" id="startDateTime"
+                                                       data-position="bottom left" class="form-control border-radius-5" value="{{ old('date_time') }}"
+                                                       autocomplete="off" required/>
                                             </div>
                                         </div>
                                         <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
                                             <div class="form-group">
                                                 <label class="w-100 font-weight-bold">@lang('Expired at') <span class="text-danger">*</span></label>
-                                                <input type="text" name="expired_at" placeholder="@lang('Select Date & Time')" id="endDateTime" data-position="bottom left" class="form-control border-radius-5" value="{{ old('date_time') }}" autocomplete="off" required/>
+                                                <input type="text" name="expired_at" placeholder="@lang('Select Date & Time')" id="endDateTime"
+                                                       data-position="bottom left" class="form-control border-radius-5" value="{{ old('date_time') }}"
+                                                       autocomplete="off" required/>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">@lang('Sponsor')</label>
+                                                <input type="text" class="form-control border-radius-5" placeholder="@lang('Sponsor')"
+                                                       name="sponsor" value="{{ old('sponsor') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">@lang('Upload Report')</label>
+                                                <input type="file" class="form-control border-radius-5"
+                                                       name="upload_report" value="{{ old('upload_report') }}" accept=".pdf, .xls, .xlsx, .csv">
                                             </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="font-weight-bold">@lang('Short Description')</label>
-                                                <textarea rows="4" class="form-control border-radius-5" name="short_description">{{ old('short_description') }}</textarea>
+                                                <textarea rows="4" class="form-control border-radius-5"
+                                                          name="short_description">{{ old('short_description') }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -90,7 +139,8 @@
                                     <div class="col-lg-12">
                                         <div class="card border--primary mt-3">
                                             <h5 class="card-header bg--primary  text-white">@lang('Specification')
-                                                <button type="button" class="btn btn-sm btn-outline-light float-right addUserData"><i class="la la-fw la-plus"></i>@lang('Add New')
+                                                <button type="button" class="btn btn-sm btn-outline-light float-right addUserData"><i
+                                                            class="la la-fw la-plus"></i>@lang('Add New')
                                                 </button>
                                             </h5>
 
@@ -116,12 +166,13 @@
 
 
 @push('breadcrumb-plugins')
-    <a href="{{ route('admin.product.index') }}" class="btn btn-sm btn--primary box--shadow1 text--small"><i class="la la-fw la-backward"></i> @lang('Go Back') </a>
+    <a href="{{ route('admin.product.index') }}" class="btn btn-sm btn--primary box--shadow1 text--small"><i class="la la-fw la-backward"></i> @lang('Go Back')
+    </a>
 @endpush
 
 @push('style')
     <style>
-        .payment-method-item .payment-method-header .thumb .avatar-edit{
+        .payment-method-item .payment-method-header .thumb .avatar-edit {
             bottom: auto;
             top: 175px;
         }
@@ -129,8 +180,8 @@
 @endpush
 
 @push('script-lib')
-  <script src="{{ asset('assets/admin/js/vendor/datepicker.min.js') }}"></script>
-  <script src="{{ asset('assets/admin/js/vendor/datepicker.en.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/vendor/datepicker.min.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/vendor/datepicker.en.js') }}"></script>
 @endpush
 
 @push('script')
@@ -142,18 +193,18 @@
             var specCount = 1;
             // Create start date
             var start = new Date(),
-                    prevDay,
-                    startHours = 0;
+                prevDay,
+                startHours = 0;
 
-                // 09:00 AM
-                start.setHours(0);
-                start.setMinutes(0);
+            // 09:00 AM
+            start.setHours(0);
+            start.setMinutes(0);
 
-                // If today is Saturday or Sunday set 10:00 AM
-                if ([6, 0].indexOf(start.getDay()) != -1) {
-                    start.setHours(10);
-                    startHours = 10
-                }
+            // If today is Saturday or Sunday set 10:00 AM
+            if ([6, 0].indexOf(start.getDay()) != -1) {
+                start.setHours(10);
+                startHours = 10
+            }
             // date and time picker 
             $('#startDateTime').datepicker({
                 timepicker: true,
@@ -257,20 +308,39 @@
             });
 
             @if(old('currency'))
-                $('input[name=currency]').trigger('input');
+            $('input[name=currency]').trigger('input');
             @endif
 
-            $("[name=schedule]").on('change', function(e){
+            $("[name=schedule]").on('change', function (e) {
                 var schedule = e.target.value;
 
-                if(schedule != 1){
+                if (schedule != 1) {
                     $("[name=started_at]").attr('disabled', true);
                     $('.started_at').css('display', 'none');
-                }else{
+                } else {
                     $("[name=started_at]").attr('disabled', false);
                     $('.started_at').css('display', 'block');
                 }
             }).change();
+
+            $("select#fileType").on('change', function (e) {
+                var file_type = $(this).val();
+
+                if (file_type == 'video') {
+                    $(".image-sec").addClass('d-none');
+                    $(".video-sec").removeClass('d-none');
+                } else {
+                    $(".image-sec").removeClass('d-none');
+                    $(".video-sec").addClass('d-none');
+                }
+            }).change();
+
+            $(document).on("change", ".video-sec #video", function (evt) {
+                var $source = $('#video_here');
+                $source[0].src = URL.createObjectURL(this.files[0]);
+                $source.parent()[0].load();
+
+            });
 
         })(jQuery);
     </script>

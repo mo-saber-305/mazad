@@ -83,6 +83,65 @@ class AuthorizationController extends Controller
 
     }
 
+
+    public function merchantAuthorization()
+    {
+        $user = auth('api_merchant')->user();
+        if (!$user->status) {
+
+            auth('api_merchant')->user()->tokens()->delete();
+            $notify = 'Your account has been deactivated';
+            return responseJson(200, 'success', $notify);
+
+        } elseif (!$user->ev) {
+            if (!$this->checkValidCode($user, $user->ver_code)) {
+                $user->ver_code = verificationCode(6);
+                $user->ver_code_send_at = Carbon::now();
+                $user->save();
+                sendEmail($user, 'EVER_CODE', [
+                    'code' => $user->ver_code
+                ]);
+            }
+            $notify = 'Email verification';
+            $data = [
+                'verification_url' => route('api.user.verify.email'),
+                'verification_method' => 'POST',
+                'resend_url' => route('api.user.send.verify.code') . '?type=email',
+                'resend_method' => 'GET',
+                'verification_type' => 'email'
+            ];
+            return responseJson(200, 'success', $notify, $data);
+        } elseif (!$user->sv) {
+            if (!$this->checkValidCode($user, $user->ver_code)) {
+                $user->ver_code = verificationCode(6);
+                $user->ver_code_send_at = Carbon::now();
+                $user->save();
+                sendSms($user, 'SVER_CODE', [
+                    'code' => $user->ver_code
+                ]);
+            }
+            $notify = 'SMS verification';
+            $data = [
+                'verification_url' => route('api.user.verify.sms'),
+                'verification_method' => 'POST',
+                'resend_url' => route('api.user.send.verify.code') . '?type=phone',
+                'resend_method' => 'GET',
+                'verification_type' => 'sms'
+            ];
+            return responseJson(200, 'success', $notify, $data);
+        } elseif (!$user->tv) {
+            $notify = 'Google Authenticator';
+            $data = [
+                'verification_url' => route('api.user.go2fa.verify'),
+                'verification_method' => 'POST',
+                'verification_type' => '2fa'
+            ];
+
+            return responseJson(200, 'success', $notify, $data);
+        }
+
+    }
+
     public function sendVerifyCode(Request $request)
     {
         $user = Auth::user();

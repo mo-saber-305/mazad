@@ -739,6 +739,9 @@ function imagePath()
     $data['advertisement'] = [
         'path' => 'assets/images/advertisement',
     ];
+    $data['reports'] = [
+        'path' => 'assets/images/products/reports',
+    ];
     return $data;
 }
 

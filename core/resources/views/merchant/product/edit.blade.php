@@ -8,15 +8,59 @@
                     <div class="card-body">
                         <div class="payment-method-item">
                             <div class="payment-method-header">
+{{--                                <div class="form-group">--}}
+{{--                                    <label class="font-weight-bold">@lang('Image') <span class="text-danger">*</span></label>--}}
+{{--                                    <div class="thumb">--}}
+{{--                                        <div class="avatar-preview">--}}
+{{--                                            <div class="profilePicPreview" style="background-image: url('{{getImage(imagePath()['product']['path'].'/'.$product->image,imagePath()['product']['size'])}}')"></div>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="avatar-edit">--}}
+{{--                                            <input type="file" name="image" class="profilePicUpload" id="image" accept=".png, .jpg, .jpeg"/>--}}
+{{--                                            <label for="image" class="bg--primary"><i class="la la-pencil"></i></label>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+
                                 <div class="form-group">
-                                    <label class="font-weight-bold">@lang('Image') <span class="text-danger">*</span></label>
-                                    <div class="thumb">
-                                        <div class="avatar-preview">
-                                            <div class="profilePicPreview" style="background-image: url('{{getImage(imagePath()['product']['path'].'/'.$product->image,imagePath()['product']['size'])}}')"></div>
+                                    <label class="w-100 font-weight-bold">@lang('File Type') <span class="text-danger">*</span></label>
+                                    <select name="file_type" class="form-control mb-3" id="fileType" required>
+                                        <option value="image" {{ $product->file_type == 'image' ? 'selected' : '' }}>@lang('Image')</option>
+                                        <option value="video" {{ $product->file_type == 'video' ? 'selected' : '' }}>@lang('Video')</option>
+                                    </select>
+
+                                    <div class="image-sec {{ $product->file_type == 'video' ? 'd-none' : ''  }}">
+                                        <label class="font-weight-bold">@lang('Image') <span class="text-danger">*</span></label>
+                                        <div class="thumb">
+                                            <div class="avatar-preview">
+                                                <div class="profilePicPreview"
+                                                     style="background-image: url('{{$product->file_type == 'image' ? getImage(imagePath()['product']['path'].'/'.$product->image,imagePath()['product']['size'] ) : getImage(imagePath()['product']['path'],imagePath()['product']['size'])}}')"></div>
+                                            </div>
+                                            <div class="avatar-edit">
+                                                <input type="file" name="image" class="profilePicUpload" id="image" accept=".png, .jpg, .jpeg"/>
+                                                <label for="image" class="bg--primary"><i class="la la-pencil"></i></label>
+                                            </div>
                                         </div>
-                                        <div class="avatar-edit">
-                                            <input type="file" name="image" class="profilePicUpload" id="image" accept=".png, .jpg, .jpeg"/>
-                                            <label for="image" class="bg--primary"><i class="la la-pencil"></i></label>
+                                    </div>
+
+                                    <div class="video-sec {{ $product->file_type == 'image' ? 'd-none' : ''  }}">
+                                        <label class="font-weight-bold">@lang('Video') <span class="text-danger">*</span></label>
+                                        <div class="thumb">
+                                            <div class="avatar-preview">
+                                                <div class="profilePicPreview" style="display: flex;align-items: center;height: 220px;overflow: hidden;">
+                                                    <video controls style="display: block; width: 100%;max-height: 220px;">
+                                                        <source src="{{ asset($product->file_type == 'video' ? getImage(imagePath()['product']['path'].'/'.$product->image) : 'assets/default_ads.mp4') }}"
+                                                                id="video_here">
+                                                        @lang('Your browser does not support HTML5 video')
+                                                    </video>
+                                                </div>
+                                            </div>
+                                            <div class="avatar-edit">
+                                                <input type="file" name="video" class="profilePicUpload" id="video"
+                                                       accept=".mp4, .mov, .ogg, .qt, .flv, .3gp, .avi, .wmv"/>
+
+
+                                                <label for="video" class="bg--primary"><i class="la la-pencil"></i></label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -68,6 +112,26 @@
                                             <div class="form-group">
                                                 <label class="w-100 font-weight-bold">@lang('Expired_at') <span class="text-danger">*</span></label>
                                                 <input type="text" name="expired_at" placeholder="@lang('Select Date & Time')" id="endDateTime" data-position="bottom left" class="form-control border-radius-5" value="{{ $product->expired_at }}" autocomplete="off" required/>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">@lang('Sponsor')</label>
+                                                <input type="text" class="form-control border-radius-5" placeholder="@lang('Sponsor')"
+                                                       name="sponsor" value="{{ old('sponsor', $product->sponsor) }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">@lang('Upload Report')</label>
+                                                <input type="file" class="form-control border-radius-5"
+                                                       name="upload_report" value="{{ old('upload_report') }}" accept=".pdf, .xls, .xlsx, .csv">
+                                                @if($product->report_file)
+                                                    <a href="{{ asset(imagePath()['reports']['path'] . '/' . $product->report_file) }}" class="d-block mt-1"
+                                                       style="font-size: 16px">
+                                                        <i class="fas fa-download"></i> @lang('Report File')
+                                                    </a>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="col-12">
@@ -295,6 +359,25 @@
                     $('.started_at').css('display', 'block');
                 }
             }).change();
+
+            $("select#fileType").on('change', function (e) {
+                var file_type = $(this).val();
+
+                if (file_type == 'video') {
+                    $(".image-sec").addClass('d-none');
+                    $(".video-sec").removeClass('d-none');
+                } else {
+                    $(".image-sec").removeClass('d-none');
+                    $(".video-sec").addClass('d-none');
+                }
+            }).change();
+
+            $(document).on("change", ".video-sec #video", function (evt) {
+                var $source = $('#video_here');
+                $source[0].src = URL.createObjectURL(this.files[0]);
+                $source.parent()[0].load();
+
+            });
 
         })(jQuery);
     </script>

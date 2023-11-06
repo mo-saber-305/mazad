@@ -6,7 +6,6 @@ use App\Models\Admin;
 use App\Models\GeneralSetting;
 use App\Models\Merchant;
 use App\Models\Product;
-use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductResource extends JsonResource
@@ -20,6 +19,8 @@ class ProductResource extends JsonResource
     public function toArray($request)
     {
         $relatedProducts = Product::live()->where('category_id', $this->category_id)->where('id', '!=', $this->id)->limit(10)->get();
+        $relatedProducts = ProductsResource::collection($relatedProducts);
+        $bidsCount = $this->bids->count();
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -31,11 +32,15 @@ class ProductResource extends JsonResource
             'avg_rating' => $this->avg_rating,
             'total_rating' => $this->total_rating,
             'review_count' => $this->review_count,
-            'image' => getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']),
+            'sponsor' => $this->sponsor,
+            'report_file' => $this->report_file ? asset(imagePath()['reports']['path'] . '/' . $this->report_file) : null,
+            'file_type' => $this->file_type,
+            'image' => $this->file_type == 'image' ? getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']) : getImage(imagePath()['product']['path'] . '/' . $this->image),
             'short_description' => $this->short_description,
             'long_description' => $this->long_description,
             'specification' => $this->specification,
-            'user_bid' => $this->bids->where('user_id', auth('api')->id())->count(),
+            'user_bid' => $bidsCount,
+            'greater_bid' => $bidsCount ? $this->bids->max('amount') : null,
             'reviews' => $this->reviews(),
             'seller' => $this->sellerData(),
             'related_products' => $relatedProducts,
@@ -81,24 +86,24 @@ class ProductResource extends JsonResource
         $reviews = $this->reviews;
         $data = [];
         foreach ($reviews as $review) {
-            $data['id'] = $review->id;
-            $data['rating'] = $review->rating;
-            $data['description'] = $review->description;
-            $data['posted_on'] = showDateTime($review->created_at);
+
             $user_type = $this->merchant_id == 0 ? 'merchant' : 'user';
 
             if ($user_type == 'merchant') {
-                $user = Merchant::find($this->merchant_id);
                 $image = getImage(imagePath()['profile']['merchant']['path'] . '/' . $review->user->image, null, true);
             } else {
-                $user = User::find($this->user_id);
                 $image = getImage(imagePath()['profile']['user']['path'] . '/' . $review->user->image, null, true);
-
             }
 
-            $data['user'] = [
-                'name' => $review->user->fullname,
-                'image' => $image,
+            $data[] = [
+                'id' => $review->id,
+                'rating' => $review->rating,
+                'description' => $review->description,
+                'posted_on' => showDateTime($review->created_at),
+                'user' => [
+                    'name' => $review->user->fullname,
+                    'image' => $image,
+                ]
             ];
         }
 

@@ -79,6 +79,7 @@ class Kernel extends HttpKernel
         'regStatus' => \App\Http\Middleware\AllowRegistration::class,
         'checkStatus' => \App\Http\Middleware\CheckStatus::class,
         'checkStatusApi' => \App\Http\Middleware\CheckStatusApi::class,
+        'checkStatusMerchantApi' => \App\Http\Middleware\CheckStatusMerchantApi::class,
         'demo' => \App\Http\Middleware\Demo::class,
     ];
 }
