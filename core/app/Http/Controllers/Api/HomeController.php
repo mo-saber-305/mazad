@@ -85,7 +85,7 @@ class HomeController extends Controller
         $sponsors = getContent('sponsors.element');
         $data['sponsors'] = HomeSponsorResource::collection($sponsors);
 
-        $notify = 'home data';
+        $notify = __('Home Data');
         return responseJson(200, 'success', $notify, $data);
     }
 }

@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\SupportAttachment;
 use App\Models\SupportMessage;
 use App\Models\SupportTicket;
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Auth;
 
 class SupportTicketController extends Controller
 {
@@ -16,32 +16,33 @@ class SupportTicketController extends Controller
     {
         $pageTitle = 'Support Tickets';
         $emptyMessage = 'No Data found.';
-        $items = SupportTicket::orderBy('id','desc')->where('user_id', '!=', 0)->with('user')->paginate(getPaginate());
-        return view('admin.support.user_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::orderBy('id', 'desc')->where('user_id', '!=', 0)->with('user')->paginate(getPaginate());
+        return view('admin.support.user_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
     public function userTendingTicket()
     {
         $pageTitle = 'Pending Tickets';
         $emptyMessage = 'No Data found.';
-        $items = SupportTicket::whereIn('status', [0,2])->orderBy('priority', 'DESC')->orderBy('id','desc')->where('user_id', '!=', 0)->with('user')->paginate(getPaginate());
-        return view('admin.support.user_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::whereIn('status', [0, 2])->orderBy('priority', 'DESC')->orderBy('id', 'desc')
+            ->where('user_id', '!=', 0)->with('user')->paginate(getPaginate());
+        return view('admin.support.user_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
     public function userClosedTicket()
     {
         $emptyMessage = 'No Data found.';
         $pageTitle = 'Closed Tickets';
-        $items = SupportTicket::where('status',3)->orderBy('id','desc')->where('user_id', '!=', 0)->with('user')->paginate(getPaginate());
-        return view('admin.support.user_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::where('status', 3)->orderBy('id', 'desc')->where('user_id', '!=', 0)->with('user')->paginate(getPaginate());
+        return view('admin.support.user_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
     public function userAnsweredTicket()
     {
         $pageTitle = 'Answered Tickets';
         $emptyMessage = 'No Data found.';
-        $items = SupportTicket::orderBy('id','desc')->where('user_id', '!=', 0)->with('user')->where('status',1)->paginate(getPaginate());
-        return view('admin.support.user_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::orderBy('id', 'desc')->where('user_id', '!=', 0)->with('user')->where('status', 1)->paginate(getPaginate());
+        return view('admin.support.user_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
 
@@ -49,9 +50,10 @@ class SupportTicketController extends Controller
     {
         $ticket = SupportTicket::with('user')->where('id', $id)->firstOrFail();
         $pageTitle = 'Reply Ticket';
-        $messages = SupportMessage::with('ticket', 'attachments')->where('supportticket_id', $ticket->id)->orderBy('id','desc')->get();
+        $messages = SupportMessage::with('ticket', 'attachments')->where('supportticket_id', $ticket->id)->orderBy('id', 'desc')->get();
         return view('admin.support.user_reply', compact('ticket', 'messages', 'pageTitle'));
     }
+
     public function userTicketReplySend(Request $request, $id)
     {
         $ticket = SupportTicket::with('user')->where('id', $id)->firstOrFail();
@@ -110,7 +112,7 @@ class SupportTicketController extends Controller
                 'ticket_id' => $ticket->ticket,
                 'ticket_subject' => $ticket->subject,
                 'reply' => $request->message,
-                'link' => route('ticket.view',$ticket->ticket),
+                'link' => route('ticket.view', $ticket->ticket),
             ]);
 
             $notify[] = ['success', "Support ticket replied successfully"];
@@ -132,20 +134,21 @@ class SupportTicketController extends Controller
 
         $path = imagePath()['ticket']['path'];
 
-        $full_path = $path.'/' . $file;
-        $title = slug($attachment->supportMessage->ticket->subject).'-'.$file;
+        $full_path = $path . '/' . $file;
+        $title = slug($attachment->supportMessage->ticket->subject) . '-' . $file;
         $mimetype = mime_content_type($full_path);
         header('Content-Disposition: attachment; filename="' . $title);
         header("Content-Type: " . $mimetype);
         return readfile($full_path);
     }
+
     public function userTicketDelete(Request $request)
     {
         $message = SupportMessage::findOrFail($request->message_id);
         $path = imagePath()['ticket']['path'];
         if ($message->attachments()->count() > 0) {
             foreach ($message->attachments as $attachment) {
-                removeFile($path.'/'.$attachment->attachment);
+                removeFile($path . '/' . $attachment->attachment);
                 $attachment->delete();
             }
         }
@@ -161,32 +164,32 @@ class SupportTicketController extends Controller
     {
         $pageTitle = 'Support Tickets';
         $emptyMessage = 'No Data found.';
-        $items = SupportTicket::orderBy('id','desc')->where('merchant_id', '!=', 0)->with('merchant')->paginate(getPaginate());
-        return view('admin.support.merchant_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::orderBy('id', 'desc')->where('merchant_id', '!=', 0)->with('merchant')->paginate(getPaginate());
+        return view('admin.support.merchant_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
     public function merchantTendingTicket()
     {
         $pageTitle = 'Pending Tickets';
         $emptyMessage = 'No Data found.';
-        $items = SupportTicket::whereIn('status', [0,2])->orderBy('priority', 'DESC')->orderBy('id','desc')->where('merchant_id', '!=', 0)->with('merchant')->paginate(getPaginate());
-        return view('admin.support.merchant_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::whereIn('status', [0, 2])->orderBy('priority', 'DESC')->orderBy('id', 'desc')->where('merchant_id', '!=', 0)->with('merchant')->paginate(getPaginate());
+        return view('admin.support.merchant_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
     public function merchantClosedTicket()
     {
         $emptyMessage = 'No Data found.';
         $pageTitle = 'Closed Tickets';
-        $items = SupportTicket::where('status',3)->orderBy('id','desc')->where('merchant_id', '!=', 0)->with('merchant')->paginate(getPaginate());
-        return view('admin.support.merchant_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::where('status', 3)->orderBy('id', 'desc')->where('merchant_id', '!=', 0)->with('merchant')->paginate(getPaginate());
+        return view('admin.support.merchant_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
     public function merchantAnsweredTicket()
     {
         $pageTitle = 'Answered Tickets';
         $emptyMessage = 'No Data found.';
-        $items = SupportTicket::orderBy('id','desc')->where('merchant_id', '!=', 0)->with('merchant')->where('status',1)->paginate(getPaginate());
-        return view('admin.support.merchant_tickets', compact('items', 'pageTitle','emptyMessage'));
+        $items = SupportTicket::orderBy('id', 'desc')->where('merchant_id', '!=', 0)->with('merchant')->where('status', 1)->paginate(getPaginate());
+        return view('admin.support.merchant_tickets', compact('items', 'pageTitle', 'emptyMessage'));
     }
 
 
@@ -194,9 +197,11 @@ class SupportTicketController extends Controller
     {
         $ticket = SupportTicket::with('merchant')->where('id', $id)->firstOrFail();
         $pageTitle = 'Reply Ticket';
-        $messages = SupportMessage::with('ticket')->where('supportticket_id', $ticket->id)->orderBy('id','desc')->get();
+        $messages = SupportMessage::with('ticket', 'attachments')->where('supportticket_id', $ticket->id)
+            ->orderBy('id', 'desc')->get();
         return view('admin.support.merchant_reply', compact('ticket', 'messages', 'pageTitle'));
     }
+
     public function merchantTicketReplySend(Request $request, $id)
     {
         $ticket = SupportTicket::with('merchant')->where('id', $id)->firstOrFail();
@@ -255,7 +260,7 @@ class SupportTicketController extends Controller
                 'ticket_id' => $ticket->ticket,
                 'ticket_subject' => $ticket->subject,
                 'reply' => $request->message,
-                'link' => route('ticket.view',$ticket->ticket),
+                'link' => route('ticket.view', $ticket->ticket),
             ]);
 
             $notify[] = ['success', "Support ticket replied successfully"];
@@ -277,20 +282,21 @@ class SupportTicketController extends Controller
 
         $path = imagePath()['ticket']['path'];
 
-        $full_path = $path.'/' . $file;
-        $title = slug($attachment->supportMessage->ticket->subject).'-'.$file;
+        $full_path = $path . '/' . $file;
+        $title = slug($attachment->supportMessage->ticket->subject) . '-' . $file;
         $mimetype = mime_content_type($full_path);
         header('Content-Disposition: attachment; filename="' . $title);
         header("Content-Type: " . $mimetype);
         return readfile($full_path);
     }
+
     public function merchantTicketDelete(Request $request)
     {
         $message = SupportMessage::findOrFail($request->message_id);
         $path = imagePath()['ticket']['path'];
         if ($message->attachments()->count() > 0) {
             foreach ($message->attachments as $attachment) {
-                removeFile($path.'/'.$attachment->attachment);
+                removeFile($path . '/' . $attachment->attachment);
                 $attachment->delete();
             }
         }
@@ -299,7 +305,6 @@ class SupportTicketController extends Controller
         return back()->withNotify($notify);
 
     }
-
 
 
 }

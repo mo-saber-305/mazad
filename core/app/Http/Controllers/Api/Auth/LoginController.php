@@ -55,7 +55,7 @@ class LoginController extends Controller
         $credentials = request([$this->username, 'password']);
         $token = auth('api')->attempt($credentials);
         if (!$token) {
-            $response = 'Unauthorized user';
+            $response = __('Unauthorized user');
             return responseJson(401, 'unauthorized', $response);
         }
 
@@ -64,7 +64,7 @@ class LoginController extends Controller
 
 //        $tokenResult = $user->createToken('personal-token')->plainTextToken;
         $this->authenticated($request, $user);
-        $response[] = 'Login Successfully';
+        $response = __('Login Successfully');
         $data = [
             'user' => auth('api')->user(),
 //            'access_token' => $tokenResult,
@@ -87,14 +87,14 @@ class LoginController extends Controller
         $credentials = request([$this->username, 'password']);
         $token = auth('api_merchant')->attempt($credentials);
         if (!$token) {
-            $response = 'Unauthorized merchant';
+            $response = __('Unauthorized merchant');
             return responseJson(401, 'unauthorized', $response);
         }
 
         $user = auth('api_merchant')->user();
 
         $this->merchantAuthenticated($request, $user);
-        $response[] = 'Login Successfully';
+        $response = __('Login Successfully');
         $data = [
             'user' => auth('api_merchant')->user(),
             'access_token' => $token,
@@ -134,7 +134,7 @@ class LoginController extends Controller
 //        auth('api')->user()->tokens()->delete();
         auth('api')->logout();
 
-        $notify = 'Logout Successfully';
+        $notify = __('Logout Successfully');
         return responseJson(200, 'success', $notify);
     }
 
@@ -142,7 +142,7 @@ class LoginController extends Controller
     {
         auth('api_merchant')->logout();
 
-        $notify = 'Logout Successfully';
+        $notify = __('Logout Successfully');
         return responseJson(200, 'success', $notify);
     }
 
@@ -151,7 +151,7 @@ class LoginController extends Controller
         if ($user->status == 0) {
 //            auth('api')->user()->tokens()->delete();
             auth('api')->logout();
-            $notify = 'Your account has been deactivated';
+            $notify = __('Your account has been deactivated');
             return responseJson(200, 'success', $notify);
         }
 
@@ -190,7 +190,7 @@ class LoginController extends Controller
     {
         if ($user->status == 0) {
             auth('api_merchant')->logout();
-            $notify = 'Your account has been deactivated';
+            $notify = __('Your account has been deactivated');
             return responseJson(200, 'success', $notify);
         }
 

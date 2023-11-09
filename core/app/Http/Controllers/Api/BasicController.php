@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CountriesResource;
+use App\Http\Resources\AdvertisementsResource;
 use App\Http\Resources\HomeFaqResource;
 use App\Models\AdminNotification;
+use App\Models\Advertisement;
 use App\Models\GeneralSetting;
 use App\Models\Language;
 use App\Models\SupportMessage;
@@ -20,20 +21,20 @@ class BasicController extends Controller
     public function generalSetting()
     {
         $general = GeneralSetting::first();
-        $notify = 'General setting data';
+        $notify = __('General setting data');
         return responseJson(200, 'success', $notify, $general);
     }
 
     public function unauthenticate()
     {
-        $notify = 'Unauthenticated user';
+        $notify = __('Unauthenticated user');
 
         return responseJson(403, 'unauthorized', $notify);
     }
 
     public function merchantUnauthenticate()
     {
-        $notify = 'Unauthenticated merchant';
+        $notify = __('Unauthenticated merchant');
 
         return responseJson(403, 'unauthorized', $notify);
     }
@@ -41,7 +42,7 @@ class BasicController extends Controller
     public function languages()
     {
         $languages = Language::get();
-        $notify = 'Language Data';
+        $notify = __('Languages Data');
         $data = [
             'languages' => $languages,
             'image_path' => imagePath()['language']['path']
@@ -53,13 +54,13 @@ class BasicController extends Controller
     {
         $language = Language::where('code', $code)->first();
         if (!$language) {
-            $notify = 'Language not found';
+            $notify = __('Language not found');
             return responseJson(404, 'error', $notify);
         }
         $jsonFile = strtolower($language->code) . '.json';
         $fileData = resource_path('lang/') . $jsonFile;
         $languageData = json_decode(file_get_contents($fileData));
-        $notify = 'Language Data';
+        $notify = __('Language Data');
         return responseJson(200, 'success', $notify, $languageData);
     }
 
@@ -75,7 +76,7 @@ class BasicController extends Controller
                 'dial_code' => $country->dial_code,
             ];
         }
-        $notify = 'Countries Data';
+        $notify = __('Countries Data');
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -109,7 +110,7 @@ class BasicController extends Controller
 
         $adminNotification = new AdminNotification();
         $adminNotification->user_id = auth('api')->user() ? auth('api')->user()->id : 0;
-        $adminNotification->title = 'A new support ticket has opened ';
+        $adminNotification->title = __('A new support ticket has opened');
         $adminNotification->click_url = urlPath('admin.user.ticket.view', $ticket->id);
         $adminNotification->save();
 
@@ -118,7 +119,7 @@ class BasicController extends Controller
         $message->message = $request->message;
         $message->save();
 
-        $notify = 'ticket created successfully!';
+        $notify = __('ticket created successfully!');
         return responseJson(200, 'success', $notify);
     }
 
@@ -130,7 +131,7 @@ class BasicController extends Controller
             'details' => $policys->data_values->details,
         ];
 
-        $notify = 'Terms of Service Data';
+        $notify = __('Terms of Service Data');
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -142,7 +143,7 @@ class BasicController extends Controller
             'details' => $policys->data_values->details,
         ];
 
-        $notify = 'Privacy Policy Data';
+        $notify = __('Privacy Policy Data');
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -164,7 +165,7 @@ class BasicController extends Controller
         $faqs = getContent('faq.element');
         $data['faqs']['lists'] = HomeFaqResource::collection($faqs);
 
-        $notify = 'Contact Content Data';
+        $notify = __('Contact Content Data');
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -187,7 +188,15 @@ class BasicController extends Controller
             $data['about_list'][]['title'] = $about->data_values->about_list;
         }
 
-        $notify = 'About Content Data';
+        $notify = __('About Us Content Data');
         return responseJson(200, 'success', $notify, $data);
+    }
+
+    public function advertisements()
+    {
+        $advertisements = Advertisement::paginate(PAGINATION_COUNT);
+        $data = AdvertisementsResource::collection($advertisements);
+        $notify = __('Advertisements Data');
+        return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($advertisements));
     }
 }

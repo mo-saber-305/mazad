@@ -49,7 +49,7 @@ class ResetPasswordController extends Controller
         }
         $reset = PasswordReset::where('token', $request->token)->orderBy('created_at', 'desc')->first();
         if (!$reset) {
-            $notify = 'Invalid verification code';
+            $notify = __('Invalid verification code');
             return responseJson(422, 'failed', $notify);
         }
 
@@ -67,7 +67,7 @@ class ResetPasswordController extends Controller
             'time' => @$userIpInfo['time']
         ]);
 
-        $notify = 'Password changed';
+        $notify = __('Password changed');
 
         return responseJson(200, 'success', $notify);
     }
@@ -81,7 +81,7 @@ class ResetPasswordController extends Controller
         }
         $reset = PasswordReset::where('token', $request->token)->orderBy('created_at', 'desc')->first();
         if (!$reset) {
-            $notify = 'Invalid verification code';
+            $notify = __('Invalid verification code');
             return responseJson(422, 'failed', $notify);
         }
 
@@ -99,7 +99,7 @@ class ResetPasswordController extends Controller
             'time' => @$userIpInfo['time']
         ]);
 
-        $notify = 'Password changed';
+        $notify = __('Password changed');
 
         return responseJson(200, 'success', $notify);
     }

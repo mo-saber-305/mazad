@@ -40,7 +40,7 @@ class ProductResource extends JsonResource
             'long_description' => $this->long_description,
             'specification' => $this->specification,
             'user_bid' => $bidsCount,
-            'greater_bid' => $bidsCount ? $this->bids->max('amount') : null,
+            'greater_bid' => $bidsCount ? round($this->bids->max('amount'), 2) : null,
             'reviews' => $this->reviews(),
             'seller' => $this->sellerData(),
             'related_products' => $relatedProducts,

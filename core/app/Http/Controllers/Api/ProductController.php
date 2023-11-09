@@ -56,14 +56,14 @@ class ProductController extends Controller
         $products = $products->paginate(PAGINATION_COUNT);
 
         $general = ProductsResource::collection($products);
-        $notify = 'products data';
+        $notify = __('products data');
         return responseJson(200, 'success', $notify, $general, responseWithPaginagtion($products));
     }
 
     public function product(Product $product)
     {
         $general = new ProductResource($product);
-        $notify = 'product data';
+        $notify = __('product data');
         return responseJson(200, 'success', $notify, $general);
     }
 
@@ -79,19 +79,19 @@ class ProductController extends Controller
         $user = auth('api')->user();
 
         if ($product->price > $request->amount) {
-            $notify = 'Bid amount must be greater than product price';
+            $notify = __('Bid amount must be greater than product price');
             return responseJson(422, 'failed', $notify);
         }
 
         if ($request->amount > $user->balance) {
-            $notify = 'Insufficient Balance';
+            $notify = __('Insufficient Balance');
             return responseJson(422, 'failed', $notify);
         }
 
         $bid = Bid::where('product_id', $request->product_id)->where('user_id', $user->id)->exists();
 
         if ($bid) {
-            $notify = 'You already bidden on this product';
+            $notify = __('You already bidden on this product');
             return responseJson(422, 'failed', $notify);
         }
 
@@ -126,7 +126,7 @@ class ProductController extends Controller
             $adminNotification->click_url = urlPath('admin.product.bids', $product->id);
             $adminNotification->save();
 
-            $notify = 'Bidden successfully';
+            $notify = __('Bidden successfully');
             return responseJson(200, 'success', $notify);
         }
 
@@ -151,7 +151,7 @@ class ProductController extends Controller
             'post_balance' => showAmount($product->merchant->balance),
         ], 'merchant');
 
-        $notify = 'Bidden successfully';
+        $notify = __('Bidden successfully');
         return responseJson(200, 'success', $notify);
     }
 
@@ -173,10 +173,10 @@ class ProductController extends Controller
             $review = new Review();
             $product->total_rating += $request->rating;
             $product->review_count += 1;
-            $notify = 'Review given successfully';
+            $notify = __('Review given successfully');
         } else {
             $product->total_rating = $product->total_rating - $review->rating + $request->rating;
-            $notify = 'Review updated successfully';
+            $notify = __('Review updated successfully');
         }
 
         $product->avg_rating = $product->total_rating / $product->review_count;
@@ -210,10 +210,10 @@ class ProductController extends Controller
             $review = new Review();
             $merchant->total_rating += $request->rating;
             $merchant->review_count += 1;
-            $notify = 'Review given successfully';
+            $notify = __('Review given successfully');
         } else {
             $merchant->total_rating = $merchant->total_rating - $review->rating + $request->rating;
-            $notify = 'Review updated successfully';
+            $notify = __('Review updated successfully');
         }
 
         $merchant->avg_rating = $merchant->total_rating / $merchant->review_count;

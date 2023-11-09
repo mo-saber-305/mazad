@@ -21,7 +21,7 @@ class PaymentController extends Controller
             $gate->where('status', 1);
         })->with('method')->orderby('method_code')->get();
         $data = DepositResource::collection($gatewayCurrency);
-        $notify = 'Payment Methods';
+        $notify = __('Payment Methods');
 //        $data = [
 //            'methods' => $gatewayCurrency,
 //            'image_path' => imagePath()['gateway']['path']
@@ -46,12 +46,12 @@ class PaymentController extends Controller
             $gate->where('status', 1);
         })->where('method_code', $request->method_code)->where('currency', $request->currency)->first();
         if (!$gate) {
-            $notify = 'Invalid gateway';
+            $notify = __('Invalid gateway');
             return responseJson(422, 'failed', $notify);
         }
 
         if ($gate->min_amount > $request->amount || $gate->max_amount < $request->amount) {
-            $notify = 'Please follow deposit limit';
+            $notify = __('Please follow deposit limit');
             return responseJson(200, 'success', $notify);
         }
 
@@ -75,7 +75,7 @@ class PaymentController extends Controller
         $data->from_api = 1;
         $data->save();
 
-        $notify = 'Deposit Created';
+        $notify = __('Deposit Created');
         return responseJson(202, 'created', $notify, $data);
     }
 
@@ -90,7 +90,7 @@ class PaymentController extends Controller
         }
         $deposit = Deposit::where('trx', $request->transaction)->where('status', 0)->orderBy('id', 'DESC')->with('gateway')->first();
         if (!$deposit) {
-            $notify = 'Deposit not found';
+            $notify = __('Deposit not found');
             return responseJson(404, 'error', $notify);
         }
         $dirName = $deposit->gateway->alias;
@@ -99,7 +99,7 @@ class PaymentController extends Controller
         if (array_key_exists('view', $data)) {
             unset($data['view']);
         }
-        $notify = 'gateway data';
+        $notify = __('gateway data');
         return responseJson(200, 'success', $notify, ['gateway_data' => $data]);
     }
 
@@ -115,11 +115,11 @@ class PaymentController extends Controller
         }
         $data = Deposit::with('gateway')->where('status', 0)->where('trx', $request->transaction)->where('method_code', '>=', 1000)->first();
         if (!$data) {
-            $notify = 'Deposit not found';
+            $notify = __('Deposit not found');
             return responseJson(404, 'error', $notify);
         }
         $method = $data->gatewayCurrency();
-        $notify = 'Manual payment details';
+        $notify = __('Manual payment details');
         $data = [
             'deposit' => $data,
             'payment_method' => $method
@@ -132,7 +132,7 @@ class PaymentController extends Controller
     {
         $data = Deposit::with('gateway')->where('status', 0)->where('trx', $request->transaction)->where('method_code', '>=', 1000)->first();
         if (!$data) {
-            $notify = 'Deposit not found';
+            $notify = __('Deposit not found');
             return responseJson(404, 'error', $notify);
         }
 
@@ -185,8 +185,8 @@ class PaymentController extends Controller
                                         'type' => $inVal->type,
                                     ];
                                 } catch (\Exception $exp) {
-                                    $notify[] = ['error', 'Could not upload your ' . $inKey];
-                                    return back()->withNotify($notify)->withInput();
+                                    $notify = __('Could not upload your ') . $inKey;
+                                    return responseJson(422, 'failed', $notify);
                                 }
                             }
                         } else {
@@ -227,7 +227,7 @@ class PaymentController extends Controller
             'trx' => $data->trx
         ]);
 
-        $notify = 'Deposit request sent successfully';
+        $notify = __('Deposit request sent successfully');
         return responseJson(200, 'success', $notify);
     }
 

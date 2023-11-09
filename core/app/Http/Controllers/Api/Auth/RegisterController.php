@@ -89,7 +89,7 @@ class RegisterController extends Controller
 
         $exist = User::where('mobile', $request->mobile_code . $request->mobile)->first();
         if ($exist) {
-            $response = 'The mobile number already exists';
+            $response = __('The mobile number already exists');
             return responseJson(409, 'conflict', $response);
         }
 
@@ -98,7 +98,7 @@ class RegisterController extends Controller
         $response['user'] = $user;
         $response['access_token'] = Auth::guard('api')->login($user);
         $response['token_type'] = 'Bearer';
-        $notify = 'Registration successfully';
+        $notify = __('Registration successfully');
         return responseJson(202, 'created', $notify, $response);
     }
 
@@ -111,7 +111,7 @@ class RegisterController extends Controller
 
         $exist = Merchant::where('mobile', $request->mobile_code . $request->mobile)->first();
         if ($exist) {
-            $response = 'The mobile number already exists';
+            $response = __('The mobile number already exists');
             return responseJson(409, 'conflict', $response);
         }
 
@@ -120,7 +120,7 @@ class RegisterController extends Controller
         $response['user'] = $user;
         $response['access_token'] = Auth::guard('api_merchant')->login($user);
         $response['token_type'] = 'Bearer';
-        $notify = 'Registration successfully';
+        $notify = __('Registration successfully');
         return responseJson(202, 'created', $notify, $response);
     }
 
@@ -229,7 +229,7 @@ class RegisterController extends Controller
         $merchant->password = Hash::make($data['password']);
         $merchant->username = trim($data['username']);
         $merchant->country_code = $data['country_code'];
-        $merchant->mobile = $data['mobile_code'].$data['mobile'];
+        $merchant->mobile = $data['mobile_code'] . $data['mobile'];
         $merchant->address = [
             'address' => '',
             'state' => '',
@@ -248,33 +248,33 @@ class RegisterController extends Controller
         $adminNotification = new AdminNotification();
         $adminNotification->merchant_id = $merchant->id;
         $adminNotification->title = 'New merchant registered';
-        $adminNotification->click_url = urlPath('admin.merchants.detail',$merchant->id);
+        $adminNotification->click_url = urlPath('admin.merchants.detail', $merchant->id);
         $adminNotification->save();
 
         //Login Log Create
         $ip = $_SERVER["REMOTE_ADDR"];
-        $exist = UserLogin::where('user_ip',$ip)->first();
+        $exist = UserLogin::where('user_ip', $ip)->first();
         $userLogin = new UserLogin();
 
         //Check exist or not
         if ($exist) {
-            $userLogin->longitude =  $exist->longitude;
-            $userLogin->latitude =  $exist->latitude;
-            $userLogin->city =  $exist->city;
+            $userLogin->longitude = $exist->longitude;
+            $userLogin->latitude = $exist->latitude;
+            $userLogin->city = $exist->city;
             $userLogin->country_code = $exist->country_code;
-            $userLogin->country =  $exist->country;
-        }else{
+            $userLogin->country = $exist->country;
+        } else {
             $info = json_decode(json_encode(getIpInfo()), true);
-            $userLogin->longitude =  @implode(',',$info['long']);
-            $userLogin->latitude =  @implode(',',$info['lat']);
-            $userLogin->city =  @implode(',',$info['city']);
-            $userLogin->country_code = @implode(',',$info['code']);
-            $userLogin->country =  @implode(',', $info['country']);
+            $userLogin->longitude = @implode(',', $info['long']);
+            $userLogin->latitude = @implode(',', $info['lat']);
+            $userLogin->city = @implode(',', $info['city']);
+            $userLogin->country_code = @implode(',', $info['code']);
+            $userLogin->country = @implode(',', $info['country']);
         }
 
         $userMerchant = osBrowser();
         $userLogin->merchant_id = $merchant->id;
-        $userLogin->user_ip =  $ip;
+        $userLogin->user_ip = $ip;
 
         $userLogin->browser = @$userMerchant['browser'];
         $userLogin->os = @$userMerchant['os_platform'];

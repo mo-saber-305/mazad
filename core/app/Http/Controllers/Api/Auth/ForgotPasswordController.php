@@ -38,16 +38,16 @@ class ForgotPasswordController extends Controller
                 'value' => 'required|email'
             ];
             $validationMessage = [
-                'value.required' => 'Email field is required',
-                'value.email' => 'Email must be an valide email'
+                'value.required' => __('Email field is required'),
+                'value.email' => __('Email must be an valid email')
             ];
         } elseif ($request->type == 'username') {
             $validationRule = [
                 'value' => 'required'
             ];
-            $validationMessage = ['value.required' => 'Username field is required'];
+            $validationMessage = ['value.required' => __('Username field is required')];
         } else {
-            $notify = 'Invalid selection';
+            $notify = __('Invalid selection');
             return responseJson(422, 'failed', $notify);
         }
         $validator = Validator::make($request->all(), $validationRule, $validationMessage);
@@ -58,7 +58,7 @@ class ForgotPasswordController extends Controller
         $user = User::where($request->type, $request->value)->first();
 
         if (!$user) {
-            $notify = 'User not found.';
+            $notify = __('User not found.');
             return responseJson(404, 'failed', $notify);
         }
 
@@ -80,7 +80,7 @@ class ForgotPasswordController extends Controller
             'time' => @$userIpInfo['time']
         ]);
         $email = $user->email;
-        $notify = 'Password reset email sent successfully';
+        $notify = __('Password reset email sent successfully');
 
         return responseJson(200, 'success', $notify, ['email' => $email]);
     }
@@ -93,16 +93,16 @@ class ForgotPasswordController extends Controller
                 'value' => 'required|email'
             ];
             $validationMessage = [
-                'value.required' => 'Email field is required',
-                'value.email' => 'Email must be an valide email'
+                'value.required' => __('Email field is required'),
+                'value.email' => __('Email must be an valid email')
             ];
         } elseif ($request->type == 'username') {
             $validationRule = [
                 'value' => 'required'
             ];
-            $validationMessage = ['value.required' => 'Username field is required'];
+            $validationMessage = ['value.required' => __('Username field is required')];
         } else {
-            $notify = 'Invalid selection';
+            $notify = __('Invalid selection');
             return responseJson(422, 'failed', $notify);
         }
         $validator = Validator::make($request->all(), $validationRule, $validationMessage);
@@ -113,7 +113,7 @@ class ForgotPasswordController extends Controller
         $user = Merchant::where($request->type, $request->value)->first();
 
         if (!$user) {
-            $notify = 'Merchant not found.';
+            $notify = __('Merchant not found.');
             return responseJson(404, 'failed', $notify);
         }
 
@@ -135,7 +135,7 @@ class ForgotPasswordController extends Controller
             'time' => @$userIpInfo['time']
         ]);
         $email = $user->email;
-        $notify = 'Password reset email sent successfully';
+        $notify = __('Password reset email sent successfully');
 
         return responseJson(200, 'success', $notify, ['email' => $email]);
     }
@@ -155,11 +155,11 @@ class ForgotPasswordController extends Controller
         $code = $request->code;
 
         if (PasswordReset::where('token', $code)->where('email', $request->email)->count() != 1) {
-            $notify = 'Invalid token';
+            $notify = __('Invalid token');
             return responseJson(401, 'failed', $notify);
         }
 
-        $notify = 'You can change your password';
+        $notify = __('You can change your password');
         $data = [
             'token' => $code,
             'email' => $request->email,

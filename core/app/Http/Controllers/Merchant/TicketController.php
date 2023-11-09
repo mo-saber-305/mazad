@@ -83,7 +83,7 @@ class TicketController extends Controller
         $adminNotification = new AdminNotification();
         $adminNotification->merchant_id = $merchant->id;
         $adminNotification->title = 'New support ticket has opened';
-        $adminNotification->click_url = urlPath('admin.ticket.view',$ticket->id);
+        $adminNotification->click_url = urlPath('admin.merchant.ticket.view',$ticket->id);
         $adminNotification->save();
 
 
@@ -112,7 +112,7 @@ class TicketController extends Controller
         $my_ticket = SupportTicket::where('ticket', $ticket)->orderBy('id','desc')->firstOrFail();
 
         $my_ticket = SupportTicket::where('ticket', $ticket)->where('merchant_id',Auth::guard('merchant')->id())->orderBy('id','desc')->firstOrFail();
-        $messages = SupportMessage::where('supportticket_id', $my_ticket->id)->orderBy('id','desc')->get();
+        $messages = SupportMessage::where('supportticket_id', $my_ticket->id)->with('ticket', 'attachments')->orderBy('id','desc')->get();
 
         return view('merchant.support.view', compact('my_ticket', 'messages', 'pageTitle'));
 

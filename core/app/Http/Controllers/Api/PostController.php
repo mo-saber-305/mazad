@@ -24,7 +24,7 @@ class PostController extends Controller
         }
 
         $general = PostsResource::collection($posts);
-        $notify = 'posts data';
+        $notify = __('posts data');
         return responseJson(200, 'success', $notify, $general, $pagination);
     }
 
@@ -32,7 +32,7 @@ class PostController extends Controller
     {
         $blog = Frontend::where('id', $id)->where('data_keys', 'blog.element')->firstOrFail();
         $general = new PostResource($blog);
-        $notify = 'post data';
+        $notify = __('post data');
         return responseJson(200, 'success', $notify, $general);
     }
 }

@@ -57,6 +57,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
+        'change_lang' => \App\Http\Middleware\ApiChangeLanguage::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.api' => \App\Http\Middleware\AuthenticateApi::class,
         'auth.api_merchant' => \App\Http\Middleware\AuthenticateMerchantApi::class,

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\MerchantDashboardResource;
 use App\Http\Resources\MerchantProfileResource;
 use App\Http\Resources\MerchantsResource;
 use App\Http\Resources\UserBiddingResource;
@@ -13,6 +12,7 @@ use App\Http\Resources\UserTicketResource;
 use App\Http\Resources\UserTransactionsResource;
 use App\Http\Resources\UserViewTicketResource;
 use App\Http\Resources\UserWinningResource;
+use App\Lib\GoogleAuthenticator;
 use App\Models\Admin;
 use App\Models\AdminNotification;
 use App\Models\Bid;
@@ -22,10 +22,7 @@ use App\Models\Merchant;
 use App\Models\SupportAttachment;
 use App\Models\SupportMessage;
 use App\Models\SupportTicket;
-use App\Models\Transaction;
 use App\Models\Winner;
-use App\Models\Withdrawal;
-use App\Models\WithdrawMethod;
 use App\Rules\FileTypeValidate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -51,7 +48,7 @@ class UserController extends Controller
             'image' => imagePath()['profile']['user']['path'] . '/' . $user->image,
         ];
 
-        $notify = 'Profile Data';
+        $notify = __('Profile Data');
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -95,7 +92,7 @@ class UserController extends Controller
             $in['image'] = $filename;
         }
         $user->fill($in)->save();
-        $notify = 'Profile updated successfully';
+        $notify = __('Profile updated successfully');
         return responseJson(200, 'success', $notify);
     }
 
@@ -105,7 +102,7 @@ class UserController extends Controller
 
         $general = MerchantsResource::collection($merchants);
 
-        $notify = 'Merchants data';
+        $notify = __('Merchants data');
         return responseJson(200, 'success', $notify, $general, responseWithPaginagtion($merchants));
     }
 
@@ -128,7 +125,7 @@ class UserController extends Controller
 
         $general = new MerchantProfileResource($merchant);
 
-        $notify = 'Merchant Profile data';
+        $notify = __('Merchant Profile data');
         return responseJson(200, 'success', $notify, $general);
     }
 
@@ -154,226 +151,19 @@ class UserController extends Controller
             $password = Hash::make($request->password);
             $user->password = $password;
             $user->save();
-            $notify = 'Password changes successfully';
+            $notify = __('Password changes successfully');
             return responseJson(200, 'success', $notify);
         } else {
-            $notify = 'The password doesn\'t match!';
+            $notify = __("The password doesn't match!");
             return responseJson(422, 'failed', $notify);
         }
-    }
-
-    public function withdrawMethods()
-    {
-        $withdrawMethod = WithdrawMethod::where('status', 1)->get();
-        $notify = 'Withdraw methods';
-        $data = [
-            'methods' => $withdrawMethod,
-            'image_path' => imagePath()['withdraw']['method']['path']
-        ];
-
-        return responseJson(200, 'success', $notify, $data);
-    }
-
-    public function withdrawStore(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'method_code' => 'required',
-            'amount' => 'required|numeric'
-        ]);
-
-        if ($validator->fails()) {
-            return responseJson(422, 'failed', $validator->errors()->all());
-        }
-        $method = WithdrawMethod::where('id', $request->method_code)->where('status', 1)->first();
-        if (!$method) {
-            $notify = 'Method not found.';
-            return responseJson(404, 'error', $notify);
-        }
-        $user = auth('api')->user();
-        if ($request->amount < $method->min_limit) {
-            $notify = 'Your requested amount is smaller than minimum amount.';
-            return responseJson(422, 'failed', $notify);
-        }
-        if ($request->amount > $method->max_limit) {
-            $notify = 'Your requested amount is larger than maximum amount.';
-            return responseJson(422, 'failed', $notify);
-        }
-
-        if ($request->amount > $user->balance) {
-            $notify = 'You do not have sufficient balance for withdraw.';
-            return responseJson(422, 'failed', $notify);
-        }
-
-
-        $charge = $method->fixed_charge + ($request->amount * $method->percent_charge / 100);
-        $afterCharge = $request->amount - $charge;
-        $finalAmount = $afterCharge * $method->rate;
-
-        $withdraw = new Withdrawal();
-        $withdraw->method_id = $method->id; // wallet method ID
-        $withdraw->user_id = $user->id;
-        $withdraw->amount = $request->amount;
-        $withdraw->currency = $method->currency;
-        $withdraw->rate = $method->rate;
-        $withdraw->charge = $charge;
-        $withdraw->final_amount = $finalAmount;
-        $withdraw->after_charge = $afterCharge;
-        $withdraw->trx = getTrx();
-        $withdraw->save();
-
-        $notify = 'Withdraw request stored successfully';
-        return responseJson(202, 'created', $notify, $withdraw);
-    }
-
-    public function withdrawConfirm(Request $request)
-    {
-
-        $withdraw = Withdrawal::with('method', 'user')->where('trx', $request->transaction)->where('status', 0)->orderBy('id', 'desc')->first();
-
-        if (!$withdraw) {
-            $notify = 'Withdraw request not found';
-            return responseJson(404, 'error', $notify);
-        }
-
-        $rules = [];
-        $inputField = [];
-        if ($withdraw->method->user_data != null) {
-            foreach ($withdraw->method->user_data as $key => $cus) {
-                $rules[$key] = [$cus->validation];
-                if ($cus->type == 'file') {
-                    array_push($rules[$key], 'image');
-                    array_push($rules[$key], new FileTypeValidate(['jpg', 'jpeg', 'png']));
-                    array_push($rules[$key], 'max:2048');
-                }
-                if ($cus->type == 'text') {
-                    array_push($rules[$key], 'max:191');
-                }
-                if ($cus->type == 'textarea') {
-                    array_push($rules[$key], 'max:300');
-                }
-                $inputField[] = $key;
-            }
-        }
-        $rules['transaction'] = 'required';
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return responseJson(422, 'failed', $validator->errors()->all());
-        }
-
-        $user = auth('api')->user();
-        if ($user->ts) {
-            $response = verifyG2fa($user, $request->authenticator_code);
-            if (!$response) {
-                $notify = 'Wrong verification code';
-                return responseJson(422, 'failed', $notify);
-            }
-        }
-
-
-        if ($withdraw->amount > $user->balance) {
-            $notify = 'Your request amount is larger then your current balance.';
-            return responseJson(422, 'failed', $notify);
-        }
-
-        $directory = date("Y") . "/" . date("m") . "/" . date("d");
-        $path = imagePath()['verify']['withdraw']['path'] . '/' . $directory;
-        $collection = collect($request);
-        $reqField = [];
-        if ($withdraw->method->user_data != null) {
-            foreach ($collection as $k => $v) {
-                foreach ($withdraw->method->user_data as $inKey => $inVal) {
-                    if ($k != $inKey) {
-                        continue;
-                    } else {
-                        if ($inVal->type == 'file') {
-                            if ($request->hasFile($inKey)) {
-                                try {
-                                    $reqField[$inKey] = [
-                                        'field_name' => $directory . '/' . uploadImage($request[$inKey], $path),
-                                        'type' => $inVal->type,
-                                    ];
-                                } catch (\Exception $exp) {
-                                    $notify = 'Could not upload your ' . $request[$inKey];
-                                    return responseJson(422, 'failed', $notify);
-                                }
-                            }
-                        } else {
-                            $reqField[$inKey] = $v;
-                            $reqField[$inKey] = [
-                                'field_name' => $v,
-                                'type' => $inVal->type,
-                            ];
-                        }
-                    }
-                }
-            }
-            $withdraw['withdraw_information'] = $reqField;
-        } else {
-            $withdraw['withdraw_information'] = null;
-        }
-
-
-        $withdraw->status = 2;
-        $withdraw->save();
-        $user->balance -= $withdraw->amount;
-        $user->save();
-
-
-        $transaction = new Transaction();
-        $transaction->user_id = $withdraw->user_id;
-        $transaction->amount = $withdraw->amount;
-        $transaction->post_balance = $user->balance;
-        $transaction->charge = $withdraw->charge;
-        $transaction->trx_type = '-';
-        $transaction->details = showAmount($withdraw->final_amount) . ' ' . $withdraw->currency . ' Withdraw Via ' . $withdraw->method->name;
-        $transaction->trx = $withdraw->trx;
-        $transaction->save();
-
-        $adminNotification = new AdminNotification();
-        $adminNotification->user_id = $user->id;
-        $adminNotification->title = 'New withdraw request from ' . $user->username;
-        $adminNotification->click_url = urlPath('admin.withdraw.details', $withdraw->id);
-        $adminNotification->save();
-
-        $general = GeneralSetting::first();
-        notify($user, 'WITHDRAW_REQUEST', [
-            'method_name' => $withdraw->method->name,
-            'method_currency' => $withdraw->currency,
-            'method_amount' => showAmount($withdraw->final_amount),
-            'amount' => showAmount($withdraw->amount),
-            'charge' => showAmount($withdraw->charge),
-            'currency' => $general->cur_text,
-            'rate' => showAmount($withdraw->rate),
-            'trx' => $withdraw->trx,
-            'post_balance' => showAmount($user->balance),
-            'delay' => $withdraw->method->delay
-        ]);
-
-        $notify = 'Withdraw request sent successfully';
-        return responseJson(200, 'success', $notify);
-    }
-
-    public function withdrawLog()
-    {
-        $withdrawals = Withdrawal::where('user_id', auth('api')->user()->id)->where('status', '!=', 0)->with('method')->orderBy('id', 'desc')->paginate(getPaginate());
-        $notify = 'Withdraw Log';
-        $data = [
-            'withdrawals' => $withdrawals,
-            'verification_file_path' => imagePath()['verify']['withdraw']['path'],
-        ];
-        return responseJson(200, 'success', $notify, $data);
     }
 
     public function depositHistory()
     {
         $deposits = Deposit::where('user_id', auth('api')->user()->id)->where('status', '!=', 0)->with('gateway')->orderBy('id', 'desc')->paginate(PAGINATION_COUNT);
-        $notify = 'Deposit History';
+        $notify = __('Deposit History');
         $data = UserDepositHistoryResource::collection($deposits);
-//        $data = [
-//            'deposit' => $deposits,
-//            'verification_file_path' => imagePath()['verify']['deposit']['path'],
-//        ];
         return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($deposits));
     }
 
@@ -382,21 +172,14 @@ class UserController extends Controller
         $user = auth('api')->user();
         $transactions = $user->transactions()->latest()->paginate(PAGINATION_COUNT);
         $data = UserTransactionsResource::collection($transactions);
-        $notify = 'transactions data';
+        $notify = __('transactions Data');
         return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($transactions));
     }
 
     public function dashboard()
     {
         $data = new UserDashboardResource();
-        $notify = 'Dashboard Data';
-        return responseJson(200, 'success', $notify, $data);
-    }
-
-    public function merchantDashboard()
-    {
-        $data = new MerchantDashboardResource();
-        $notify = 'Dashboard Data';
+        $notify = __('Dashboard Data');
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -405,7 +188,7 @@ class UserController extends Controller
         $user = auth('api')->user();
         $biddingHistories = Bid::where('user_id', $user->id)->with('user', 'product')->latest()->paginate(PAGINATION_COUNT);
         $data = UserBiddingResource::collection($biddingHistories);
-        $notify = 'Bidding History Data';
+        $notify = __('Bidding History Data');
         return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($biddingHistories));
     }
 
@@ -414,7 +197,7 @@ class UserController extends Controller
         $user = auth('api')->user();
         $winningHistories = Winner::where('user_id', $user->id)->with('user', 'product', 'bid')->latest()->paginate(PAGINATION_COUNT);
         $data = UserWinningResource::collection($winningHistories);
-        $notify = 'Winning History Data';
+        $notify = __('Winning History Data');
         return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($winningHistories));
     }
 
@@ -424,7 +207,7 @@ class UserController extends Controller
         $supports = SupportTicket::where('user_id', $user->id)->orderBy('priority', 'desc')->orderBy('id', 'desc')->paginate(PAGINATION_COUNT);
 
         $data = UserTicketResource::collection($supports);
-        $notify = 'Ticket Data';
+        $notify = __('Ticket Data');
         return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($supports));
     }
 
@@ -433,7 +216,7 @@ class UserController extends Controller
         $userId = auth('api')->user()->id;
         $my_ticket = SupportTicket::where('id', $id)->where('user_id', $userId)->orderBy('id', 'desc')->firstOrFail();
         $data = new UserViewTicketResource($my_ticket);
-        $notify = 'Ticket Details Data';
+        $notify = __('Ticket Details Data');
         return responseJson(200, 'success', $notify, $data);
     }
 
@@ -444,7 +227,7 @@ class UserController extends Controller
         $ticket->status = 3;
         $ticket->last_reply = Carbon::now();
         $ticket->save();
-        $notify = 'Support ticket closed successfully!';
+        $notify = __('Support ticket closed successfully!');
         return responseJson(200, 'success', $notify);
     }
 
@@ -523,7 +306,7 @@ class UserController extends Controller
                 }
             }
         }
-        $notify = 'ticket created successfully!';
+        $notify = __('ticket created successfully!');
         return responseJson(200, 'success', $notify);
     }
 
@@ -581,13 +364,86 @@ class UserController extends Controller
                     $attachment->save();
 
                 } catch (\Exception $exp) {
-                    $notify = 'Could not upload your ' . $file;
+                    $notify = __('Could not upload your ') . $file;
                     return responseJson(422, 'failed', $notify);
                 }
             }
         }
 
-        $notify = 'Support ticket replied successfully!';
+        $notify = __('Support ticket replied successfully!');
         return responseJson(200, 'success', $notify);
+    }
+
+    public function twoFactor()
+    {
+        $general = GeneralSetting::first();
+        $ga = new GoogleAuthenticator();
+        $merchant = auth()->guard('api')->user();
+        $secret = $ga->createSecret();
+        $qrCodeUrl = $ga->getQRCodeGoogleUrl($merchant->username . '@' . $general->sitename, $secret);
+        $data = [
+            'secret' => $secret,
+            'qr_code' => $qrCodeUrl,
+            'google_authenticator_app' => 'https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en',
+        ];
+        $notify = __('Two Factor Data');
+        return responseJson(200, 'success', $notify, $data);
+    }
+
+    public function enableTwoFactor(Request $request)
+    {
+        $merchant = auth()->guard('api')->user();
+        $this->validate($request, [
+            'key' => 'required',
+            'code' => 'required',
+        ]);
+        $response = verifyG2fa($merchant, $request->code, $request->key);
+        if ($response) {
+            $merchant->tsc = $request->key;
+            $merchant->ts = 1;
+            $merchant->save();
+            $merchantAgent = getIpInfo();
+            $osBrowser = osBrowser();
+            notify($merchant, '2FA_ENABLE', [
+                'operating_system' => @$osBrowser['os_platform'],
+                'browser' => @$osBrowser['browser'],
+                'ip' => @$merchantAgent['ip'],
+                'time' => @$merchantAgent['time']
+            ], 'merchant');
+            $notify = __('Google authenticator enabled successfully');
+            return responseJson(200, 'success', $notify);
+        } else {
+            $notify = __('Wrong verification code');
+            return responseJson(422, 'failed', $notify);
+        }
+    }
+
+
+    public function disbleTwoFactor(Request $request)
+    {
+        $this->validate($request, [
+            'code' => 'required',
+        ]);
+
+        $merchant = auth()->guard('api')->user();
+        $response = verifyG2fa($merchant, $request->code);
+        if ($response) {
+            $merchant->tsc = null;
+            $merchant->ts = 0;
+            $merchant->save();
+            $merchantAgent = getIpInfo();
+            $osBrowser = osBrowser();
+            notify($merchant, '2FA_DISABLE', [
+                'operating_system' => @$osBrowser['os_platform'],
+                'browser' => @$osBrowser['browser'],
+                'ip' => @$merchantAgent['ip'],
+                'time' => @$merchantAgent['time']
+            ], 'merchant');
+            $notify = __('Two factor authenticator disable successfully');
+            return responseJson(200, 'success', $notify);
+        } else {
+            $notify = __('Wrong verification code');
+            return responseJson(422, 'failed', $notify);
+        }
     }
 }

@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
+Route::namespace('Api')->name('api.')->middleware(['api', 'change_lang'])->group(function () {
     Route::get('general-setting', 'BasicController@generalSetting'); //ok
     Route::get('unauthenticate', 'BasicController@unauthenticate')->name('unauthenticate'); //ok
     Route::get('merchant-unauthenticate', 'BasicController@merchantUnauthenticate')->name('merchant-unauthenticate'); //ok
@@ -24,6 +24,8 @@ Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
     Route::get('privacy-policy', 'BasicController@privacyPolicy')->name('privacy-policy'); //ok
     Route::get('contact-content', 'BasicController@contactContent')->name('contact-content'); //ok
     Route::get('about-content', 'BasicController@aboutContent')->name('about-content'); //ok
+
+    Route::get('advertisements', 'BasicController@advertisements')->name('advertisements'); //ok
 
     Route::namespace('Auth')->group(function () {
         Route::post('login', 'LoginController@login'); //ok
@@ -55,6 +57,23 @@ Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
 
                 Route::post('profile-setting', 'MerchantController@submitProfile'); //ok
                 Route::post('change-password', 'MerchantController@submitPassword'); //ok
+
+                // Withdraw
+                Route::get('withdraw/methods', 'MerchantController@withdrawMethods'); //ok
+                Route::post('withdraw/store', 'MerchantController@withdrawStore'); //ok
+                Route::post('withdraw/confirm', 'MerchantController@withdrawConfirm'); //ok
+                Route::get('withdraw/history', 'MerchantController@withdrawLog'); //ok
+
+                //Ticket
+                Route::get('ticket', 'MerchantController@ticket'); //ok
+                Route::get('ticket/view/{id}', 'MerchantController@viewTicket'); //ok
+                Route::get('ticket/close/{id}', 'MerchantController@closeTicket'); //ok
+                Route::post('ticket/store', 'MerchantController@storeTicket'); //ok
+                Route::post('ticket/reply/{id}', 'MerchantController@replyTicket'); //ok
+
+                Route::get('twofactor', 'MerchantController@twoFactor'); //ok
+                Route::post('enable-twofactor', 'MerchantController@enableTwoFactor'); //ok
+                Route::post('disable-twofactor', 'MerchantController@disbleTwoFactor'); //ok
             });
         });
     });
@@ -88,12 +107,6 @@ Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
                 Route::post('profile-setting', 'UserController@submitProfile'); //ok
                 Route::post('change-password', 'UserController@submitPassword'); //ok
 
-                // Withdraw
-                Route::get('withdraw/methods', 'UserController@withdrawMethods');
-                Route::post('withdraw/store', 'UserController@withdrawStore');
-                Route::post('withdraw/confirm', 'UserController@withdrawConfirm');
-                Route::get('withdraw/history', 'UserController@withdrawLog');
-
 
                 // Deposit
                 Route::get('deposit/methods', 'PaymentController@depositMethods'); //ok
@@ -106,6 +119,10 @@ Route::namespace('Api')->name('api.')->middleware(['api'])->group(function () {
                 Route::get('deposit/history', 'UserController@depositHistory'); //ok
 
                 Route::get('transactions', 'UserController@transactions'); //ok
+
+                Route::get('twofactor', 'UserController@twoFactor'); //ok
+                Route::post('enable-twofactor', 'UserController@enableTwoFactor'); //ok
+                Route::post('disable-twofactor', 'UserController@disbleTwoFactor'); //ok
 
             });
         });

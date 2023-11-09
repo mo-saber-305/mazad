@@ -30,8 +30,8 @@ class AuthorizationController extends Controller
         $user = auth('api')->user();
         if (!$user->status) {
 
-            auth('api')->user()->tokens()->delete();
-            $notify = 'Your account has been deactivated';
+//            auth('api')->user()->tokens()->delete();
+            $notify = __('Your account has been deactivated');
             return responseJson(200, 'success', $notify);
 
         } elseif (!$user->ev) {
@@ -43,7 +43,7 @@ class AuthorizationController extends Controller
                     'code' => $user->ver_code
                 ]);
             }
-            $notify = 'Email verification';
+            $notify = __('Email verification');
             $data = [
                 'verification_url' => route('api.user.verify.email'),
                 'verification_method' => 'POST',
@@ -61,7 +61,7 @@ class AuthorizationController extends Controller
                     'code' => $user->ver_code
                 ]);
             }
-            $notify = 'SMS verification';
+            $notify = __('SMS verification');
             $data = [
                 'verification_url' => route('api.user.verify.sms'),
                 'verification_method' => 'POST',
@@ -71,7 +71,7 @@ class AuthorizationController extends Controller
             ];
             return responseJson(200, 'success', $notify, $data);
         } elseif (!$user->tv) {
-            $notify = 'Google Authenticator';
+            $notify = __('Google Authenticator');
             $data = [
                 'verification_url' => route('api.user.go2fa.verify'),
                 'verification_method' => 'POST',
@@ -90,7 +90,7 @@ class AuthorizationController extends Controller
         if (!$user->status) {
 
             auth('api_merchant')->user()->tokens()->delete();
-            $notify = 'Your account has been deactivated';
+            $notify = __('Your account has been deactivated');
             return responseJson(200, 'success', $notify);
 
         } elseif (!$user->ev) {
@@ -120,7 +120,7 @@ class AuthorizationController extends Controller
                     'code' => $user->ver_code
                 ]);
             }
-            $notify = 'SMS verification';
+            $notify = __('SMS verification');
             $data = [
                 'verification_url' => route('api.user.verify.sms'),
                 'verification_method' => 'POST',
@@ -130,7 +130,7 @@ class AuthorizationController extends Controller
             ];
             return responseJson(200, 'success', $notify, $data);
         } elseif (!$user->tv) {
-            $notify = 'Google Authenticator';
+            $notify = __('Google Authenticator');
             $data = [
                 'verification_url' => route('api.user.go2fa.verify'),
                 'verification_method' => 'POST',
@@ -169,16 +169,16 @@ class AuthorizationController extends Controller
                 'code' => $user->ver_code
             ]);
 
-            $notify = 'Email verification code sent successfully';
+            $notify = __('Email verification code sent successfully');
             return responseJson(200, 'success', $notify);
         } elseif ($request->type === 'phone') {
             sendSms($user, 'SVER_CODE', [
                 'code' => $user->ver_code
             ]);
-            $notify = 'SMS verification code sent successfully';
+            $notify = __('SMS verification code sent successfully');
             return responseJson(200, 'success', $notify);
         } else {
-            $notify = 'Sending Failed';
+            $notify = __('Sending Failed');
             return responseJson(200, 'success', $notify);
         }
     }
@@ -202,10 +202,10 @@ class AuthorizationController extends Controller
             $user->ver_code = null;
             $user->ver_code_send_at = null;
             $user->save();
-            $notify = 'Email verified successfully';
+            $notify = __('Email verified successfully');
             return responseJson(200, 'success', $notify);
         }
-        $notify = 'Verification code didn\'t match!';
+        $notify = __("Verification code didn't match!");
         return responseJson(200, 'success', $notify);
     }
 
@@ -229,10 +229,10 @@ class AuthorizationController extends Controller
             $user->ver_code = null;
             $user->ver_code_send_at = null;
             $user->save();
-            $notify = 'SMS verified successfully';
+            $notify = __('SMS verified successfully');
             return responseJson(200, 'success', $notify);
         }
-        $notify = 'Verification code didn\'t match!';
+        $notify = __("Verification code didn't match!");
         return responseJson(200, 'success', $notify);
     }
 
@@ -251,9 +251,9 @@ class AuthorizationController extends Controller
         $code = $request->code;
         $response = verifyG2fa($user, $code);
         if ($response) {
-            $notify = 'Verification successful';
+            $notify = __('Verification successfully');
         } else {
-            $notify = 'Wrong verification code';
+            $notify = __('Wrong verification code');
         }
         return responseJson(422, 'failed', $notify);
     }

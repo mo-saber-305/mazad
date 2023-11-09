@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use App\Models\GeneralSetting;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserTicketMessagesResource extends JsonResource
+class MerchantTicketMessagesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,9 @@ class UserTicketMessagesResource extends JsonResource
      */
     public function toArray($request)
     {
-        $image = auth('api')->check() ? auth('api')->user()->image : '';
+        $image = auth('api_merchant')->check() ? auth('api_merchant')->user()->image : '';
         if ($this->admin_id == 0) {
-            $user_image = getImage(imagePath()['profile']['user']['path'] . '/' . $image, null, true);
+            $user_image = getImage(imagePath()['profile']['merchant']['path'] . '/' . $image, null, true);
         } else {
             $user_image = getImage(imagePath()['profile']['admin']['path'] . '/' . $this->admin->image, null, true);
         }
