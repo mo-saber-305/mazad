@@ -22,7 +22,7 @@ class PostsRecentResource extends JsonResource
         }
         return [
             'id' => $this->id,
-            'title' => $this->data_values->title,
+            'title' => __($this->data_values->title),
             'blog_image' => $image,
             'date' => showDateTime($this->created_at),
             'url' => route('api.posts.show', $this->id),

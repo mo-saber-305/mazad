@@ -19,33 +19,18 @@ class DepositResource extends JsonResource
 
         return [
             "id" => $this->id,
-            "name" => $this->name,
-            "currency" => $this->currency,
+            "name" => __($this->name),
+            "currency" => __($this->currency),
             "symbol" => $this->symbol,
             "method_code" => $this->method_code,
-            "gateway_alias" => $this->gateway_alias,
+            "gateway_alias" => __($this->gateway_alias),
             "min_amount" => $this->min_amount,
             "max_amount" => $this->max_amount,
             "percent_charge" => $this->percent_charge,
             "fixed_charge" => $this->fixed_charge,
             "rate" => $this->rate,
             "image" => $this->methodImage(),
-            "currency_text" => $general->cur_text,
-//            "gateway_parameter" => $this->gateway_parameter,
-//            "method" => [
-//                "id" => $this->method->id,
-//                "code" => $this->method->code,
-//                "name" => $this->method->name,
-//                "alias" =>$this->method->alias,
-//                "image" => getImage(imagePath()['gateway']['path'] . '/' . $this->method->image),
-//                "status" => $this->method->status,
-//                "gateway_parameters" => $this->method->gateway_parameters,
-//                "supported_currencies" => $this->method->supported_currencies,
-//                "crypto" => $this->method->crypto,
-//                "extra" => $this->method->extra,
-//                "description" => $this->method->description,
-//                "input_form" => $this->method->input_form,
-//            ]
+            "currency_text" => __($general->cur_text),
         ];
     }
 }

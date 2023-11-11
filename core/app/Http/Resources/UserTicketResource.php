@@ -39,8 +39,8 @@ class UserTicketResource extends JsonResource
         return [
             'id' => $this->id,
             'subject' => '[#' . $this->ticket . '] ' . __($this->subject),
-            'status' => $status,
-            'priority' => $priority,
+            'status' => __($status),
+            'priority' => __($priority),
             'last_replay' => Carbon::parse($this->last_reply)->diffForHumans(),
         ];
     }

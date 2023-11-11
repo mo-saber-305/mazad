@@ -14,10 +14,22 @@ class HomeCounterResource extends JsonResource
      */
     public function toArray($request)
     {
+        $string = $this->data_values->counter_icon;
+
+        $pattern = '/(?:la|fa)-(.*?)"/';
+
+        preg_match($pattern, $string, $matches);
+        $new_pattern = (strpos($string, 'fa') !== false) ? 'fontawesome' : 'line-awesome';
+        if (isset($matches[1])) {
+            $result = $matches[1];
+        }
         return [
             'counter_digit' => $this->data_values->counter_digit,
-            'title' => $this->data_values->title,
-            'icon' => $this->data_values->counter_icon,
+            'title' => __($this->data_values->title),
+            'icon' => [
+                'name' => $result,
+                'package' => $new_pattern,
+            ],
         ];
     }
 }

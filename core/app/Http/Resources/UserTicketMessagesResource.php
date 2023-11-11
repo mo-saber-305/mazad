@@ -25,7 +25,7 @@ class UserTicketMessagesResource extends JsonResource
         return [
             'id' => $this->id,
             'user_image' => $user_image,
-            'user_name' => $this->ticket->name,
+            'user_name' => __($this->ticket->name),
             'post_on' => $this->created_at->format('l, dS F Y @ H:i'),
             'message' => $this->message,
             'attachments' => $this->attachments(),

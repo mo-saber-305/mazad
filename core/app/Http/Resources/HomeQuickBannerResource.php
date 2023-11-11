@@ -17,7 +17,7 @@ class HomeQuickBannerResource extends JsonResource
         return [
             'url' => $this->data_values->url,
             'image' => getImage('assets/images/frontend/quick_banner/' . $this->data_values->image, '700x400'),
-            'button' => $this->data_values->button,
+            'button' => __($this->data_values->button),
         ];
     }
 }

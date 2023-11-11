@@ -14,9 +14,22 @@ class HomeFeatureResource extends JsonResource
      */
     public function toArray($request)
     {
+        $string = $this->data_values->feature_icon;
+
+        $pattern = '/(?:la|fa)-(.*?)"/';
+
+        preg_match($pattern, $string, $matches);
+        $new_pattern = (strpos($string, 'fa') !== false) ? 'fontawesome' : 'line-awesome';
+        if (isset($matches[1])) {
+            $result = $matches[1];
+        }
+
         return [
-            'title' => $this->data_values->title,
-            'feature_icon' => $this->data_values->feature_icon,
+            'title' => __($this->data_values->title),
+            'feature_icon' => [
+                'name' => $result,
+                'package' => $new_pattern,
+            ],
         ];
     }
 }

@@ -15,8 +15,8 @@ class HomeFaqResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'question' => $this->data_values->question,
-            'answer' => $this->data_values->answer,
+            'question' => __($this->data_values->question),
+            'answer' => __($this->data_values->answer),
         ];
     }
 }

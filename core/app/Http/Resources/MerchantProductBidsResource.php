@@ -18,8 +18,8 @@ class MerchantProductBidsResource extends JsonResource
         $general = GeneralSetting::first();
         return [
             'id' => $this->id,
-            'user_name' => $this->user->fullname,
-            'product_name' => $this->product->name,
+            'user_name' => __($this->user->fullname),
+            'product_name' => __($this->product->name),
             'product_price' => $general->cur_sym . showAmount($this->product->price),
             'amount' => $general->cur_sym . showAmount($this->amount),
             'bid_time' => showDateTime($this->created_at),

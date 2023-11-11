@@ -23,7 +23,7 @@ class ProductResource extends JsonResource
         $bidsCount = $this->bids->count();
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => __($this->name),
             'price' => $this->price,
             'category_id' => $this->category_id,
             'total_bid' => $this->total_bid,
@@ -32,12 +32,12 @@ class ProductResource extends JsonResource
             'avg_rating' => $this->avg_rating,
             'total_rating' => $this->total_rating,
             'review_count' => $this->review_count,
-            'sponsor' => $this->sponsor,
+            'sponsor' => __($this->sponsor),
             'report_file' => $this->report_file ? asset(imagePath()['reports']['path'] . '/' . $this->report_file) : null,
             'file_type' => $this->file_type,
             'image' => $this->file_type == 'image' ? getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']) : getImage(imagePath()['product']['path'] . '/' . $this->image),
-            'short_description' => $this->short_description,
-            'long_description' => $this->long_description,
+            'short_description' => __($this->short_description),
+            'long_description' => __($this->long_description),
             'specification' => $this->specification,
             'user_bid' => $bidsCount,
             'greater_bid' => $bidsCount ? round($this->bids->max('amount'), 2) : null,
@@ -61,11 +61,11 @@ class ProductResource extends JsonResource
         if ($seller_type == 'admin') {
             $seller = Admin::find($this->admin_id);
             $image = getImage(imagePath()['profile']['admin']['path'] . '/' . $general->merchant_profile->image, null, true);
-            $name = $general->merchant_profile->name;
+            $name = __($general->merchant_profile->name);
         } else {
             $seller = Merchant::find($this->merchant_id);
             $image = getImage(imagePath()['profile']['merchant']['path'] . '/' . $seller->image, null, true);
-            $name = $seller->fullname;
+            $name = __($seller->fullname);
 
         }
 
@@ -98,10 +98,10 @@ class ProductResource extends JsonResource
             $data[] = [
                 'id' => $review->id,
                 'rating' => $review->rating,
-                'description' => $review->description,
+                'description' => __($review->description),
                 'posted_on' => showDateTime($review->created_at),
                 'user' => [
-                    'name' => $review->user->fullname,
+                    'name' => __($review->user->fullname),
                     'image' => $image,
                 ]
             ];

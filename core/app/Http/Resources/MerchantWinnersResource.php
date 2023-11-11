@@ -25,15 +25,15 @@ class MerchantWinnersResource extends JsonResource
             'product_name' => $this->product->name,
             'product_id' => $this->product->id,
             'winning_date' => showDateTime($this->created_at),
-            'product_delivered' => $status,
-            'user_name' => $this->user->fullname,
+            'product_delivered' => __($status),
+            'user_name' => __($this->user->fullname),
             'user_email' => $this->user->email,
             'user_mobile' => $this->user->mobile,
-            'user_address' => $this->user->address->address,
-            'user_state' => $this->user->address->state,
+            'user_address' => __($this->user->address->address),
+            'user_state' => __($this->user->address->state),
             'user_zip' => $this->user->address->zip,
-            'user_city' => $this->user->address->city,
-            'user_country' => $this->user->address->country,
+            'user_city' => __($this->user->address->city),
+            'user_country' => __($this->user->address->country),
         ];
     }
 }

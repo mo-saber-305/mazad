@@ -18,16 +18,16 @@ class MerchantWithdrawLogResource extends JsonResource
         $general = GeneralSetting::first();
 
         if ($this->status == 2):
-            $status = 'Pending';
+            $status = __('Pending');
         elseif ($this->status == 1):
-            $status = 'Completed';
+            $status = __('Completed');
         elseif ($this->status == 3):
-            $status = 'Rejected';
+            $status = __('Rejected');
         endif;
 
         return [
             'transaction_id' => $this->trx,
-            'gateway' => $this->method->name,
+            'gateway' => __($this->method->name),
             'amount' => showAmount($this->amount) . __($general->cur_text),
             'charge' => showAmount($this->charge) . __($general->cur_text),
             'after_charge' => showAmount($this->after_charge) . __($general->cur_text),

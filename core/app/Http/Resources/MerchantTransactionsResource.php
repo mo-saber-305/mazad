@@ -21,8 +21,8 @@ class MerchantTransactionsResource extends JsonResource
             'id' => $this->id,
             'date' => showDateTime($this->created_at),
             'trx' => $this->trx,
-            'details' => $this->details,
-            'amount' => $this->trx_type . showAmount($this->amount) . $general->cur_text,
+            'details' => __($this->details),
+            'amount' => $this->trx_type . showAmount($this->amount) . ' ' . __($general->cur_text),
             'balance' => $general->cur_sym . showAmount($this->post_balance),
         ];
     }

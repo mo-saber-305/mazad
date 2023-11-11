@@ -18,21 +18,21 @@ class MerchantViewTicketResource extends JsonResource
     {
         $general = GeneralSetting::first();
         if ($this->status == 0) {
-            $status = 'Open';
+            $status = __('Open');
         } elseif ($this->status == 1) {
-            $status = 'Customer Reply';
+            $status = __('Customer Reply');
         } elseif ($this->status == 2) {
-            $status = 'Answered';
+            $status = __('Answered');
         } elseif ($this->status == 3) {
-            $status = 'Closed';
+            $status = __('Closed');
         }
 
         if ($this->priority == 1):
-            $priority = 'Low';
+            $priority = __('Low');
         elseif ($this->priority == 2):
-            $priority = 'Medium';
+            $priority = __('Medium');
         elseif ($this->priority == 3):
-            $priority = 'High';
+            $priority = __('High');
         endif;
 
         return [

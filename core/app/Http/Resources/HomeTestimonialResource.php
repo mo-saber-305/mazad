@@ -16,8 +16,8 @@ class HomeTestimonialResource extends JsonResource
     {
         return [
             'image' => getImage('assets/images/frontend/testimonial/' . $this->data_values->user_image, '120x120'),
-            'name' => $this->data_values->name,
-            'designation' => $this->data_values->designation,
+            'name' => __($this->data_values->name),
+            'designation' => __($this->data_values->designation),
             'star' => $this->data_values->star,
         ];
     }

@@ -19,9 +19,9 @@ class UserBiddingResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'product_name' => $this->product->name,
-            'product_price' => $general->cur_sym . ' ' . showAmount($this->product->price),
-            'bid_amount' => $general->cur_sym . ' ' . showAmount($this->amount),
+            'product_name' => __($this->product->name),
+            'product_price' => __($general->cur_sym) . ' ' . showAmount($this->product->price),
+            'bid_amount' => __($general->cur_sym) . ' ' . showAmount($this->amount),
             'amount' => $this->trx_type . showAmount($this->amount) . ' ' . __($general->cur_text),
             'bid_time' => showDateTime($this->created_at) . ' --- ' . diffForHumans($this->created_at),
             'view' => route('api.products.show', $this->product->id)

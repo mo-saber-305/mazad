@@ -23,14 +23,14 @@ class MerchantProfileResource extends JsonResource
         if ($seller_type == 'admin') {
             $cover_image = getImage(imagePath()['profile']['admin_cover']['path'] . '/' . $general->merchant_profile->cover_image);
             $image = getImage(imagePath()['profile']['admin']['path'] . '/' . $general->merchant_profile->image, null, true);
-            $name = $general->merchant_profile->name;
-            $address = $general->merchant_profile->address;
+            $name = __($general->merchant_profile->name);
+            $address = __($general->merchant_profile->address);
             $mobile = $general->merchant_profile->mobile;
         } else {
             $cover_image = getImage(imagePath()['profile']['merchant_cover']['path'] . '/' . $this->cover_image);
             $image = getImage(imagePath()['profile']['merchant']['path'] . '/' . $this->image, null, true);
-            $name = $this->fullname;
-            $address = $this->address->address;
+            $name = __($this->fullname);
+            $address = __($this->address->address);
             $mobile = $this->mobile;
         }
 

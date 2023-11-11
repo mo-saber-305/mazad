@@ -15,8 +15,8 @@ class MerchantsResource extends JsonResource
     public function toArray($request)
     {
         $image = getImage(imagePath()['profile']['merchant']['path'] . '/' . $this->image, null, true);
-        $name = $this->fullname;
-        $address = $this->address->address;
+        $name = __($this->fullname);
+        $address = __($this->address->address);
         $mobile = $this->mobile;
 
 

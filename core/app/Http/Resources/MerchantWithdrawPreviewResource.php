@@ -27,13 +27,13 @@ class MerchantWithdrawPreviewResource extends JsonResource
 
         return [
             'transaction_id' => $this->trx,
-            'gateway' => $this->method->name,
+            'gateway' => __($this->method->name),
             'amount' => showAmount($this->amount) . __($general->cur_text),
             'charge' => showAmount($this->charge) . __($general->cur_text),
             'after_charge' => showAmount($this->after_charge) . __($general->cur_text),
             'rate' => showAmount($this->rate) . __($this->currency),
             'receivable' => showAmount($this->final_amount) . __($this->currency),
-            'status' => $status,
+            'status' => __($status),
             'time' => showDateTime($this->created_at),
         ];
     }

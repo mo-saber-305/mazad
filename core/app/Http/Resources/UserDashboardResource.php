@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use App\Models\Bid;
 use App\Models\Deposit;
-use App\Models\Frontend;
 use App\Models\GeneralSetting;
 use App\Models\SupportTicket;
 use App\Models\Transaction;
@@ -34,37 +33,37 @@ class UserDashboardResource extends JsonResource
         $total_deposit = Deposit::where('user_id', $this->user->id)->where('status', 1)->sum('amount');
         $total_bid = Bid::where('user_id', $this->user->id)->count();
         $total_bid_amount = Bid::where('user_id', auth('web')->id())->sum('amount');
-        $waiting_for_result = $total_bid - Winner::with('product.bids')->whereHas('product.bids', function ($bid)  {
+        $waiting_for_result = $total_bid - Winner::with('product.bids')->whereHas('product.bids', function ($bid) {
                 $bid->where('user_id', $this->user->id);
             })->count();
         $general = GeneralSetting::first();
         $counters = array(
             'balance' => [
-                'title' => 'Current Balance',
+                'title' => __('Current Balance'),
                 'value' => $this->user->balance,
             ],
             'total_deposit' => [
-                'title' => 'Total Deposit',
-                'value' => $general->cur_sym . ' ' . getAmount($total_deposit),
+                'title' => __('Total Deposit'),
+                'value' => __($general->cur_sym) . ' ' . getAmount($total_deposit),
             ],
             'total_transactions' => [
-                'title' => 'Total Transaction',
+                'title' => __('Total Transaction'),
                 'value' => Transaction::where('user_id', $this->user->id)->count(),
             ],
             'total_tickets' => [
-                'title' => 'Total Tickets',
+                'title' => __('Total Tickets'),
                 'value' => SupportTicket::where('user_id', $this->user->id)->count(),
             ],
             'total_bid' => [
-                'title' => 'Total Bid',
+                'title' => __('Total Bid'),
                 'value' => $total_bid,
             ],
             'total_bid_amount' => [
-                'title' => 'Total Bid Amount',
+                'title' => __('Total Bid Amount'),
                 'value' => $total_bid_amount,
             ],
             'total_wining_product' => [
-                'title' => 'Win Products',
+                'title' => __('Wining Products'),
                 'value' => Winner::where('user_id', $this->user->id)->count(),
             ],
             'waiting_for_result' => [
@@ -78,7 +77,7 @@ class UserDashboardResource extends JsonResource
         return [
             'counters' => $counters,
             'transactions' => [
-                'title' => 'Recent Transactions',
+                'title' => __('Recent Transactions'),
                 'lists' => $this->recentTransactions()
             ],
         ];

@@ -19,9 +19,9 @@ class UserWinningResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'product_name' => $this->product->name,
-            'product_price' => $general->cur_sym . ' ' . showAmount($this->product->price),
-            'bid_amount' => $general->cur_sym . ' ' . showAmount($this->bid->amount),
+            'product_name' => __($this->product->name),
+            'product_price' => __($general->cur_sym) . ' ' . showAmount($this->product->price),
+            'bid_amount' => __($general->cur_sym) . ' ' . showAmount($this->bid->amount),
             'bid_time' => showDateTime($this->bid->created_at) . ' --- ' . diffForHumans($this->bid->created_at),
             'view' => route('api.products.show', $this->product->id)
         ];

@@ -15,10 +15,10 @@ class HomeBannerResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'heading' => $this->data_values->heading,
-            'subheading' => $this->data_values->subheading,
-            'first_button' => $this->data_values->button,
-            'second_button' => $this->data_values->link,
+            'heading' => __($this->data_values->heading),
+            'subheading' => __($this->data_values->subheading),
+            'first_button' => __($this->data_values->button),
+            'second_button' => __($this->data_values->link),
             'background_image' => getImage('assets/images/frontend/banner/' . $this->data_values->background_image, '1920x1280'),
         ];
     }

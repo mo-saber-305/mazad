@@ -28,20 +28,20 @@ class MerchantDashboardResource extends JsonResource
         $general = GeneralSetting::first();
         $counters = array(
             'balance' => [
-                'title' => 'Available Balance',
+                'title' => __('Available Balance'),
                 'value' => $this->user->balance,
             ],
             'total_products' => [
-                'title' => 'Total Products',
+                'title' => __('Total Products'),
                 'value' => $this->user->products->count(),
             ],
 
             'total_bid' => [
-                'title' => 'Total Bids',
+                'title' => __('Total Bids'),
                 'value' => $this->user->bids->count(),
             ],
             'total_bid_amount' => [
-                'title' => 'Total Bids Amount',
+                'title' => __('Total Bids Amount'),
                 'value' => $this->user->bids->sum('amount'),
             ],
 
@@ -51,7 +51,7 @@ class MerchantDashboardResource extends JsonResource
         return [
             'counters' => $counters,
             'transactions' => [
-                'title' => 'Recent Transactions',
+                'title' => __('Recent Transactions'),
                 'lists' => $this->recentTransactions()
             ],
         ];

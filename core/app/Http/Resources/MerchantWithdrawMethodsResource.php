@@ -19,11 +19,11 @@ class MerchantWithdrawMethodsResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => __($this->name),
             'image' => getImage(imagePath()['withdraw']['method']['path'] . '/' . $this->image, imagePath()['withdraw']['method']['size']),
             'limit' => showAmount($this->min_limit) . ' - ' . showAmount($this->max_limit) . ' ' . __($general->cur_text),
             'charge' => showAmount($this->fixed_charge) . ' ' . __($general->cur_text) . ' + ' . showAmount($this->percent_charge) . '%',
-            'processing_time' => $this->delay,
+            'processing_time' => __($this->delay),
             'currency' => __($general->cur_text),
             'card_title' => __('Withdraw Via') . ' ' . $this->name,
             'card_limit_text' => __('Withdraw Limit') . ': ' . showAmount($this->min_limit) . ' - ' . showAmount($this->max_limit) . ' ' . __($general->cur_text),

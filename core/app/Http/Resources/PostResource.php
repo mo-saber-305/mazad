@@ -23,8 +23,8 @@ class PostResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'title' => $this->data_values->title,
-            'description_nic' => $this->data_values->description_nic,
+            'title' => __($this->data_values->title),
+            'description_nic' => __($this->data_values->description_nic),
             'blog_image' => $image,
             'date' => showDateTime($this->created_at),
             'date_for_human' => diffForHumans($this->created_at),

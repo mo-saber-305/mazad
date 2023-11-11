@@ -15,19 +15,19 @@ class MerchantProductsResource extends JsonResource
     public function toArray($request)
     {
         if ($this->status == 0 && $this->expired_at > now()):
-            $status = 'Pending';
+            $status = __('Pending');
         elseif ($this->status == 1 && $this->started_at < now() && $this->expired_at > now()):
-            $status = 'Live';
+            $status = __('Live');
         elseif ($this->status == 1 && $this->started_at > now()):
-            $status = 'Upcoming';
+            $status = __('Upcoming');
         else:
-            $status = 'Expired';
+            $status = __('Expired');
         endif;
 
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'category' => $this->category->name,
+            'name' => __($this->name),
+            'category' => __($this->category->name),
             'price' => $this->price,
             'total_bid' => $this->total_bid,
             'status' => $status,

@@ -14,9 +14,22 @@ class HomeBidResource extends JsonResource
      */
     public function toArray($request)
     {
+        $string = $this->data_values->icon;
+
+        $pattern = '/(?:la|fa)-(.*?)"/';
+
+        preg_match($pattern, $string, $matches);
+        $new_pattern = (strpos($string, 'fa') !== false) ? 'fontawesome' : 'line-awesome';
+        if (isset($matches[1])) {
+            $result = $matches[1];
+        }
+
         return [
-            'heading' => $this->data_values->heading,
-            'icon' => $this->data_values->icon,
+            'heading' => __($this->data_values->heading),
+            'icon' => [
+                'name' => $result,
+                'package' => $new_pattern,
+            ],
         ];
     }
 }

@@ -21,7 +21,7 @@ class UserTransactionsResource extends JsonResource
             'id' => $this->id,
             'date' => showDateTime($this->created_at),
             'trx' => $this->trx,
-            'details' => $this->details,
+            'details' => __($this->details),
             'amount' => $this->trx_type . showAmount($this->amount) . ' ' . __($general->cur_text),
             'balance' => showAmount($this->post_balance) . ' ' . __($general->cur_text),
         ];

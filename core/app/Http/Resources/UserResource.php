@@ -5,7 +5,6 @@ namespace App\Http\Resources;
 use App\Models\Admin;
 use App\Models\GeneralSetting;
 use App\Models\Merchant;
-use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +18,12 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        $relatedProducts = Product::live()->where('category_id', $this->category_id)->where('id', '!=', $this->id)->limit(10)->get();
+        if ($this->status == 1):
+            $status = __('Active');
+        elseif ($this->status == 0):
+            $status = __('Banned');
+        endif;
+
         return [
             'id' => $this->id,
             'firstname' => $this->firstname,
@@ -29,8 +33,8 @@ class UserResource extends JsonResource
             'mobile' => $this->mobile,
             'balance' => $this->balance,
             'image' => getImage(imagePath()['profile']['user']['path'] . '/' . $this->image, null, true),
-            'address' => $this->address,
-            'status' => $this->status,
+            'address' => __($this->address),
+            'status' => $status,
             'ev' => $this->ev,
             'sv' => $this->sv,
             'ver_code' => $this->ver_code,

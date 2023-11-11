@@ -15,8 +15,9 @@ class PostsResource extends JsonResource
      */
     public function toArray($request)
     {
-        $trim_title = Str::words($this->data_values->title, 7);
-        $description = strip_tags($this->data_values->description_nic);
+        $title = __($this->data_values->title);
+        $trim_title = Str::words($title, 7);
+        $description = __(strip_tags($this->data_values->description_nic));
         $trim_description = Str::words($description, 20);
         if (property_exists($this->data_values, 'blog_image') && $this->data_values->blog_image) {
             $image = getImage('assets/images/frontend/blog/thumb_' . $this->data_values->blog_image, '425x285');

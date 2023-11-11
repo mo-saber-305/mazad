@@ -27,7 +27,7 @@ class UserDepositHistoryResource extends JsonResource
         return [
             "id" => $this->id,
             "transaction_id" => $this->trx,
-            "gateway" => $this->gateway->name,
+            "gateway" => __($this->gateway->name),
             "amount" => showAmount($this->amount) . ' ' . __($general->cur_text),
             "status" => $status,
             "time" => showDateTime($this->created_at),
