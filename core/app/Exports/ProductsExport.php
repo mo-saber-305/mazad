@@ -35,6 +35,7 @@ class ProductsExport implements FromCollection, WithHeadings
             return [
                 'name' => $product->name,
                 'price' => $product->price,
+                'max_price' => $product->max_price,
                 'category' => $product->category->name,
                 'total_bid' => $product->total_bid,
                 'started_at' => showDateTime($product->started_at, 'Y m d h:i A'),
@@ -55,6 +56,7 @@ class ProductsExport implements FromCollection, WithHeadings
         return [
             'Name',
             'Price',
+            'Max Price',
             'Category',
             'Total Bid',
             'Started At',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InterestsResource;
 use App\Http\Resources\MerchantProfileResource;
 use App\Http\Resources\MerchantsResource;
 use App\Http\Resources\UserBiddingResource;
@@ -36,6 +37,7 @@ class UserController extends Controller
     {
 
         $user = auth('api')->user();
+        $interests = InterestsResource::collection($user->interests);
 
         $data = [
             'firstname' => $user->firstname,
@@ -46,6 +48,7 @@ class UserController extends Controller
             'country' => $user->address->country,
             'city' => $user->address->city,
             'image' => imagePath()['profile']['user']['path'] . '/' . $user->image,
+            'interests' => $interests,
         ];
 
         $notify = __('Profile Data');
@@ -92,6 +95,11 @@ class UserController extends Controller
             $in['image'] = $filename;
         }
         $user->fill($in)->save();
+
+        if ($request->has('interests')) {
+            $user->interests()->sync($request->interests);
+        }
+
         $notify = __('Profile updated successfully');
         return responseJson(200, 'success', $notify);
     }

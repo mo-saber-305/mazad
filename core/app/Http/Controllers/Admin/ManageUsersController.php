@@ -356,7 +356,16 @@ class ManageUsersController extends Controller
             'subject' => 'required|string|max:190',
         ]);
 
-        foreach (User::where('status', 1)->cursor() as $user) {
+        if ($request->has('interests')) {
+            $interests = $request->interests;
+            $users = User::where('status', 1)->whereHas('interests', function ($q) use ($interests) {
+                $q->whereIn('interest_id', $interests);
+            })->cursor();
+        } else {
+            $users = User::where('status', 1)->cursor();
+        }
+
+        foreach ($users as $user) {
             sendGeneralEmail($user->email, $request->subject, $request->message, $user->username);
         }
 

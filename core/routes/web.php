@@ -3,10 +3,12 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/clear', function () {
-//    \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    \Illuminate\Support\Facades\Artisan::call('config:clear');
-//    \Illuminate\Support\Facades\Artisan::call('config:cache');
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+//    Artisan::call('migrate --path=/database/migrations/2022_02_15_153018_create_interest_user_table.php');
+//    Artisan::call('cache:clear');
+//    Artisan::call('config:clear');
+//    Artisan::call('config:cache');
+    Artisan::call('optimize:clear');
+    echo 'Cache Clear';
 });
 /*
 |--------------------------------------------------------------------------
@@ -106,6 +108,10 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         //Manage Category
         Route::get('categories', 'CategoryController@index')->name('categories');
         Route::post('category/store/{id?}', 'CategoryController@saveCategory')->name('category.store');
+
+        //Manage Interest
+        Route::get('interests', 'InterestController@index')->name('interests');
+        Route::post('interest/store/{id?}', 'InterestController@saveInterest')->name('interest.store');
 
 
         //Manage Product

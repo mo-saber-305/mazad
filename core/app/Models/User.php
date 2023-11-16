@@ -64,6 +64,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Bid::class);
     }
 
+    public function interests()
+    {
+        return $this->belongsToMany(Interest::class);
+    }
+
 
     // SCOPES
 

@@ -25,6 +25,12 @@
                         <span class="menu-title">@lang('Categories')</span>
                     </a>
                 </li>
+                <li class="sidebar-menu-item {{menuActive('admin.interests')}}">
+                    <a href="{{route('admin.interests')}}" class="nav-link ">
+                        <i class="menu-icon las la-heart bg--gradi-15"></i>
+                        <span class="menu-title">@lang('Interests')</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-menu-item {{menuActive('admin.product*')}}">
                     <a href="{{route('admin.product.index')}}" class="nav-link ">
@@ -124,83 +130,83 @@
                     </a>
                 </li>
 
-{{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
-{{--                    <a href="javascript:void(0)" class="{{menuActive('admin.users*',3)}}">--}}
-{{--                        <i class="menu-icon las la-users bg--gradi-5"></i>--}}
-{{--                        <span class="menu-title">@lang('Manage Users')</span>--}}
+                {{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
+                {{--                    <a href="javascript:void(0)" class="{{menuActive('admin.users*',3)}}">--}}
+                {{--                        <i class="menu-icon las la-users bg--gradi-5"></i>--}}
+                {{--                        <span class="menu-title">@lang('Manage Users')</span>--}}
 
-{{--                        @if($banned_users_count > 0 || $email_unverified_users_count > 0 || $sms_unverified_users_count > 0)--}}
-{{--                            <span class="menu-badge pill bg--primary ml-auto">--}}
-{{--                                <i class="fa fa-exclamation"></i>--}}
-{{--                            </span>--}}
-{{--                        @endif--}}
-{{--                    </a>--}}
-{{--                    <div class="sidebar-submenu {{menuActive('admin.users*',2)}} ">--}}
-{{--                        <ul>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.users.all')}} ">--}}
-{{--                                <a href="{{route('admin.users.all')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
-{{--                                    <span class="menu-title">@lang('All Users')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                        @if($banned_users_count > 0 || $email_unverified_users_count > 0 || $sms_unverified_users_count > 0)--}}
+                {{--                            <span class="menu-badge pill bg--primary ml-auto">--}}
+                {{--                                <i class="fa fa-exclamation"></i>--}}
+                {{--                            </span>--}}
+                {{--                        @endif--}}
+                {{--                    </a>--}}
+                {{--                    <div class="sidebar-submenu {{menuActive('admin.users*',2)}} ">--}}
+                {{--                        <ul>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.users.all')}} ">--}}
+                {{--                                <a href="{{route('admin.users.all')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
+                {{--                                    <span class="menu-title">@lang('All Users')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.users.active')}} ">--}}
-{{--                                <a href="{{route('admin.users.active')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
-{{--                                    <span class="menu-title">@lang('Active Users')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.users.banned')}} ">--}}
-{{--                                <a href="{{route('admin.users.banned')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
-{{--                                    <span class="menu-title">@lang('Banned Users')</span>--}}
-{{--                                    @if($banned_users_count)--}}
-{{--                                        <span class="menu-badge pill bg--primary ml-auto">{{$banned_users_count}}</span>--}}
-{{--                                    @endif--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.users.active')}} ">--}}
+                {{--                                <a href="{{route('admin.users.active')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Active Users')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.users.banned')}} ">--}}
+                {{--                                <a href="{{route('admin.users.banned')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Banned Users')</span>--}}
+                {{--                                    @if($banned_users_count)--}}
+                {{--                                        <span class="menu-badge pill bg--primary ml-auto">{{$banned_users_count}}</span>--}}
+                {{--                                    @endif--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item  {{menuActive('admin.users.email.unverified')}}">--}}
-{{--                                <a href="{{route('admin.users.email.unverified')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
-{{--                                    <span class="menu-title">@lang('Email Unverified')</span>--}}
+                {{--                            <li class="sidebar-menu-item  {{menuActive('admin.users.email.unverified')}}">--}}
+                {{--                                <a href="{{route('admin.users.email.unverified')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Email Unverified')</span>--}}
 
-{{--                                    @if($email_unverified_users_count)--}}
-{{--                                        <span--}}
-{{--                                                class="menu-badge pill bg--primary ml-auto">{{$email_unverified_users_count}}</span>--}}
-{{--                                    @endif--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                                    @if($email_unverified_users_count)--}}
+                {{--                                        <span--}}
+                {{--                                                class="menu-badge pill bg--primary ml-auto">{{$email_unverified_users_count}}</span>--}}
+                {{--                                    @endif--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.users.sms.unverified')}}">--}}
-{{--                                <a href="{{route('admin.users.sms.unverified')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
-{{--                                    <span class="menu-title">@lang('SMS Unverified')</span>--}}
-{{--                                    @if($sms_unverified_users_count)--}}
-{{--                                        <span--}}
-{{--                                                class="menu-badge pill bg--primary ml-auto">{{$sms_unverified_users_count}}</span>--}}
-{{--                                    @endif--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.users.sms.unverified')}}">--}}
+                {{--                                <a href="{{route('admin.users.sms.unverified')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
+                {{--                                    <span class="menu-title">@lang('SMS Unverified')</span>--}}
+                {{--                                    @if($sms_unverified_users_count)--}}
+                {{--                                        <span--}}
+                {{--                                                class="menu-badge pill bg--primary ml-auto">{{$sms_unverified_users_count}}</span>--}}
+                {{--                                    @endif--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.users.with.balance')}}">--}}
-{{--                                <a href="{{route('admin.users.with.balance')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
-{{--                                    <span class="menu-title">@lang('With Balance')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.users.with.balance')}}">--}}
+                {{--                                <a href="{{route('admin.users.with.balance')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
+                {{--                                    <span class="menu-title">@lang('With Balance')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.users.email.all')}}">--}}
-{{--                                <a href="{{route('admin.users.email.all')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
-{{--                                    <span class="menu-title">@lang('Email to All')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.users.email.all')}}">--}}
+                {{--                                <a href="{{route('admin.users.email.all')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-5"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Email to All')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                        </ul>--}}
-{{--                    </div>--}}
-{{--                </li>--}}
+                {{--                        </ul>--}}
+                {{--                    </div>--}}
+                {{--                </li>--}}
 
                 <li class="sidebar-menu-item {{menuActive('admin.merchants*')}}">
                     <a href="{{route('admin.merchants.all')}}" class="nav-link ">
@@ -215,82 +221,82 @@
                     </a>
                 </li>
 
-{{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
-{{--                    <a href="javascript:void(0)" class="{{menuActive('admin.merchants*',3)}}">--}}
-{{--                        <i class="menu-icon las la-user-friends bg--gradi-6"></i>--}}
-{{--                        <span class="menu-title">@lang('Manage Merchants')</span>--}}
+                {{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
+                {{--                    <a href="javascript:void(0)" class="{{menuActive('admin.merchants*',3)}}">--}}
+                {{--                        <i class="menu-icon las la-user-friends bg--gradi-6"></i>--}}
+                {{--                        <span class="menu-title">@lang('Manage Merchants')</span>--}}
 
-{{--                        @if($banned_merchants_count > 0 || $email_unverified_merchants_count > 0 || $sms_unverified_merchants_count > 0)--}}
-{{--                            <span class="menu-badge pill bg--primary ml-auto">--}}
-{{--                                <i class="fa fa-exclamation"></i>--}}
-{{--                            </span>--}}
-{{--                        @endif--}}
-{{--                    </a>--}}
-{{--                    <div class="sidebar-submenu {{menuActive('admin.merchants*',2)}} ">--}}
-{{--                        <ul>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.all')}} ">--}}
-{{--                                <a href="{{route('admin.merchants.all')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
-{{--                                    <span class="menu-title">@lang('All Merchants')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                        @if($banned_merchants_count > 0 || $email_unverified_merchants_count > 0 || $sms_unverified_merchants_count > 0)--}}
+                {{--                            <span class="menu-badge pill bg--primary ml-auto">--}}
+                {{--                                <i class="fa fa-exclamation"></i>--}}
+                {{--                            </span>--}}
+                {{--                        @endif--}}
+                {{--                    </a>--}}
+                {{--                    <div class="sidebar-submenu {{menuActive('admin.merchants*',2)}} ">--}}
+                {{--                        <ul>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.all')}} ">--}}
+                {{--                                <a href="{{route('admin.merchants.all')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
+                {{--                                    <span class="menu-title">@lang('All Merchants')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.active')}} ">--}}
-{{--                                <a href="{{route('admin.merchants.active')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
-{{--                                    <span class="menu-title">@lang('Active Merchants')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.banned')}} ">--}}
-{{--                                <a href="{{route('admin.merchants.banned')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
-{{--                                    <span class="menu-title">@lang('Banned Merchants')</span>--}}
-{{--                                    @if($banned_merchants_count)--}}
-{{--                                        <span class="menu-badge pill bg--primary ml-auto">{{$banned_merchants_count}}</span>--}}
-{{--                                    @endif--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.active')}} ">--}}
+                {{--                                <a href="{{route('admin.merchants.active')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Active Merchants')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.banned')}} ">--}}
+                {{--                                <a href="{{route('admin.merchants.banned')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Banned Merchants')</span>--}}
+                {{--                                    @if($banned_merchants_count)--}}
+                {{--                                        <span class="menu-badge pill bg--primary ml-auto">{{$banned_merchants_count}}</span>--}}
+                {{--                                    @endif--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item  {{menuActive('admin.merchants.email.unverified')}}">--}}
-{{--                                <a href="{{route('admin.merchants.email.unverified')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
-{{--                                    <span class="menu-title">@lang('Email Unverified')</span>--}}
+                {{--                            <li class="sidebar-menu-item  {{menuActive('admin.merchants.email.unverified')}}">--}}
+                {{--                                <a href="{{route('admin.merchants.email.unverified')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Email Unverified')</span>--}}
 
-{{--                                    @if($email_unverified_merchants_count)--}}
-{{--                                        <span--}}
-{{--                                                class="menu-badge pill bg--primary ml-auto">{{$email_unverified_merchants_count}}</span>--}}
-{{--                                    @endif--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                                    @if($email_unverified_merchants_count)--}}
+                {{--                                        <span--}}
+                {{--                                                class="menu-badge pill bg--primary ml-auto">{{$email_unverified_merchants_count}}</span>--}}
+                {{--                                    @endif--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.sms.unverified')}}">--}}
-{{--                                <a href="{{route('admin.merchants.sms.unverified')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
-{{--                                    <span class="menu-title">@lang('SMS Unverified')</span>--}}
-{{--                                    @if($sms_unverified_merchants_count)--}}
-{{--                                        <span--}}
-{{--                                                class="menu-badge pill bg--primary ml-auto">{{$sms_unverified_merchants_count}}</span>--}}
-{{--                                    @endif--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.sms.unverified')}}">--}}
+                {{--                                <a href="{{route('admin.merchants.sms.unverified')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
+                {{--                                    <span class="menu-title">@lang('SMS Unverified')</span>--}}
+                {{--                                    @if($sms_unverified_merchants_count)--}}
+                {{--                                        <span--}}
+                {{--                                                class="menu-badge pill bg--primary ml-auto">{{$sms_unverified_merchants_count}}</span>--}}
+                {{--                                    @endif--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.with.balance')}}">--}}
-{{--                                <a href="{{route('admin.merchants.with.balance')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
-{{--                                    <span class="menu-title">@lang('With Balance')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.with.balance')}}">--}}
+                {{--                                <a href="{{route('admin.merchants.with.balance')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
+                {{--                                    <span class="menu-title">@lang('With Balance')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.email.all')}}">--}}
-{{--                                <a href="{{route('admin.merchants.email.all')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
-{{--                                    <span class="menu-title">@lang('Email to All')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.merchants.email.all')}}">--}}
+                {{--                                <a href="{{route('admin.merchants.email.all')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-6"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Email to All')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                        </ul>--}}
-{{--                    </div>--}}
-{{--                </li>--}}
+                {{--                        </ul>--}}
+                {{--                    </div>--}}
+                {{--                </li>--}}
 
                 <li class="sidebar-menu-item sidebar-dropdown">
                     <a href="javascript:void(0)" class="{{menuActive('admin.gateway*',3)}}">
@@ -571,7 +577,7 @@
                     </div>
                 </li>
 
-{{--                <li class="sidebar__menu-header">@lang('Settings')</li>--}}
+                {{--                <li class="sidebar__menu-header">@lang('Settings')</li>--}}
 
                 {{--                <li class="sidebar-menu-item {{menuActive('admin.setting.index')}}">--}}
                 {{--                    <a href="{{route('admin.setting.index')}}" class="nav-link">--}}
@@ -617,65 +623,65 @@
                 {{--                    </a>--}}
                 {{--                </li>--}}
 
-{{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
-{{--                    <a href="javascript:void(0)" class="{{menuActive('admin.email.template*',3)}}">--}}
-{{--                        <i class="menu-icon la la-envelope-o bg--gradi-19"></i>--}}
-{{--                        <span class="menu-title">@lang('Email Manager')</span>--}}
-{{--                    </a>--}}
-{{--                    <div class="sidebar-submenu {{menuActive('admin.email.template*',2)}} ">--}}
-{{--                        <ul>--}}
+                {{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
+                {{--                    <a href="javascript:void(0)" class="{{menuActive('admin.email.template*',3)}}">--}}
+                {{--                        <i class="menu-icon la la-envelope-o bg--gradi-19"></i>--}}
+                {{--                        <span class="menu-title">@lang('Email Manager')</span>--}}
+                {{--                    </a>--}}
+                {{--                    <div class="sidebar-submenu {{menuActive('admin.email.template*',2)}} ">--}}
+                {{--                        <ul>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.email.template.global')}} ">--}}
-{{--                                <a href="{{route('admin.email.template.global')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-19"></i>--}}
-{{--                                    <span class="menu-title">@lang('Global Template')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive(['admin.email.template.index','admin.email.template.edit'])}} ">--}}
-{{--                                <a href="{{ route('admin.email.template.index') }}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-19"></i>--}}
-{{--                                    <span class="menu-title">@lang('Email Templates')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.email.template.global')}} ">--}}
+                {{--                                <a href="{{route('admin.email.template.global')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-19"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Global Template')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive(['admin.email.template.index','admin.email.template.edit'])}} ">--}}
+                {{--                                <a href="{{ route('admin.email.template.index') }}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-19"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Email Templates')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
 
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.email.template.setting')}} ">--}}
-{{--                                <a href="{{route('admin.email.template.setting')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-19"></i>--}}
-{{--                                    <span class="menu-title">@lang('Email Configure')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
-{{--                        </ul>--}}
-{{--                    </div>--}}
-{{--                </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.email.template.setting')}} ">--}}
+                {{--                                <a href="{{route('admin.email.template.setting')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-19"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Email Configure')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
+                {{--                        </ul>--}}
+                {{--                    </div>--}}
+                {{--                </li>--}}
 
-{{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
-{{--                    <a href="javascript:void(0)" class="{{menuActive('admin.sms.template*',3)}}">--}}
-{{--                        <i class="menu-icon la la-mobile bg--gradi-20"></i>--}}
-{{--                        <span class="menu-title">@lang('SMS Manager')</span>--}}
-{{--                    </a>--}}
-{{--                    <div class="sidebar-submenu {{menuActive('admin.sms.template*',2)}} ">--}}
-{{--                        <ul>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.sms.template.global')}} ">--}}
-{{--                                <a href="{{route('admin.sms.template.global')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-20"></i>--}}
-{{--                                    <span class="menu-title">@lang('Global Setting')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive('admin.sms.templates.setting')}} ">--}}
-{{--                                <a href="{{route('admin.sms.templates.setting')}}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-20"></i>--}}
-{{--                                    <span class="menu-title">@lang('SMS Gateways')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
-{{--                            <li class="sidebar-menu-item {{menuActive(['admin.sms.template.index','admin.sms.template.edit'])}} ">--}}
-{{--                                <a href="{{ route('admin.sms.template.index') }}" class="nav-link">--}}
-{{--                                    <i class="menu-icon las la-dot-circle bg--gradi-20"></i>--}}
-{{--                                    <span class="menu-title">@lang('SMS Templates')</span>--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
-{{--                        </ul>--}}
-{{--                    </div>--}}
-{{--                </li>--}}
+                {{--                <li class="sidebar-menu-item sidebar-dropdown">--}}
+                {{--                    <a href="javascript:void(0)" class="{{menuActive('admin.sms.template*',3)}}">--}}
+                {{--                        <i class="menu-icon la la-mobile bg--gradi-20"></i>--}}
+                {{--                        <span class="menu-title">@lang('SMS Manager')</span>--}}
+                {{--                    </a>--}}
+                {{--                    <div class="sidebar-submenu {{menuActive('admin.sms.template*',2)}} ">--}}
+                {{--                        <ul>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.sms.template.global')}} ">--}}
+                {{--                                <a href="{{route('admin.sms.template.global')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-20"></i>--}}
+                {{--                                    <span class="menu-title">@lang('Global Setting')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive('admin.sms.templates.setting')}} ">--}}
+                {{--                                <a href="{{route('admin.sms.templates.setting')}}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-20"></i>--}}
+                {{--                                    <span class="menu-title">@lang('SMS Gateways')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
+                {{--                            <li class="sidebar-menu-item {{menuActive(['admin.sms.template.index','admin.sms.template.edit'])}} ">--}}
+                {{--                                <a href="{{ route('admin.sms.template.index') }}" class="nav-link">--}}
+                {{--                                    <i class="menu-icon las la-dot-circle bg--gradi-20"></i>--}}
+                {{--                                    <span class="menu-title">@lang('SMS Templates')</span>--}}
+                {{--                                </a>--}}
+                {{--                            </li>--}}
+                {{--                        </ul>--}}
+                {{--                    </div>--}}
+                {{--                </li>--}}
 
                 {{--                <li class="sidebar__menu-header">@lang('Frontend Manager')</li>--}}
 
@@ -757,10 +763,10 @@
                 {{--                    </a>--}}
                 {{--                </li>--}}
             </ul>
-{{--            <div class="text-center mb-3 text-uppercase">--}}
-{{--                <span class="text--primary">{{__(systemDetails()['name'])}}</span>--}}
-{{--                <span class="text--success">@lang('V'){{systemDetails()['version']}} </span>--}}
-{{--            </div>--}}
+            {{--            <div class="text-center mb-3 text-uppercase">--}}
+            {{--                <span class="text--primary">{{__(systemDetails()['name'])}}</span>--}}
+            {{--                <span class="text--success">@lang('V'){{systemDetails()['version']}} </span>--}}
+            {{--            </div>--}}
         </div>
     </div>
 </div>

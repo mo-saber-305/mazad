@@ -42,6 +42,7 @@ class UserResource extends JsonResource
             'ts' => $this->ts,
             'tv' => $this->tv,
             'tsc' => $this->tsc,
+            'interests' => $this->interests(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
@@ -73,6 +74,12 @@ class UserResource extends JsonResource
             'product_count' => $seller->products->where('status', 1)->count(),
             'total_sale' => $seller->products->sum('total_bid'),
         ];
+    }
+
+    public function interests()
+    {
+        $interests = $this->interests;
+        return InterestsResource::collection($interests);
     }
 
     public function reviews(): array

@@ -42,6 +42,7 @@
                                 <th>@lang('Name')</th>
                                 <th>@lang('Owner')</th>
                                 <th>@lang('Price')</th>
+                                <th>@lang('Max Price')</th>
                                 <th>@lang('Total Bid')</th>
                                 @if(request()->routeIs('admin.product.index'))
                                     <th>@lang('Status')</th>
@@ -61,6 +62,7 @@
                                         {{ __($product->merchant ? $product->merchant->fullname : $product->admin->name) }}
                                     </td>
                                     <td data-label="@lang('Price')">{{ $general->cur_sym }}{{ showAmount($product->price) }}</td>
+                                    <td data-label="@lang('Max Price')">{{ $general->cur_sym }}{{ showAmount($product->max_price) }}</td>
                                     <td data-label="@lang('Total Bid')">
                                         <a href="{{ route('admin.product.bids', $product->id) }}" class="icon-btn btn--info ml-1">
                                             {{ $product->total_bid }}

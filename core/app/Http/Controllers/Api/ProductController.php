@@ -12,6 +12,7 @@ use App\Models\Merchant;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Transaction;
+use App\Models\Winner;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -88,6 +89,11 @@ class ProductController extends Controller
             return responseJson(422, 'failed', $notify);
         }
 
+        if ($request->amount > $product->max_price) {
+            $notify = __('Bid amount must be greater than or equal to the maximum price of the product');
+            return responseJson(422, 'failed', $notify);
+        }
+
         $bid = Bid::where('product_id', $request->product_id)->where('user_id', $user->id)->exists();
 
         if ($bid) {
@@ -118,6 +124,25 @@ class ProductController extends Controller
         $transaction->details = 'Subtracted for a new bid';
         $transaction->trx = $trx;
         $transaction->save();
+
+        $winner = Winner::where('product_id', $product->id)->exists();
+        if (!$winner && $request->amount == $product->max_price) {
+
+            $winner = new Winner();
+            $winner->user_id = $user->id;
+            $winner->product_id = $product->id;
+            $winner->bid_id = $bid->id;
+            $winner->save();
+
+            $product->update(['expired_at' => now()]);
+
+            notify($user, 'BID_WINNER', [
+                'product' => $product->name,
+                'product_price' => showAmount($product->price),
+                'currency' => $general->cur_text,
+                'amount' => showAmount($bid->amount),
+            ]);
+        }
 
         if ($product->admin) {
             $adminNotification = new AdminNotification();

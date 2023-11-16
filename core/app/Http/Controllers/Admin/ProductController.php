@@ -143,6 +143,7 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->category_id = $request->category;
         $product->price = $request->price;
+        $product->max_price = $request->max_price;
         $product->started_at = $request->started_at ?? now();
         $product->expired_at = $request->expired_at;
         $product->short_description = $request->short_description;
@@ -161,6 +162,7 @@ class ProductController extends Controller
             'name' => 'required',
             'category' => 'required|exists:categories,id',
             'price' => 'required|numeric|gte:0',
+            'max_price' => 'required|numeric|min:' . $request->price,
             'expired_at' => 'required',
             'short_description' => 'required',
             'long_description' => 'required',

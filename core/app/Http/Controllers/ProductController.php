@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin;
 use App\Models\AdminNotification;
 use App\Models\Bid;
 use App\Models\Category;
@@ -11,6 +10,7 @@ use App\Models\Merchant;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Transaction;
+use App\Models\Winner;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -23,42 +23,42 @@ class ProductController extends Controller
 
     public function products()
     {
-        $pageTitle      = request()->search_key?'Search Products':'All Products';
-        $emptyMessage   = 'No product found';
-        $categories     = Category::with('products')->where('status', 1)->get();
+        $pageTitle = request()->search_key ? 'Search Products' : 'All Products';
+        $emptyMessage = 'No product found';
+        $categories = Category::with('products')->where('status', 1)->get();
 
-        $products       = Product::live();
-        $products       = $products->where('name', 'like', '%'.request()->search_key.'%')->with('category');
-        $allProducts    = clone $products->get();
-        if(request()->category_id){
-            $products       = $products->where('category_id', request()->category_id);
+        $products = Product::live();
+        $products = $products->where('name', 'like', '%' . request()->search_key . '%')->with('category');
+        $allProducts = clone $products->get();
+        if (request()->category_id) {
+            $products = $products->where('category_id', request()->category_id);
         }
         $products = $products->paginate(getPaginate(18));
 
-        return view($this->activeTemplate.'product.list', compact('pageTitle', 'emptyMessage', 'products', 'allProducts', 'categories'));
+        return view($this->activeTemplate . 'product.list', compact('pageTitle', 'emptyMessage', 'products', 'allProducts', 'categories'));
     }
 
     public function filter(Request $request)
     {
-        $pageTitle      = 'Search Products';
-        $emptyMessage   = 'No product found';
-        $products       = Product::live()->where('name', 'like', '%'.$request->search_key.'%');
+        $pageTitle = 'Search Products';
+        $emptyMessage = 'No product found';
+        $products = Product::live()->where('name', 'like', '%' . $request->search_key . '%');
 
-        if($request->sorting){
+        if ($request->sorting) {
             $products->orderBy($request->sorting, 'ASC');
         }
-        if($request->categories){
+        if ($request->categories) {
             $products->whereIn('category_id', $request->categories);
         }
-        if($request->minPrice){
+        if ($request->minPrice) {
             $products->where('price', '>=', $request->minPrice);
         }
-        if($request->maxPrice){
+        if ($request->maxPrice) {
             $products->where('price', '<=', $request->maxPrice);
         }
         $products = $products->paginate(getPaginate(18));
 
-        return view($this->activeTemplate.'product.filtered', compact('pageTitle', 'emptyMessage', 'products'));
+        return view($this->activeTemplate . 'product.filtered', compact('pageTitle', 'emptyMessage', 'products'));
     }
 
     public function productDetails($id)
@@ -69,11 +69,11 @@ class ProductController extends Controller
 
         $relatedProducts = Product::live()->where('category_id', $product->category_id)->where('id', '!=', $id)->limit(10)->get();
 
-        $imageData      = imagePath()['product'];
+        $imageData = imagePath()['product'];
 
-        $seoContents    = getSeoContents($product, $imageData, 'image');
+        $seoContents = getSeoContents($product, $imageData, 'image');
 
-        return view($this->activeTemplate.'product.details', compact('pageTitle', 'product', 'relatedProducts', 'seoContents'));
+        return view($this->activeTemplate . 'product.details', compact('pageTitle', 'product', 'relatedProducts', 'seoContents'));
     }
 
 
@@ -95,19 +95,24 @@ class ProductController extends Controller
 
         $user = auth()->user();
 
-        if($product->price > $request->amount){
+        if ($product->price > $request->amount) {
             $notify[] = ['error', 'Bid amount must be greater than product price'];
             return back()->withNotify($notify);
         }
 
-        if($request->amount > $user->balance){
+        if ($request->amount > $user->balance) {
             $notify[] = ['error', 'Insufficient Balance'];
+            return back()->withNotify($notify);
+        }
+
+        if ($request->amount > $product->max_price) {
+            $notify[] = ['error', __('Bid amount must be greater than or equal to the maximum price of the product')];
             return back()->withNotify($notify);
         }
 
         $bid = Bid::where('product_id', $request->product_id)->where('user_id', $user->id)->exists();
 
-        if($bid){
+        if ($bid) {
             $notify[] = ['error', 'You already bidden on this product'];
             return back()->withNotify($notify);
         }
@@ -136,11 +141,30 @@ class ProductController extends Controller
         $transaction->trx = $trx;
         $transaction->save();
 
-        if($product->admin){
+        $winner = Winner::where('product_id', $product->id)->exists();
+        if (!$winner && $request->amount == $product->max_price) {
+
+            $winner = new Winner();
+            $winner->user_id = $user->id;
+            $winner->product_id = $product->id;
+            $winner->bid_id = $bid->id;
+            $winner->save();
+
+            $product->update(['expired_at' => now()]);
+
+            notify($user, 'BID_WINNER', [
+                'product' => $product->name,
+                'product_price' => showAmount($product->price),
+                'currency' => $general->cur_text,
+                'amount' => showAmount($bid->amount),
+            ]);
+        }
+
+        if ($product->admin) {
             $adminNotification = new AdminNotification();
             $adminNotification->user_id = auth()->user()->id;
             $adminNotification->title = 'A user has been bidden on your product';
-            $adminNotification->click_url = urlPath('admin.product.bids',$product->id);
+            $adminNotification->click_url = urlPath('admin.product.bids', $product->id);
             $adminNotification->save();
 
             $notify[] = ['success', 'Bidden successfully'];
@@ -156,7 +180,7 @@ class ProductController extends Controller
         $transaction->post_balance = $product->merchant->balance;
         $transaction->trx_type = '+';
         $transaction->details = showAmount($request->amount) . ' ' . $general->cur_text . ' Added for Bid';
-        $transaction->trx =  $trx;
+        $transaction->trx = $trx;
         $transaction->save();
 
         notify($product->merchant, 'BID_COMPLETE', [
@@ -187,12 +211,12 @@ class ProductController extends Controller
         $review = Review::where('user_id', auth()->id())->where('product_id', $request->product_id)->first();
         $product = Product::find($request->product_id);
 
-        if(!$review){
+        if (!$review) {
             $review = new Review();
             $product->total_rating += $request->rating;
             $product->review_count += 1;
             $notify[] = ['success', 'Review given successfully'];
-        }else{
+        } else {
             $product->total_rating = $product->total_rating - $review->rating + $request->rating;
             $notify[] = ['success', 'Review updated successfully'];
         }
@@ -217,19 +241,19 @@ class ProductController extends Controller
             'merchant_id' => 'required|integer'
         ]);
 
-        $merchant = Merchant::with('bids')->whereHas('bids', function($bid){
+        $merchant = Merchant::with('bids')->whereHas('bids', function ($bid) {
             $bid->where('user_id', auth()->id());
         })
-        ->findOrFail($request->merchant_id);
+            ->findOrFail($request->merchant_id);
 
         $review = Review::where('user_id', auth()->id())->where('merchant_id', $request->merchant_id)->first();
 
-        if(!$review){
+        if (!$review) {
             $review = new Review();
             $merchant->total_rating += $request->rating;
             $merchant->review_count += 1;
             $notify[] = ['success', 'Review given successfully'];
-        }else{
+        } else {
             $merchant->total_rating = $merchant->total_rating - $review->rating + $request->rating;
             $notify[] = ['success', 'Review updated successfully'];
         }

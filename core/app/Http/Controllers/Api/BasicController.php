@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AdvertisementsResource;
 use App\Http\Resources\HomeFaqResource;
+use App\Http\Resources\InterestsResource;
 use App\Models\AdminNotification;
 use App\Models\Advertisement;
 use App\Models\GeneralSetting;
+use App\Models\Interest;
 use App\Models\Language;
 use App\Models\SupportMessage;
 use App\Models\SupportTicket;
@@ -198,5 +200,14 @@ class BasicController extends Controller
         $data = AdvertisementsResource::collection($advertisements);
         $notify = __('Advertisements Data');
         return responseJson(200, 'success', $notify, $data, responseWithPaginagtion($advertisements));
+    }
+
+    public function interests()
+    {
+        $interests = Interest::where('status', 1)->get();
+
+        $general = InterestsResource::collection($interests);
+        $notify = __('Interests data');
+        return responseJson(200, 'success', $notify, $general);
     }
 }

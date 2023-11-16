@@ -82,6 +82,7 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+
         $validator = $this->validator($request->all());
         if ($validator->fails()) {
             return responseJson(422, 'failed', $validator->errors()->all());
@@ -94,6 +95,10 @@ class RegisterController extends Controller
         }
 
         $user = $this->create($request->all());
+        if ($request->has('interests')) {
+            $user->interests()->attach($request->interests);
+        }
+
 //        $response['access_token'] = $user->createToken('auth_token')->plainTextToken;
         $response['user'] = $user;
         $response['access_token'] = Auth::guard('api')->login($user);

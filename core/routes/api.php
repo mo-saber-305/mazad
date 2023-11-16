@@ -10,6 +10,7 @@ Route::namespace('Api')->name('api.')->middleware(['api', 'change_lang'])->group
     Route::get('languages', 'BasicController@languages'); //ok
     Route::get('language-data/{code}', 'BasicController@languageData'); //ok
     Route::get('countries', 'BasicController@countries'); //ok
+    Route::get('interests', 'BasicController@interests'); //ok
 
     Route::get('categories', 'CategoryController@categories'); //ok
     Route::get('products', 'ProductController@products')->name('products.index'); //ok
