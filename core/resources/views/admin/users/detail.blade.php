@@ -8,7 +8,8 @@
                 <div class="card-body p-0">
                     <div class="p-3 bg--white">
                         <div class="">
-                            <img src="{{ getImage(imagePath()['profile']['user']['path'].'/'.$user->image, null, true)}}" alt="@lang('Profile Image')" class="b-radius--10 w-100">
+                            <img src="{{ getImage(imagePath()['profile']['user']['path'].'/'.$user->image, null, true)}}" alt="@lang('Profile Image')"
+                                 class="b-radius--10 w-100">
                         </div>
                         <div class="mt-15">
                             <h4 class="">{{$user->fullname}}</h4>
@@ -64,6 +65,12 @@
                     </a>
                     <a href="{{route('admin.users.email.log',$user->id)}}" class="btn btn--warning btn--shadow btn-block btn-lg">
                         @lang('Email Log')
+                    </a>
+                    <a href="{{route('admin.product.user_bids', ['user' => $user->id])}}" class="btn btn--success bg--gradi-3 border-0 btn--shadow btn-block btn-lg">
+                        @lang('Auction Bids')
+                    </a>
+                    <a href="{{route('admin.product.user_visited', ['user' => $user->id])}}" class="btn btn--primary bg--gradi-4 border-0 btn--shadow btn-block btn-lg">
+                        @lang('Auction Visited')
                     </a>
                 </div>
             </div>
@@ -222,7 +229,8 @@
                                     <label class="form-control-label font-weight-bold">@lang('Country') </label>
                                     <select name="country" class="form-control">
                                         @foreach($countries as $key => $country)
-                                            <option value="{{ $key }}" @if($country->country == @$user->address->country ) selected @endif>{{ __($country->country) }}</option>
+                                            <option value="{{ $key }}"
+                                                    @if($country->country == @$user->address->country ) selected @endif>{{ __($country->country) }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -300,7 +308,8 @@
                     <div class="modal-body">
                         <div class="form-row">
                             <div class="form-group col-md-12">
-                                <input type="checkbox" data-width="100%" data-onstyle="-success" data-offstyle="-danger" data-toggle="toggle" data-on="@lang('Add Balance')" data-off="@lang('Subtract Balance')" name="act" checked>
+                                <input type="checkbox" data-width="100%" data-onstyle="-success" data-offstyle="-danger" data-toggle="toggle"
+                                       data-on="@lang('Add Balance')" data-off="@lang('Subtract Balance')" name="act" checked>
                             </div>
 
 

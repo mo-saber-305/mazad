@@ -25,6 +25,7 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => __($this->name),
             'price' => $this->price,
+            'max_price' => $this->max_price,
             'category_id' => $this->category_id,
             'total_bid' => $this->total_bid,
             'started_at' => showDateTime($this->started_at, 'Y_m_d h:i A'),

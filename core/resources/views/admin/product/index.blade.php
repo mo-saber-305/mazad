@@ -44,6 +44,7 @@
                                 <th>@lang('Price')</th>
                                 <th>@lang('Max Price')</th>
                                 <th>@lang('Total Bid')</th>
+                                <th>@lang('Views')</th>
                                 @if(request()->routeIs('admin.product.index'))
                                     <th>@lang('Status')</th>
                                 @endif
@@ -67,6 +68,9 @@
                                         <a href="{{ route('admin.product.bids', $product->id) }}" class="icon-btn btn--info ml-1">
                                             {{ $product->total_bid }}
                                         </a>
+                                    </td>
+                                    <td data-label="@lang('Views')">
+                                        <strong>{{ $product->product_visits_count }}</strong>
                                     </td>
 
                                     @if(request()->routeIs('admin.product.index'))
@@ -160,8 +164,13 @@
         </form>
         <a class="btn btn--primary box--shadow1 text--small" href="{{ route('admin.product.create') }}"><i class="fa fa-fw fa-plus"></i>@lang('Add New')</a>
         @php
+            $user_id = null;
             $segments = request()->segments();
             $model_type = end($segments);
+
+            if ($model_type == 'user-bids' || $model_type == 'user-visited') {
+               $user_id = request()->user;
+            }
         @endphp
         <div class="dropdown">
             <button class="btn btn--primary box--shadow1 btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
@@ -169,9 +178,9 @@
             </button>
             <div class="dropdown-menu text-center">
                 <a class="dropdown-item"
-                   href="{{ route('admin.export.products', ['model_type' => $model_type, 'file_type' => 'excel']) }}">@lang('Excel')</a>
+                   href="{{ route('admin.export.products', ['model_type' => $model_type, 'file_type' => 'excel', 'user' => $user_id]) }}">@lang('Excel')</a>
                 <a class="dropdown-item"
-                   href="{{ route('admin.export.products', ['model_type' => $model_type, 'file_type' => 'csv']) }}">@lang('Csv')</a>
+                   href="{{ route('admin.export.products', ['model_type' => $model_type, 'file_type' => 'csv', 'user' => $user_id]) }}">@lang('Csv')</a>
             </div>
         </div>
     </div>

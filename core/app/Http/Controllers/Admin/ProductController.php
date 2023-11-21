@@ -9,6 +9,7 @@ use App\Models\Bid;
 use App\Models\Category;
 use App\Models\GeneralSetting;
 use App\Models\Product;
+use App\Models\User;
 use App\Models\Winner;
 use App\Rules\FileTypeValidate;
 use Illuminate\Http\Request;
@@ -24,11 +25,25 @@ class ProductController extends Controller
     {
 
         $products = Product::query();
-        $this->pageTitle = ucfirst($type) . ' Products';
-        $this->emptyMessage = 'No ' . $type . ' products found';
+        $this->pageTitle = ucfirst(str_replace('-', ' ', $type)) . ' Products';
+        $this->emptyMessage = 'No ' . str_replace('-', ' ', $type) . ' products found';
 
         if ($type != 'all') {
-            $products = $products->$type();
+            if ($type == 'user-bids' && request()->user != null) {
+                $user = User::findOrFail(request()->user);
+                $products = $products->whereHas('bids', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            } elseif ($type == 'user-visited' && request()->user != null) {
+                $user = User::findOrFail(request()->user);
+                $products = Product::whereHas('productVisits', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })->whereDoesntHave('bids', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            } else {
+                $products = $products->$type();
+            }
         }
 
         if (request()->search) {
@@ -48,7 +63,7 @@ class ProductController extends Controller
             $this->search = $search;
         }
 
-        return $products->with('merchant', 'admin')->orderBy('admin_id', 'DESC')->latest()->paginate(getPaginate());
+        return $products->with('merchant', 'admin')->withCount('productVisits')->orderBy('admin_id', 'DESC')->latest()->paginate(getPaginate());
     }
 
     public function index()
@@ -151,7 +166,6 @@ class ProductController extends Controller
         $product->file_type = $request->file_type;
         $product->sponsor = $request->sponsor;
         $product->specification = $request->specification ?? null;
-
         $product->save();
     }
 
@@ -258,12 +272,13 @@ class ProductController extends Controller
 
     public function export(Request $request)
     {
-        $model_type = $request->model_type;
+        $model_type = str_replace('-', '_', $request->model_type);
+        $user = $request->user;
         $file_type = $request->file_type;
         if ($file_type == 'excel') {
-            $data = (new ProductsExport($model_type))->download($model_type . "_products.xlsx");
+            $data = (new ProductsExport($model_type, $user))->download($model_type . "_products.xlsx");
         } else {
-            $data = (new ProductsExport($model_type))->download($model_type . "_products.csv", Excel::CSV, ['Content-Type' => 'text/csv']);
+            $data = (new ProductsExport($model_type, $user))->download($model_type . "_products.csv", Excel::CSV, ['Content-Type' => 'text/csv']);
         }
 
         return $data;

@@ -123,6 +123,11 @@
         @php
             $segments = request()->segments();
             $model_type = end($segments);
+            if (request()->has('interest') && request()->interest != null) {
+                   $interest = request()->interest;
+            } else {
+              $interest = null;
+            }
         @endphp
         <div class="dropdown ml-4">
             <button class="btn btn--primary box--shadow1 btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
@@ -130,9 +135,9 @@
             </button>
             <div class="dropdown-menu text-center">
                 <a class="dropdown-item"
-                   href="{{ route('admin.export.users', ['model_type' => $model_type, 'file_type' => 'excel']) }}">@lang('Excel')</a>
+                   href="{{ route('admin.export.users', ['model_type' => $model_type, 'file_type' => 'excel', 'interest' => $interest]) }}">@lang('Excel')</a>
                 <a class="dropdown-item"
-                   href="{{ route('admin.export.users', ['model_type' => $model_type, 'file_type' => 'csv']) }}">@lang('Csv')</a>
+                   href="{{ route('admin.export.users', ['model_type' => $model_type, 'file_type' => 'csv', 'interest' => $interest]) }}">@lang('Csv')</a>
             </div>
         </div>
     </div>

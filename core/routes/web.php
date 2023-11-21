@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/clear', function () {
-//    Artisan::call('migrate --path=/database/migrations/2022_02_15_153018_create_interest_user_table.php');
+//    Artisan::call('migrate --path=/database/migrations/2022_02_15_153018_create_product_visits_table.php');
 //    Artisan::call('cache:clear');
 //    Artisan::call('config:clear');
 //    Artisan::call('config:cache');
@@ -86,6 +86,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
             Route::get('merchant-logins', 'ReportController@exportMerchantLogins')->name('merchant-logins-report');
             Route::get('user-emails', 'ReportController@exportUserEmails')->name('user-emails-report');
             Route::get('merchant-emails', 'ReportController@exportMerchantEmails')->name('merchant-emails-report');
+            Route::get('interests', 'ReportController@exportInterestsHistory')->name('interests');
         });
 
         Route::get('dashboard', 'AdminController@dashboard')->name('dashboard');
@@ -120,6 +121,8 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('products/pending', 'ProductController@index')->name('product.pending');
         Route::get('products/upcoming', 'ProductController@index')->name('product.upcoming');
         Route::get('products/expired', 'ProductController@index')->name('product.expired');
+        Route::get('products/user-bids', 'ProductController@index')->name('product.user_bids');
+        Route::get('products/user-visited', 'ProductController@index')->name('product.user_visited');
         Route::post('approve-product', 'ProductController@approve')->name('product.approve');
         Route::get('products/add', 'ProductController@create')->name('product.create');
         Route::post('store-product', 'ProductController@store')->name('product.store');
@@ -277,6 +280,8 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('report/merchant/login/ipHistory/{ip}', 'ReportController@merchantLoginIpHistory')->name('report.merchant.login.ipHistory');
         Route::get('report/user/email/history', 'ReportController@userEmailHistory')->name('report.user.email.history');
         Route::get('report/merchant/email/history', 'ReportController@merchantEmailHistory')->name('report.merchant.email.history');
+        Route::get('report/interests/history', 'ReportController@interestsHistory')->name('report.interests.history');
+        Route::get('report/interest/{id}/users/history', 'ReportController@interestUserHistory')->name('report.interest.users.history');
 
 
         // Admin User Support

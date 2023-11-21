@@ -66,5 +66,10 @@ class Product extends Model
         return $this->hasOne(Winner::class);
     }
 
+    public function productVisits()
+    {
+        return $this->hasMany(ProductVisit::class);
+    }
+
 
 }

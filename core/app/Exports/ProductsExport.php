@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Product;
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -13,9 +14,11 @@ class ProductsExport implements FromCollection, WithHeadings
     use Exportable;
     
     public $model_type;
-    
-    public function __construct($model_type) {
+    public $user_id;
+
+    public function __construct($model_type, $user_id) {
         $this->model_type = $model_type;
+        $this->user_id = $user_id;
     }
 
     /**
@@ -25,8 +28,24 @@ class ProductsExport implements FromCollection, WithHeadings
     {
         $products = Product::query();
         $model =$this->model_type;
-        if ($this->model_type != 'all') {
-            $products = Product::$model();
+        $user_id =$this->user_id;
+
+        if ($model != 'all') {
+            if ($model == 'user_bids' && $user_id != null) {
+                $user = User::findOrFail($user_id);
+                $products = $products->whereHas('bids', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            } elseif ($model == 'user_visited' && $user_id != null) {
+                $user = User::findOrFail($user_id);
+                $products = Product::whereHas('productVisits', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })->whereDoesntHave('bids', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            } else {
+                $products = $products->$model();
+            }
         }
 
         $products = $products->latest()->get();

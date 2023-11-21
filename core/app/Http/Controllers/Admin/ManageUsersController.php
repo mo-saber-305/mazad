@@ -9,6 +9,7 @@ use App\Models\Deposit;
 use App\Models\EmailLog;
 use App\Models\Gateway;
 use App\Models\GeneralSetting;
+use App\Models\Interest;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,11 +19,19 @@ use Maatwebsite\Excel\Excel;
 
 class ManageUsersController extends Controller
 {
-    public function allUsers()
+    public function allUsers(Request $request)
     {
         $pageTitle = 'Manage Users';
         $emptyMessage = 'No user found';
-        $users = User::orderBy('id', 'desc')->paginate(getPaginate());
+        $users = User::query();
+        if ($request->has('interest') && $request->interest != null) {
+            $interest = Interest::find($request->interest);
+            if ($interest) {
+                $interest_users = $interest->users()->pluck('user_id')->toArray();
+                $users = $users->whereIn('id', $interest_users);
+            }
+        }
+        $users = $users->orderBy('id', 'desc')->paginate(getPaginate());
         return view('admin.users.list', compact('pageTitle', 'emptyMessage', 'users'));
     }
 

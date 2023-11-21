@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\InterestsReport;
 use App\Exports\MerchantEmailsReport;
 use App\Exports\MerchantLoginsReport;
 use App\Exports\MerchantsTransactionsReport;
@@ -10,6 +11,7 @@ use App\Exports\UserLoginsReport;
 use App\Exports\UsersTransactionsReport;
 use App\Http\Controllers\Controller;
 use App\Models\EmailLog;
+use App\Models\Interest;
 use App\Models\Transaction;
 use App\Models\UserLogin;
 use Illuminate\Http\Request;
@@ -74,9 +76,11 @@ class ReportController extends Controller
         }
         $pageTitle = 'User Logins';
         $emptyMessage = 'No users login found.';
+
         $login_logs = UserLogin::where('user_id', '!=', 0)->orderBy('id', 'desc')->with('user')->paginate(getPaginate());
         return view('admin.reports.user_logins', compact('pageTitle', 'emptyMessage', 'login_logs'));
     }
+
 
     public function userLoginIpHistory($ip)
     {
@@ -119,6 +123,26 @@ class ReportController extends Controller
         $logs = EmailLog::where('user_id', '!=', 0)->with('user')->orderBy('id', 'desc')->paginate(getPaginate());
         $emptyMessage = 'No data found';
         return view('admin.reports.user_email_history', compact('pageTitle', 'emptyMessage', 'logs'));
+    }
+
+    public function interestsHistory()
+    {
+        $pageTitle = 'Interests history';
+        $logs = Interest::query()->withCount('users')->orderBy('users_count', 'desc')->paginate(getPaginate());
+        $emptyMessage = 'No data found';
+        return view('admin.reports.interests_history', compact('pageTitle', 'emptyMessage', 'logs'));
+    }
+
+    public function exportInterestsHistory(Request $request)
+    {
+        $file_type = $request->file_type;
+        if ($file_type == 'excel') {
+            $data = (new InterestsReport())->download("interests_report.xlsx");
+        } else {
+            $data = (new InterestsReport())->download("interests_report.csv", Excel::CSV, ['Content-Type' => 'text/csv']);
+        }
+
+        return $data;
     }
 
     public function merchantEmailHistory()

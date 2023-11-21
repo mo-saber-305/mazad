@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ProductVisited;
 use App\Models\AdminNotification;
 use App\Models\Bid;
 use App\Models\Category;
@@ -72,6 +73,10 @@ class ProductController extends Controller
         $imageData = imagePath()['product'];
 
         $seoContents = getSeoContents($product, $imageData, 'image');
+        if (auth()->check()) {
+            // Dispatch the event
+            event(new ProductVisited(auth()->user()->id, $product->id));
+        }
 
         return view($this->activeTemplate . 'product.details', compact('pageTitle', 'product', 'relatedProducts', 'seoContents'));
     }

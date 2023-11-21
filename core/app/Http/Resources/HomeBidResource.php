@@ -19,7 +19,7 @@ class HomeBidResource extends JsonResource
         $pattern = '/(?:la|fa)-(.*?)"/';
 
         preg_match($pattern, $string, $matches);
-        $new_pattern = (strpos($string, 'fa') !== false) ? 'fontawesome' : 'line-awesome';
+        $new_pattern = (strpos($string, 'fa') !== false) ? 'Fontawesome' : 'Lineawesome';
         if (isset($matches[1])) {
             $result = $matches[1];
         }

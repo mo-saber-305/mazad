@@ -52,9 +52,17 @@
                                 </p>
                                 <div class="product-price">
                                     <div>
-                                        {{ showAmount($product->price) }} <span class="text--base">{{ __($general->cur_text) }}</span>
+                                        {{ __('Min') . ': ' . showAmount($product->price) }} <span class="text--base">{{ __($general->cur_text) }}</span> -
+                                        {{ __('Max') . ': ' . showAmount($product->max_price) }} <span class="text--base">{{ __($general->cur_text) }}</span>
                                     </div>
                                 </div>
+                                @if($product->bids->count())
+                                    <div class="product-price">
+                                        <div>
+                                            {{ __('Highest Bidder') . ': ' . showAmount($product->bids->max('amount')) }} <span class="text--base">{{ __($general->cur_text) }}</span>
+                                        </div>
+                                    </div>
+                                @endif
                                 @if ($product->status == 1 && $product->started_at < now() && $product->expired_at > now())
                                     <div class="btn__area">
                                         <div class="cart-plus-minus input-group w-auto">

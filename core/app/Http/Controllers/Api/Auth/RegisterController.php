@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\AdminNotification;
 use App\Models\GeneralSetting;
+use App\Models\Interest;
 use App\Models\Merchant;
 use App\Models\User;
 use App\Models\UserLogin;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -63,6 +65,7 @@ class RegisterController extends Controller
         $countryCodes = implode(',', array_keys($countryData));
         $mobileCodes = implode(',', array_column($countryData, 'dial_code'));
         $countries = implode(',', array_column($countryData, 'country'));
+        $interests = Interest::query()->where('status', 1)->pluck('id')->toArray();
         $validate = Validator::make($data, [
             'firstname' => 'sometimes|required|string|max:50',
             'lastname' => 'sometimes|required|string|max:50',
@@ -74,6 +77,7 @@ class RegisterController extends Controller
             'mobile_code' => 'required|in:' . $mobileCodes,
             'country_code' => 'required|in:' . $countryCodes,
             'country' => 'required|in:' . $countries,
+            'interests' => ['array', Rule::in($interests)],
             'agree' => $agree,
         ]);
         return $validate;

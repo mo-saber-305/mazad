@@ -29,6 +29,25 @@ if (isset($_GET['secondColor']) and $_GET['secondColor'] != '') {
 if (!$secondColor or !checkhexcolor2($secondColor)) {
     $secondColor = "#336699";
 }
+
+function hexToRgb($hex)
+{
+    // Remove the hash if present
+    $hex = str_replace("#", "", $hex);
+
+    // Convert shorthand hex color (#abc) to full hex color (#aabbcc)
+    $hex = (strlen($hex) == 3) ? $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2] : $hex;
+
+    // Split the hex color into RGB components
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+
+    // Return the RGB values as an associative array
+
+    return $r.','.$g.','.$b;
+}
+
 ?>
 
 .text--base, .mega-menu-icon .mega-icon, .change-language span, .auction__item-thumb .total-bids i, .client__item::after, .footer-wrapper .footer-widget .links li a::before, .footer-wrapper .footer-widget .links li a:hover, h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover, .nav--tabs li a.active, .product__single-item .meta-post .meta-item .social-share li a:hover, .filter-widget .title i, .price-range label, .vendor__item .read-more, .vendor__item .vendor__info li i, .author-icon, .contact-icon, .contact-area .contact-content .contact-content-botom .subtitle, .contact-area .contact-content .contact-content-botom .contact-info li .cont a, .contact-area .contact-content .contact-content-botom .contact-info li .icon, .side__menu-title, .counter-item .counter-header .title, .faq__item.open .faq__title .title, p a, .cookies-card__icon, .price-range input, .footer-contact li i, .recent-blog .blog__content .date, .blog-details-header .meta-1 li i, .section__header.icon__contain .section__title .icon{
@@ -211,4 +230,15 @@ border-bottom: 2px dashed <?php echo $color; ?>;
 
 .auction__item-countdown .inner__grp .total-price {
 color: <?php echo $color; ?>;
+}
+
+
+input[type="checkbox"] {
+border-color: <?php echo $color; ?>;
+}
+
+input[type="checkbox"]:checked {
+background-color: <?php echo $color; ?>;
+border-color: <?php echo $color; ?>;
+box-shadow: 0 0 0 0.25rem rgba(<?php echo hexToRgb($color); ?>,.25) ;
 }

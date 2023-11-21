@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ProductVisited;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductsResource;
@@ -64,6 +65,12 @@ class ProductController extends Controller
     public function product(Product $product)
     {
         $general = new ProductResource($product);
+
+        if (auth('api')->check()) {
+            // Dispatch the event
+            event(new ProductVisited(auth('api')->user()->id, $product->id));
+        }
+
         $notify = __('product data');
         return responseJson(200, 'success', $notify, $general);
     }

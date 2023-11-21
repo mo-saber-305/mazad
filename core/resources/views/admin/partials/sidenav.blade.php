@@ -573,6 +573,13 @@
                                 </a>
                             </li>
 
+                            <li class="sidebar-menu-item {{menuActive('admin.report.interests.history')}}">
+                                <a href="{{route('admin.report.interests.history')}}" class="nav-link">
+                                    <i class="menu-icon las la-dot-circle bg--gradi-12"></i>
+                                    <span class="menu-title">@lang('Interests')</span>
+                                </a>
+                            </li>
+
                         </ul>
                     </div>
                 </li>

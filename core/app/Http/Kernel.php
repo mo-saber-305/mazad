@@ -2,6 +2,8 @@
 
 namespace App\Http;
 
+use App\Events\ProductVisited;
+use App\Listeners\RecordProductVisit;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel

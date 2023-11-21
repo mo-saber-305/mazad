@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Interest;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -33,6 +34,14 @@ class UsersExport implements FromCollection, WithHeadings
                 $users = $users->$model_type();
             }
 
+        } else {
+            if (request()->has('interest') && request()->interest != null) {
+                $interest = Interest::find(request()->interest);
+                if ($interest) {
+                    $interest_users = $interest->users()->pluck('user_id')->toArray();
+                    $users = $users->whereIn('id', $interest_users);
+                }
+            }
         }
 
         $users = $users->latest()->get();
