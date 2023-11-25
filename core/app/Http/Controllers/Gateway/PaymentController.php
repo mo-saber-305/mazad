@@ -19,11 +19,17 @@ class PaymentController extends Controller
         return $this->activeTemplate = activeTemplate();
     }
 
-    public function deposit()
+    public function deposit(Request $request)
     {
-        $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
-            $gate->where('status', 1);
-        })->with('method')->orderby('method_code')->get();
+        if ($request->has('payment') && $request->get('payment') != null) {
+            $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
+                $gate->where('status', 1);
+            })->where('method_code', $request->payment)->with('method')->orderby('method_code')->get();
+        } else {
+            $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
+                $gate->where('status', 1);
+            })->with('method')->orderby('method_code')->get();
+        }
 
         $pageTitle = 'Deposit Methods';
         return view($this->activeTemplate . 'user.payment.deposit', compact('gatewayCurrency', 'pageTitle'));
@@ -79,7 +85,7 @@ class PaymentController extends Controller
     {
 
         $track = session()->get('Track');
-        $data = Deposit::where('trx', $track)->where('status',0)->orderBy('id', 'DESC')->firstOrFail();
+        $data = Deposit::where('trx', $track)->where('status', 0)->orderBy('id', 'DESC')->firstOrFail();
         $pageTitle = 'Payment Preview';
         return view($this->activeTemplate . 'user.payment.preview', compact('data', 'pageTitle'));
     }
@@ -88,8 +94,8 @@ class PaymentController extends Controller
     public function depositConfirm()
     {
         $track = session()->get('Track');
-        $deposit = Deposit::where('trx', $track)->where('status',0)->orderBy('id', 'DESC')->with('gateway')->firstOrFail();
-        
+        $deposit = Deposit::where('trx', $track)->where('status', 0)->orderBy('id', 'DESC')->with('gateway')->firstOrFail();
+
         if ($deposit->method_code >= 1000) {
             $this->userDataUpdate($deposit);
             $notify[] = ['success', 'Your deposit request is queued for approval.'];
@@ -113,7 +119,7 @@ class PaymentController extends Controller
         }
 
         // for Stripe V3
-        if(@$data->session){
+        if (@$data->session) {
             $deposit->btc_wallet = $data->session->id;
             $deposit->save();
         }
@@ -145,9 +151,52 @@ class PaymentController extends Controller
             $transaction->trx = $data->trx;
             $transaction->save();
 
+            $winning_products = $user->winners()->where('product_delivered', 0)->where('remaining_amount', '>', 0)->get();
+            foreach ($winning_products as $item) {
+                $amount = $user->balance;
+                $trx2 = getTrx();
+                if ($amount >= $item->remaining_amount) {
+                    $remaining = $item->remaining_amount;
+                    $user->balance -= $remaining;
+                    $user->save();
+
+                    $transaction = new Transaction();
+                    $transaction->user_id = $user->id;
+                    $transaction->amount = $remaining;
+                    $transaction->post_balance = $user->balance;
+                    $transaction->trx_type = '-';
+                    $transaction->details = 'Subtract the remaining amount from the winning auction';
+                    $transaction->trx = $trx2;
+                    $transaction->save();
+
+                    $item->remaining_amount = 0;
+                    $item->save();
+                } else {
+                    if ($amount > 0) {
+                        $remaining = $user->balance;
+
+                        $user->balance -= $remaining;
+                        $user->save();
+
+                        $transaction = new Transaction();
+                        $transaction->user_id = $user->id;
+                        $transaction->amount = $remaining;
+                        $transaction->post_balance = $remaining;
+                        $transaction->trx_type = '-';
+                        $transaction->details = 'Subtract the remaining amount from the winning auction';
+                        $transaction->trx = $trx2;
+                        $transaction->save();
+
+                        $item->remaining_amount -= $remaining;
+                        $item->save();
+                    }
+                }
+
+            }
+
             $adminNotification = new AdminNotification();
             $adminNotification->user_id = $user->id;
-            $adminNotification->title = 'Deposit successful via '.$data->gatewayCurrency()->name;
+            $adminNotification->title = 'Deposit successful via ' . $data->gatewayCurrency()->name;
             $adminNotification->click_url = urlPath('admin.deposit.successful');
             $adminNotification->save();
 
@@ -202,7 +251,7 @@ class PaymentController extends Controller
                 $rules[$key] = [$custom->validation];
                 if ($custom->type == 'file') {
                     array_push($rules[$key], 'image');
-                    array_push($rules[$key], new FileTypeValidate(['jpg','jpeg','png']));
+                    array_push($rules[$key], new FileTypeValidate(['jpg', 'jpeg', 'png']));
                     array_push($rules[$key], 'max:2048');
 
                     array_push($verifyImages, $key);
@@ -219,8 +268,8 @@ class PaymentController extends Controller
         $this->validate($request, $rules);
 
 
-        $directory = date("Y")."/".date("m")."/".date("d");
-        $path = imagePath()['verify']['deposit']['path'].'/'.$directory;
+        $directory = date("Y") . "/" . date("m") . "/" . date("d");
+        $path = imagePath()['verify']['deposit']['path'] . '/' . $directory;
         $collection = collect($request);
         $reqField = [];
         if ($params != null) {
@@ -233,7 +282,7 @@ class PaymentController extends Controller
                             if ($request->hasFile($inKey)) {
                                 try {
                                     $reqField[$inKey] = [
-                                        'field_name' => $directory.'/'.uploadImage($request[$inKey], $path),
+                                        'field_name' => $directory . '/' . uploadImage($request[$inKey], $path),
                                         'type' => $inVal->type,
                                     ];
                                 } catch (\Exception $exp) {
@@ -257,15 +306,14 @@ class PaymentController extends Controller
         }
 
 
-
         $data->status = 2; // pending
         $data->save();
 
 
         $adminNotification = new AdminNotification();
         $adminNotification->user_id = $data->user->id;
-        $adminNotification->title = 'Deposit request from '.$data->user->username;
-        $adminNotification->click_url = urlPath('admin.deposit.details',$data->id);
+        $adminNotification->title = 'Deposit request from ' . $data->user->username;
+        $adminNotification->click_url = urlPath('admin.deposit.details', $data->id);
         $adminNotification->save();
 
         $general = GeneralSetting::first();

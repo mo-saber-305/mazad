@@ -30,7 +30,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900;1000&display=swap" rel="stylesheet">
         <style>
-            html, body, h1, h2, h3, h4, h5, h6, a, p, span,.cmn--table thead th {
+            html, body, h1, h2, h3, h4, h5, h6, a, p, span, .cmn--table thead th, strong {
                 font-family: 'Cairo', sans-serif !important;
             }
         </style>
@@ -77,8 +77,9 @@
         <div class="cookies-card__icon">
             <i class="fas fa-cookie-bite"></i>
         </div>
-        <p class="mt-4 cookies-card__content"> @php echo @$cookie->data_values->description @endphp <a class="d-inline"
-                                                                                                       href="{{ @$cookie->data_values->link }}">@lang('Read Policy')</a>
+        <p class="mt-4 cookies-card__content"> @php echo __(@$cookie->data_values->description) @endphp
+            <a class="d-inline"
+               href="{{ @$cookie->data_values->link }}">@lang('Read Policy')</a>
         </p>
         <div class="cookies-card__btn mt-4">
             <button class="cookies-btn btn--base w-100" id="allow-cookie">@lang('Allow')</button>

@@ -50,30 +50,40 @@
                                 <p class="mb-4 mt-0">
                                     {{ __(shortDescription($product->short_description)) }}
                                 </p>
-                                <div class="product-price">
-                                    <div>
-                                        {{ __('Min') . ': ' . showAmount($product->price) }} <span class="text--base">{{ __($general->cur_text) }}</span> -
-                                        {{ __('Max') . ': ' . showAmount($product->max_price) }} <span class="text--base">{{ __($general->cur_text) }}</span>
-                                    </div>
+                                <div class="alert alert-warning">
+                                    <span><strong>{{ __('Auction Deposit') }}</strong>{{  ': ' . __('It is an amount paid to participate in the auction and is returned after the end of the auction if you do not win the auction') }}
+                                    </span> <br>
+                                    <span><strong>{{ __('Price') }}</strong>{{  ': ' . __('It is the starting amount of bidding in the auction') }}
+                                    </span> <br>
+                                    <span><strong>{{ __('Max Bid Amount') }}</strong>{{  ': ' . __('It is the maximum amount you can bid at one time') }}</span>
                                 </div>
-                                @if($product->bids->count())
-                                    <div class="product-price">
-                                        <div>
-                                            {{ __('Highest Bidder') . ': ' . showAmount($product->bids->max('amount')) }} <span class="text--base">{{ __($general->cur_text) }}</span>
+                                <div class="product-price">
+                                    <ul>
+                                        <li><strong>{{ __('Auction Deposit') . ': ' }} </strong>{{  showAmount($deposit_amount) }} <span class="text--base">{{ __($general->cur_text) }}</span></li>
+                                        <li><strong>{{ __('Price') . ': ' }} </strong>{{  showAmount($product->price) }} <span class="text--base">{{ __($general->cur_text) }}</span></li>
+                                        <li><strong>{{ __('Max Bid Amount') . ': ' }}</strong>{{ showAmount($max_price) }} <span class="text--base">{{ __($general->cur_text) }}</span></li>
+                                        @if($product->bids->count())
+                                            <li><strong>{{ __('Highest Bidder') . ': ' }}</strong> {{ showAmount($product->bids->max('amount')) }} <span
+                                                        class="text--base">{{ __($general->cur_text) }}</span></li>
+                                        @endif
+                                    </ul>
+
+                                </div>
+                                @if (auth()->check() && $product->status == 1 && $product->started_at < now() && $product->expired_at > now())
+                                    @if($product->productDeposits()->where('user_id', auth()->user()->id)->first())
+                                        <div class="btn__area">
+                                            <div class="cart-plus-minus input-group w-auto">
+                                                <span class="input-group-text bg--base border-0 text-white">{{ $general->cur_sym }}</span>
+                                                <input type="number" placeholder="@lang('Enter your amount')" class="form-control" id="amount" min="0" step="any">
+                                            </div>
+                                            <div>
+                                                <button class="cmn--btn btn--sm bid_now" data-cur_sym="{{ $general->cur_sym }}">@lang('Bid Now')</button>
+                                            </div>
+                                            <span class="text--danger empty-message">@lang('Please enter an amount to bid')</span>
                                         </div>
-                                    </div>
-                                @endif
-                                @if ($product->status == 1 && $product->started_at < now() && $product->expired_at > now())
-                                    <div class="btn__area">
-                                        <div class="cart-plus-minus input-group w-auto">
-                                            <span class="input-group-text bg--base border-0 text-white">{{ $general->cur_sym }}</span>
-                                            <input type="number" placeholder="@lang('Enter your amount')" class="form-control" id="amount" min="0" step="any">
-                                        </div>
-                                        <div>
-                                            <button class="cmn--btn btn--sm bid_now" data-cur_sym="{{ $general->cur_sym }}">@lang('Bid Now')</button>
-                                        </div>
-                                        <span class="text--danger empty-message">@lang('Please enter an amount to bid')</span>
-                                    </div>
+                                    @else
+                                        <button class="cmn--btn btn--sm deposit_now">@lang('Deposit Now')</button>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -361,6 +371,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Product Deposit -->
+    <div class="modal fade" id="depositModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@lang('Confirmation Alert')</h5>
+                    <button class="btn text--danger modal-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('user.product.deposit', $product->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <h6 class="message"></h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn--danger" data-bs-dismiss="modal">@lang('No')</button>
+                        <button type="submit" class="btn btn--base">@lang('Yes')</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('style')
@@ -419,6 +453,12 @@
                     modal.find('.amount').val(amount);
                     modal.modal('show');
                 }
+            });
+            $('.deposit_now').on('click', function () {
+                var modal = $('#depositModal');
+
+                modal.find('.message').html('@lang("Are you sure to pay deposit amount for this Auction?")');
+                modal.modal('show');
             });
         })(jQuery);
     </script>

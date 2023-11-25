@@ -6,12 +6,11 @@ use App\Events\ProductVisited;
 use App\Models\AdminNotification;
 use App\Models\Bid;
 use App\Models\Category;
-use App\Models\GeneralSetting;
 use App\Models\Merchant;
 use App\Models\Product;
+use App\Models\ProductDeposit;
 use App\Models\Review;
 use App\Models\Transaction;
-use App\Models\Winner;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -73,12 +72,15 @@ class ProductController extends Controller
         $imageData = imagePath()['product'];
 
         $seoContents = getSeoContents($product, $imageData, 'image');
+        $max_price = ($product->price / 100) * (int)$product->max_price;
+        $deposit_amount = ($product->price / 100) * (int)$product->deposit_amount;
+
         if (auth()->check()) {
             // Dispatch the event
             event(new ProductVisited(auth()->user()->id, $product->id));
         }
 
-        return view($this->activeTemplate . 'product.details', compact('pageTitle', 'product', 'relatedProducts', 'seoContents'));
+        return view($this->activeTemplate . 'product.details', compact('pageTitle', 'product', 'relatedProducts', 'seoContents', 'deposit_amount', 'max_price'));
     }
 
 
@@ -100,25 +102,42 @@ class ProductController extends Controller
 
         $user = auth()->user();
 
+        $product_deposit = ProductDeposit::query()->where('product_id', $product->id)->where('user_id', $user->id)->first();
+
+        if (!$product_deposit) {
+            $notify[] = ['error', __('You must pay the auction deposit first before participating in the auction')];
+            return back()->withNotify($notify);
+        }
+
         if ($product->price > $request->amount) {
-            $notify[] = ['error', 'Bid amount must be greater than product price'];
+            $notify[] = ['error', __('Bid amount must be greater than product price')];
             return back()->withNotify($notify);
         }
 
-        if ($request->amount > $user->balance) {
-            $notify[] = ['error', 'Insufficient Balance'];
-            return back()->withNotify($notify);
+        if ($product->bids->count()) {
+            $highest_bidder = $product->bids->max('amount');
+
+            if ($highest_bidder > $request->amount) {
+                $notify[] = ['error', __("Bid amount must be greater than highest bidder") . " (" . getAmount($highest_bidder) .")"];
+                return back()->withNotify($notify);
+            }
+
+            $max_price = ($product->price / 100) * (int)$product->max_price;
+
+            $max_bid_price = $highest_bidder + $max_price;
+            if ($request->amount > $max_bid_price) {
+                $notify[] = ['error', __("Bid amount must be less than or Equal highest bidder + Max price") . " (" . getAmount($max_bid_price) .")"];
+                return back()->withNotify($notify);
+            }
         }
 
-        if ($request->amount > $product->max_price) {
-            $notify[] = ['error', __('Bid amount must be greater than or equal to the maximum price of the product')];
-            return back()->withNotify($notify);
-        }
 
-        $bid = Bid::where('product_id', $request->product_id)->where('user_id', $user->id)->exists();
+        $bid_data = Bid::where('product_id', $request->product_id)->where('user_id', $user->id)->first();
 
-        if ($bid) {
-            $notify[] = ['error', 'You already bidden on this product'];
+        if ($bid_data) {
+            $bid_data->amount = $request->amount;
+            $bid_data->save();
+            $notify[] = ['success', 'Bidden successfully'];
             return back()->withNotify($notify);
         }
 
@@ -130,40 +149,20 @@ class ProductController extends Controller
 
         $product->total_bid += 1;
         $product->save();
-        $user->balance -= $request->amount;
-        $user->save();
 
-        $general = GeneralSetting::first();
 
-        $trx = getTrx();
-
-        $transaction = new Transaction();
-        $transaction->user_id = $user->id;
-        $transaction->amount = $request->amount;
-        $transaction->post_balance = $user->balance;
-        $transaction->trx_type = '-';
-        $transaction->details = 'Subtracted for a new bid';
-        $transaction->trx = $trx;
-        $transaction->save();
-
-        $winner = Winner::where('product_id', $product->id)->exists();
-        if (!$winner && $request->amount == $product->max_price) {
-
-            $winner = new Winner();
-            $winner->user_id = $user->id;
-            $winner->product_id = $product->id;
-            $winner->bid_id = $bid->id;
-            $winner->save();
-
-            $product->update(['expired_at' => now()]);
-
-            notify($user, 'BID_WINNER', [
-                'product' => $product->name,
-                'product_price' => showAmount($product->price),
-                'currency' => $general->cur_text,
-                'amount' => showAmount($bid->amount),
-            ]);
-        }
+//        $general = GeneralSetting::first();
+//
+//        $trx = getTrx();
+//
+//        $transaction = new Transaction();
+//        $transaction->user_id = $user->id;
+//        $transaction->amount = $request->amount;
+//        $transaction->post_balance = $user->balance;
+//        $transaction->trx_type = '-';
+//        $transaction->details = 'Subtracted for a new bid';
+//        $transaction->trx = $trx;
+//        $transaction->save();
 
         if ($product->admin) {
             $adminNotification = new AdminNotification();
@@ -176,29 +175,76 @@ class ProductController extends Controller
             return back()->withNotify($notify);
         }
 
-        $product->merchant->balance += $request->amount;
-        $product->merchant->save();
-
-        $transaction = new Transaction();
-        $transaction->merchant_id = $product->merchant_id;
-        $transaction->amount = $request->amount;
-        $transaction->post_balance = $product->merchant->balance;
-        $transaction->trx_type = '+';
-        $transaction->details = showAmount($request->amount) . ' ' . $general->cur_text . ' Added for Bid';
-        $transaction->trx = $trx;
-        $transaction->save();
-
-        notify($product->merchant, 'BID_COMPLETE', [
-            'trx' => $trx,
-            'amount' => showAmount($request->amount),
-            'currency' => $general->cur_text,
-            'product' => $product->name,
-            'product_price' => showAmount($product->price),
-            'post_balance' => showAmount($product->merchant->balance),
-        ], 'merchant');
+//        $product->merchant->balance += $request->amount;
+//        $product->merchant->save();
+//
+//        $transaction = new Transaction();
+//        $transaction->merchant_id = $product->merchant_id;
+//        $transaction->amount = $request->amount;
+//        $transaction->post_balance = $product->merchant->balance;
+//        $transaction->trx_type = '+';
+//        $transaction->details = showAmount($request->amount) . ' ' . $general->cur_text . ' Added for Bid';
+//        $transaction->trx = $trx;
+//        $transaction->save();
+//
+//        notify($product->merchant, 'BID_COMPLETE', [
+//            'trx' => $trx,
+//            'amount' => showAmount($request->amount),
+//            'currency' => $general->cur_text,
+//            'product' => $product->name,
+//            'product_price' => showAmount($product->price),
+//            'post_balance' => showAmount($product->merchant->balance),
+//        ], 'merchant');
 
         $notify[] = ['success', 'Bidden successfully'];
         return back()->withNotify($notify);
+    }
+
+    public function deposit($id)
+    {
+
+        $product = Product::live()->with('merchant', 'admin')->findOrFail($id);
+        $user = auth()->user();
+        $deposit_amount = ($product->price / 100) * (int)$product->deposit_amount;
+
+        if ($user->balance >= $deposit_amount) {
+            $user->balance -= $deposit_amount;
+            $user->save();
+            $product_deposit = new ProductDeposit();
+            $product_deposit->product_id = $product->id;
+            $product_deposit->user_id = $user->id;
+            $product_deposit->amount = $deposit_amount;
+            $product_deposit->save();
+
+            $trx = getTrx();
+
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->amount = $deposit_amount;
+            $transaction->post_balance = $user->balance;
+            $transaction->trx_type = '-';
+            $transaction->details = 'Subtracted to pay auction deposit amount';
+            $transaction->trx = $trx;
+            $transaction->save();
+
+            if ($product->admin) {
+                $adminNotification = new AdminNotification();
+                $adminNotification->user_id = $user->id;
+                $adminNotification->title = 'A user has paid a deposit on your product';
+                $adminNotification->click_url = urlPath('admin.report.user.transaction');
+                $adminNotification->save();
+            }
+
+            $notify[] = ['success', __('The auction deposit has been paid successfully. You can now participate in the auction')];
+            return back()->withNotify($notify);
+        } else {
+            if ($product->payment_method == 0) {
+                $notify[] = ['success', __('Your balance is insufficient. Please go to the company headquarters to pay the auction deposit')];
+                return back()->withNotify($notify);
+            } else {
+                return redirect()->route('user.deposit', ['payment' => $product->payment_method]);
+            }
+        }
 
     }
 

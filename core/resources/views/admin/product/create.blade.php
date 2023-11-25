@@ -52,14 +52,14 @@
 
                                 <div class="content">
                                     <div class="row mb-none-15">
-                                        <div class="col-sm-12 col-xl-3 col-lg-6 mb-15">
+                                        <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
                                             <div class="form-group">
                                                 <label class="w-100 font-weight-bold">@lang('Name') <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control " placeholder="@lang('Product Name')" name="name"
                                                        value="{{ old('name') }}" required/>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-xl-3 col-lg-6 mb-15">
+                                        <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
                                             <div class="form-group">
                                                 <label class="w-100 font-weight-bold">@lang('Category') <span class="text-danger">*</span></label>
                                                 <select name="category" class="form-control" required>
@@ -70,21 +70,45 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-xl-3 col-lg-6 mb-15">
+                                        <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
+                                            <div class="form-group">
+                                                <label class="w-100 font-weight-bold">@lang('Payment Methods') <span class="text-danger">*</span></label>
+                                                <select name="payment_method" class="form-control" required>
+                                                    <option value="">@lang('Select One')</option>
+                                                    <option value="0">@lang('Cash')</option>
+                                                    @foreach ($gatewayCurrency as $data)
+                                                        <option value="{{ $data->method_code }}">{{ __($data->name) }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
                                             <label class="w-100 font-weight-bold">@lang('Price') <span class="text-danger">*</span></label>
                                             <div class="input-group has_append">
-                                                <input type="text" class="form-control" placeholder="0" name="price" value="{{ old('price') }}" required/>
+                                                <input type="number" class="form-control" placeholder="0" name="price" value="{{ old('price') }}" required/>
                                                 <div class="input-group-append">
                                                     <span class="input-group-text">{{ __($general->cur_text) }}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-xl-3 col-lg-6 mb-15">
+                                        <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
                                             <label class="w-100 font-weight-bold">@lang('Max Price') <span class="text-danger">*</span></label>
                                             <div class="input-group has_append">
-                                                <input type="text" class="form-control" placeholder="0" name="max_price" value="{{ old('max_price') }}" required/>
+                                                <input type="number" class="form-control" placeholder="0" name="max_price" value="{{ old('max_price') }}"
+                                                       required/>
                                                 <div class="input-group-append">
-                                                    <span class="input-group-text">{{ __($general->cur_text) }}</span>
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-xl-4 col-lg-6 mb-15">
+                                            <label class="w-100 font-weight-bold">@lang('Auction Deposit Amount') <span class="text-danger">*</span></label>
+                                            <div class="input-group has_append">
+                                                <input type="number" class="form-control" placeholder="0" name="deposit_amount"
+                                                       value="{{ old('deposit_amount') }}"
+                                                       required/>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">%</span>
                                                 </div>
                                             </div>
                                         </div>

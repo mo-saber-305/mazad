@@ -7,8 +7,11 @@ use App\Exports\WinnersExport;
 use App\Http\Controllers\Controller;
 use App\Models\Bid;
 use App\Models\Category;
+use App\Models\GatewayCurrency;
 use App\Models\GeneralSetting;
 use App\Models\Product;
+use App\Models\ProductDeposit;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Winner;
 use App\Rules\FileTypeValidate;
@@ -94,8 +97,11 @@ class ProductController extends Controller
     {
         $pageTitle = 'Create Product';
         $categories = Category::where('status', 1)->get();
+        $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
+            $gate->where('status', 1);
+        })->with('method')->orderby('method_code')->get();
 
-        return view('admin.product.create', compact('pageTitle', 'categories'));
+        return view('admin.product.create', compact('pageTitle', 'categories', 'gatewayCurrency'));
     }
 
     public function edit($id)
@@ -104,7 +110,11 @@ class ProductController extends Controller
         $categories = Category::where('status', 1)->get();
         $product = Product::findOrFail($id);
 
-        return view('admin.product.edit', compact('pageTitle', 'categories', 'product'));
+        $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
+            $gate->where('status', 1);
+        })->with('method')->orderby('method_code')->get();
+
+        return view('admin.product.edit', compact('pageTitle', 'categories', 'product', 'gatewayCurrency'));
     }
 
     public function store(Request $request)
@@ -157,8 +167,10 @@ class ProductController extends Controller
 
         $product->name = $request->name;
         $product->category_id = $request->category;
+        $product->payment_method = $request->payment_method;
         $product->price = $request->price;
         $product->max_price = $request->max_price;
+        $product->deposit_amount = $request->deposit_amount;
         $product->started_at = $request->started_at ?? now();
         $product->expired_at = $request->expired_at;
         $product->short_description = $request->short_description;
@@ -175,8 +187,10 @@ class ProductController extends Controller
         $validator = [
             'name' => 'required',
             'category' => 'required|exists:categories,id',
+            'payment_method' => 'required',
             'price' => 'required|numeric|gte:0',
-            'max_price' => 'required|numeric|min:' . $request->price,
+            'max_price' => 'required|numeric|gte:0',
+            'deposit_amount' => 'required|numeric|min:0',
             'expired_at' => 'required',
             'short_description' => 'required',
             'long_description' => 'required',
@@ -217,12 +231,12 @@ class ProductController extends Controller
         $winner = Winner::where('product_id', $product->id)->exists();
 
         if ($winner) {
-            $notify[] = ['error', 'Winner for this product is already selected'];
+            $notify[] = ['error', __('Winner for this product is already selected')];
             return back()->withNotify($notify);
         }
 
         if ($product->expired_at > now()) {
-            $notify[] = ['error', 'This product is not expired till now'];
+            $notify[] = ['error', __('This product is not expired till now')];
             return back()->withNotify($notify);
         }
 
@@ -234,6 +248,44 @@ class ProductController extends Controller
         $winner->product_id = $product->id;
         $winner->bid_id = $bid->id;
         $winner->save();
+
+        $deposit_amount = ($product->price / 100) * (int)$product->deposit_amount;
+        $bid_amount = $bid->amount;
+        $amount_deducted = $bid_amount - $deposit_amount;
+
+        $user->balance -= $amount_deducted;
+        $user->save();
+
+        $trx2 = getTrx();
+        $transaction = new Transaction();
+        $transaction->user_id = $user->id;
+        $transaction->amount = $amount_deducted;
+        $transaction->post_balance = $user->balance;
+        $transaction->trx_type = '+';
+        $transaction->details = 'Subtracted for a wining auction';
+        $transaction->trx = $trx2;
+        $transaction->save();
+
+        $product_deposit = ProductDeposit::query()->where('product_id', $product->id)->where('user_id', '!=', $user->id)->get();
+
+        foreach ($product_deposit as $item) {
+            $user_data = $item->user;
+            $user_data->balance += $item->amount;
+            $user_data->save();
+
+            $item->refunded = 1;
+            $item->save();
+
+            $trx2 = getTrx();
+            $transaction = new Transaction();
+            $transaction->user_id = $user_data->id;
+            $transaction->amount = $item->amount;
+            $transaction->post_balance = $user_data->balance;
+            $transaction->trx_type = '+';
+            $transaction->details = 'Auction deposit amount';
+            $transaction->trx = $trx2;
+            $transaction->save();
+        }
 
         notify($user, 'BID_WINNER', [
             'product' => $product->name,
@@ -250,7 +302,7 @@ class ProductController extends Controller
     {
         $pageTitle = 'All Winners';
         $emptyMessage = 'No winner found';
-        $winners = Winner::with('product', 'user')->latest()->paginate(getPaginate());
+        $winners = Winner::with('product', 'user', 'bid')->latest()->paginate(getPaginate());
 
         return view('admin.product.winners', compact('pageTitle', 'emptyMessage', 'winners'));
     }
@@ -294,5 +346,66 @@ class ProductController extends Controller
         }
 
         return $data;
+    }
+
+    public function deposit(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'product_id' => 'required',
+            'amount' => 'required|gte:0',
+        ]);
+
+        $product = Product::live()->findOrFail($request->product_id);
+        $user = User::findOrFail($request->user_id);
+
+        if (ProductDeposit::query()->where('product_id', $product->id)->where('user_id', $user->id)->exists()) {
+            $notify[] = ['error', __('This user\'s auction deposit has already been paid')];
+            return back()->withNotify($notify);
+        }
+
+        $deposit_amount = ($product->price / 100) * (int)$product->deposit_amount;
+        if ($request->amount > $deposit_amount) {
+            $balance = $request->amount - $deposit_amount;
+            $amount = $deposit_amount;
+            $user->balance += $balance;
+            $user->save();
+        } elseif ($request->amount < $deposit_amount) {
+            $notify[] = ['error', __('The amount must be greater than or equal to') . ' ' . getAmount($deposit_amount)];
+            return back()->withNotify($notify);
+        } else {
+            $amount = $request->amount;
+        }
+        $product_deposit = new ProductDeposit();
+        $product_deposit->product_id = $product->id;
+        $product_deposit->user_id = $user->id;
+        $product_deposit->amount = $amount;
+        $product_deposit->save();
+
+        $trx = getTrx();
+
+        $transaction = new Transaction();
+        $transaction->user_id = $user->id;
+        $transaction->amount = $amount;
+        $transaction->post_balance = $user->balance;
+        $transaction->trx_type = '+';
+        $transaction->details = 'Added Balance Via Admin';
+        $transaction->trx = $trx;
+        $transaction->save();
+
+        $trx2 = getTrx();
+
+        $transaction = new Transaction();
+        $transaction->user_id = $user->id;
+        $transaction->amount = $amount;
+        $transaction->post_balance = $user->balance;
+        $transaction->trx_type = '-';
+        $transaction->details = 'Subtracted to pay auction deposit amount';
+        $transaction->trx = $trx2;
+        $transaction->save();
+
+        $notify[] = ['success', __('The auction deposit has been paid successfully.')];
+        return back()->withNotify($notify);
+
     }
 }

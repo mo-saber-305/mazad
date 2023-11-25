@@ -191,6 +191,50 @@ class DepositController extends Controller
         $transaction->trx =  $deposit->trx;
         $transaction->save();
 
+        $winning_products = $user->winners()->where('product_delivered', 0)->where('remaining_amount', '>', 0)->get();
+        foreach ($winning_products as $item) {
+            $amount = $user->balance;
+            if ($amount >= $item->remaining_amount) {
+                $remaining = $item->remaining_amount;
+                $user->balance -= $remaining;
+                $user->save();
+
+                $trx = getTrx();
+                $transaction = new Transaction();
+                $transaction->user_id = $user->id;
+                $transaction->amount = $remaining;
+                $transaction->post_balance = $user->balance;
+                $transaction->trx_type = '-';
+                $transaction->details = 'Subtract the remaining amount from the winning auction';
+                $transaction->trx = $trx;
+                $transaction->save();
+
+                $item->remaining_amount = 0;
+                $item->save();
+            } else {
+                if ($amount > 0) {
+                    $remaining = $user->balance;
+
+                    $user->balance -= $remaining;
+                    $user->save();
+
+                    $trx = getTrx();
+                    $transaction = new Transaction();
+                    $transaction->user_id = $user->id;
+                    $transaction->amount = $remaining;
+                    $transaction->post_balance = $remaining;
+                    $transaction->trx_type = '-';
+                    $transaction->details = 'Subtract the remaining amount from the winning auction';
+                    $transaction->trx = $trx;
+                    $transaction->save();
+
+                    $item->remaining_amount -= $remaining;
+                    $item->save();
+                }
+            }
+
+        }
+
         $general = GeneralSetting::first();
         notify($user, 'DEPOSIT_APPROVE', [
             'method_name' => $deposit->gatewayCurrency()->name,

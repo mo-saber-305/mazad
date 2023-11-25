@@ -71,5 +71,10 @@ class Product extends Model
         return $this->hasMany(ProductVisit::class);
     }
 
+    public function productDeposits()
+    {
+        return $this->hasMany(ProductDeposit::class);
+    }
+
 
 }

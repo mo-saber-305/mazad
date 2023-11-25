@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/clear', function () {
-//    Artisan::call('migrate --path=/database/migrations/2022_02_15_153018_create_product_visits_table.php');
+//    Artisan::call('migrate --path=/database/migrations/2022_02_15_153018_create_deposit_product_table.php');
 //    Artisan::call('cache:clear');
 //    Artisan::call('config:clear');
 //    Artisan::call('config:cache');
@@ -132,6 +132,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('bid/winner', 'ProductController@bidWinner')->name('bid.winner');
         Route::get('product/winners', 'ProductController@productWinner')->name('product.winners');
         Route::post('product/delivered', 'ProductController@deliveredProduct')->name('product.delivered');
+        Route::post('product/pay-deposit', 'ProductController@deposit')->name('product.pay-deposit');
 
         Route::get('products/search', 'ProductController@index')->name('product.search');
 
@@ -546,6 +547,7 @@ Route::name('user.')->prefix('user')->group(function () {
             Route::any('deposit/history', 'UserController@depositHistory')->name('deposit.history');
 
             Route::post('bid', 'ProductController@bid')->name('bid');
+            Route::post('product/{id}/deposit', 'ProductController@deposit')->name('product.deposit');
             Route::post('product-review', 'ProductController@saveProductReview')->name('product.review.store');
             Route::post('merchant-review', 'ProductController@saveMerchantReview')->name('merchant.review.store');
 

@@ -74,6 +74,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(ProductVisit::class);
     }
 
+    public function winners()
+    {
+        return $this->hasMany(Winner::class);
+    }
+
 
     // SCOPES
 
