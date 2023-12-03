@@ -1,35 +1,35 @@
 @extends('admin.layouts.app')
 @section('panel')
-    <div class="d-flex justify-content-center align-items-center my-4 products-btn-list">
-        <a href="{{route('admin.product.live')}}" class="btn bg--gradi-1 border-0 mr-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
+    <div class="d-flex flex-wrap justify-content-center align-items-center my-4 products-btn-list">
+        <a href="{{route('admin.product.live')}}" class="btn bg--gradi-1 border-0 mr-3 mb-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
             @lang('Live Products')
             @if($live_product_count)
                 <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2"
                       style="height: 24px; display: inline-block; line-height: 24px; min-width: 30px;">{{$live_product_count}}</span>
             @endif
         </a>
-        <a href="{{route('admin.product.pending')}}" class="btn bg--gradi-6 border-0 mr-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
+        <a href="{{route('admin.product.pending')}}" class="btn bg--gradi-6 border-0 mr-3 mb-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
             @lang('Pending Products')
             @if($pending_product_count)
                 <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2"
                       style="height: 24px; display: inline-block; line-height: 24px; min-width: 30px;">{{$pending_product_count}}</span>
             @endif
         </a>
-        <a href="{{route('admin.product.upcoming')}}" class="btn bg--gradi-8 border-0 mr-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
+        <a href="{{route('admin.product.upcoming')}}" class="btn bg--gradi-8 border-0 mr-3 mb-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
             @lang('Upcoming Products')
             @if($upcoming_product_count)
                 <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2"
                       style="height: 24px; display: inline-block; line-height: 24px; min-width: 30px;">{{$upcoming_product_count}}</span>
             @endif
         </a>
-        <a href="{{route('admin.product.expired')}}" class="btn bg--gradi-11 border-0 mr-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
+        <a href="{{route('admin.product.expired')}}" class="btn bg--gradi-11 border-0 mr-3 mb-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-row-reverse' : '' }}">
             @lang('Expired Products')
             @if($expired_product_count)
                 <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2"
                       style="height: 24px; display: inline-block; line-height: 24px; min-width: 30px;">{{$expired_product_count}}</span>
             @endif
         </a>
-        <a href="{{route('admin.product.winners')}}" class="btn bg--gradi-9 border-0 mr-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-wrap-reverse' : '' }}">
+        <a href="{{route('admin.product.winners')}}" class="btn bg--gradi-9 border-0 mr-3 mb-3 py-2 {{ app()->getLocale() == 'ar' ? 'flex-wrap-reverse' : '' }}">
             @lang('Winner Logs')
         </a>
     </div>

@@ -65,8 +65,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('merchant.bid.winner') }}" method="POST">
-                @csrf
+
                 <div class="modal-body">
                    <div>
                         <ul class="list-group list-group-flush">
@@ -94,10 +93,7 @@
                    </div>
                    <input type="hidden" name="bid_id">
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn--success btn-block">@lang('Make Winner')</button>
-                </div>
-            </form>
+
         </div>
     </div>
 </div>

@@ -30,7 +30,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900;1000&display=swap" rel="stylesheet">
         <style>
-            html, body, h1, h2, h3, h4, h5, h6, a, p, span, .cmn--table thead th, strong {
+            html, body, h1, h2, h3, h4, h5, h6, a, p, span, .cmn--table thead th, strong , .form--label {
                 font-family: 'Cairo', sans-serif !important;
             }
         </style>

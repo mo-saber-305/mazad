@@ -21,13 +21,29 @@ class ProductResource extends JsonResource
         $relatedProducts = Product::live()->where('category_id', $this->category_id)->where('id', '!=', $this->id)->limit(10)->get();
         $relatedProducts = ProductsResource::collection($relatedProducts);
         $bidsCount = $this->bids->count();
+        $general = GeneralSetting::first();
+
+        if (auth('api')->check()) {
+            if ($this->productDeposits()->where('user_id', auth('api')->user()->id)->first()) {
+                $is_deposit = 1;
+            } else {
+                $is_deposit = 0;
+            }
+        } else {
+            $is_deposit = 0;
+        }
+
         return [
             'id' => $this->id,
             'name' => __($this->name),
-            'price' => $this->price,
-            'max_price' => $this->max_price,
-            'category_id' => $this->category_id,
+            'price' => showAmount($this->price) . ' ' . __($general->cur_text),
+            'max_price' => showAmount($this->max_price) . ' ' . __($general->cur_text),
+            'deposit_amount' => showAmount(($this->price / 100) * (int)$this->deposit_amount) . ' ' . __($general->cur_text),
+            'greater_bid' => $bidsCount ? showAmount($this->bids->max('amount')) . ' ' . __($general->cur_text) : null,
             'total_bid' => $this->total_bid,
+            'is_deposit' => $is_deposit,
+            'category_id' => $this->category_id,
+            'payment_method' => $this->payment_method,
             'started_at' => showDateTime($this->started_at, 'Y_m_d h:i A'),
             'expired_at' => showDateTime($this->expired_at, 'Y_m_d h:i A'),
             'avg_rating' => $this->avg_rating,
@@ -41,7 +57,6 @@ class ProductResource extends JsonResource
             'long_description' => __($this->long_description),
             'specification' => $this->specification,
             'user_bid' => $bidsCount,
-            'greater_bid' => $bidsCount ? round($this->bids->max('amount'), 2) : null,
             'reviews' => $this->reviews(),
             'seller' => $this->sellerData(),
             'related_products' => $relatedProducts,

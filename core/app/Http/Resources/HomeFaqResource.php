@@ -16,7 +16,7 @@ class HomeFaqResource extends JsonResource
     {
         return [
             'question' => __($this->data_values->question),
-            'answer' => __($this->data_values->answer),
+            'answer' => __(strip_tags($this->data_values->answer)),
         ];
     }
 }

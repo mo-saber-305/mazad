@@ -1,121 +1,164 @@
 @extends('admin.layouts.app')
 @section('panel')
-<div class="card b-radius--10 ">
-    <div class="card-body p-0">
-        <div class="table-responsive--md  table-responsive">
-            <table class="table table--light style--two">
-                <thead>
-                <tr>
-                    <th>@lang('S.N.')</th>
-                    <th>@lang('User Name')</th>
-                    <th>@lang('Amount')</th>
-                    <th>@lang('Bid Time')</th>
-                    <th>@lang('Action')</th>
-                </tr>
-                </thead>
-                <tbody>
-                @forelse($bids as $bid)
-                <tr>
-                    <td data-label="@lang('S.N')">{{ $bids->firstItem() + $loop->index }}</td>
-                    <td data-label="@lang('User Name')">{{ __($bid->user->fullname) }} <br>
-                        @php $bidId = $bid->winner ? $bid->winner->bid_id : ''; @endphp
-                        @if ($bid->id == $bidId)
-                            <span class="badge badge--success">@lang('Winner')</span>
-                        @endif
-                    </td>
-                    <td data-label="@lang('Amount')">{{ $general->cur_sym }}{{ showAmount($bid->amount) }}</td>
-                    <td data-label="@lang('Bid Time')">{{ showDateTime($bid->created_at) }} <br> {{ diffForHumans($bid->created_at) }}</td>
-                    <td data-label="@lang('Action')">
-                        <button type="button" class="icon-btn bid-details" data-toggle="tooltip" data-original-title="@lang('Details')"
-                            data-bid_id="{{ $bid->id }}"
-                            data-product_name="{{ __($bid->product->name) }}"
-                            data-product_price="{{ $general->cur_sym }}{{ showAmount($bid->product->price) }}"
-                            data-user_name="{{ __($bid->user->fullname) }}"
-                            data-date_time="{{ showDateTime($bid->created_at) }}"
-                            data-amount="{{ $general->cur_sym }}{{ showAmount($bid->amount) }}"
-                            >
-                            <i class="las la-desktop text--shadow"></i>
-                        </button>
-                    </td>
-                </tr>
-                @empty
+    <div class="card b-radius--10 ">
+        <div class="card-body p-0">
+            <div class="table-responsive--md  table-responsive">
+                <table class="table table--light style--two">
+                    <thead>
                     <tr>
-                        <td class="text-muted text-center" colspan="100%">{{ __($emptyMessage) }}</td>
+                        <th>@lang('S.N.')</th>
+                        <th>@lang('User Name')</th>
+                        <th>@lang('Amount')</th>
+                        <th>@lang('Bid Time')</th>
+                        <th>@lang('Action')</th>
                     </tr>
-                @endforelse
+                    </thead>
+                    <tbody>
+                    @forelse($bids as $bid)
+                        @php $bidId = $bid->winner ? $bid->winner->bid_id : ''; @endphp
+                        <tr>
+                            <td data-label="@lang('S.N')">{{ $bids->firstItem() + $loop->index }}</td>
+                            <td data-label="@lang('User Name')">{{ __($bid->user->fullname) }} <br>
 
-                </tbody>
-            </table><!-- table end -->
-        </div>
-    </div>
-    @if ($bids->hasPages())    
-        <div class="card-footer py-4">
-            {{ paginateLinks($bids) }}
-        </div>
-    @endif
-</div>
+                                @if ($bid->id == $bidId)
+                                    <span class="badge badge--success">@lang('Winner')</span>
+                                @endif
+                            </td>
+                            <td data-label="@lang('Amount')">{{ $general->cur_sym }}{{ showAmount($bid->amount) }}</td>
+                            <td data-label="@lang('Bid Time')">{{ showDateTime($bid->created_at) }} <br> {{ diffForHumans($bid->created_at) }}</td>
+                            <td data-label="@lang('Action')">
+                                <button type="button" class="icon-btn bid-details" data-toggle="tooltip" data-original-title="@lang('Details')"
+                                        data-bid_id="{{ $bid->id }}"
+                                        data-winner="{{ $winner }}"
+                                        data-user_winner="{{ $bid->id == $bidId ? 1 : 0 }}"
+                                        data-product_name="{{ __($bid->product->name) }}"
+                                        data-product_price="{{ $general->cur_sym }}{{ showAmount($bid->product->price) }}"
+                                        data-user_name="{{ __($bid->user->fullname) }}"
+                                        data-date_time="{{ showDateTime($bid->created_at) }}"
+                                        data-amount="{{ $general->cur_sym }}{{ showAmount($bid->amount) }}"
+                                        data-product_deposit_count="{{ $product_deposit_count }}"
+                                        data-product_deposit_refunded_count="{{ $product_deposit_refunded_count }}"
+                                >
+                                    <i class="las la-desktop text--shadow"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="text-muted text-center" colspan="100%">{{ __($emptyMessage) }}</td>
+                        </tr>
+                    @endforelse
 
-{{-- BId modal --}}
-<div id="bidModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@lang('Bid Details')</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                    </tbody>
+                </table><!-- table end -->
             </div>
-            <form action="{{ route('admin.bid.winner') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @lang('Product Name'):
-                            <span class="product-name"></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @lang('Product Price'):
-                            <span class="product-price"></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @lang('Bid User Name'):
-                            <span class="bid-user-name"></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @lang('Bid Amount')
-                            <span class="bid-amount"></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @lang('Bid Time')
-                            <span class="bid-date-time"></span>
-                        </li>
-                    </ul>
-                   <input type="hidden" name="bid_id">
+        </div>
+        @if ($bids->hasPages())
+            <div class="card-footer py-4">
+                {{ paginateLinks($bids) }}
+            </div>
+        @endif
+    </div>
+
+    {{-- BId modal --}}
+    <div id="bidModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@lang('Bid Details')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn--primary btn-block">@lang('Make Winner')</button>
-                </div>
-            </form>
+                <form action="{{ route('admin.bid.winner') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @lang('Product Name'):
+                                <span class="product-name"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @lang('Product Price'):
+                                <span class="product-price"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @lang('Bid User Name'):
+                                <span class="bid-user-name"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @lang('Bid Amount')
+                                <span class="bid-amount"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @lang('Bid Time')
+                                <span class="bid-date-time"></span>
+                            </li>
+                        </ul>
+                        <input type="hidden" name="bid_id">
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 @endsection
 
 @push('breadcrumb-plugins')
-<a href="{{ route('admin.product.index') }}" class="btn btn-sm btn--primary box--shadow1 text--small"><i class="la la-fw la-backward"></i> @lang('Go Back') </a>
+    <a href="{{ route('admin.product.index') }}" class="btn btn-sm btn--primary box--shadow1 text--small"><i class="la la-fw la-backward"></i> @lang('Go Back') </a>
 @endpush
 
 @push('script')
     <script>
         (function ($) {
             "use strict";
-            $('.bid-details').click(function(){
+            $('.bid-details').click(function () {
                 var modal = $('#bidModal');
                 var data = $(this).data();
                 modal.find('.product-name').text(data.product_name);
                 modal.find('.product-price').text(data.product_price);
                 modal.find('.bid-user-name').text(data.user_name);
                 modal.find('.bid-date-time').text(data.date_time);
+                modal.find('.bid-amount').text(data.amount);
+                modal.find('.bid-amount').text(data.amount);
+                if (data.winner == 1) {
+                    if (data.user_winner == 1) {
+                        let html;
+                        if (data.product_deposit_refunded_count == data.product_deposit_count) {
+                            html = `
+                               <div class="row w-100 align-items-center">
+                                   <div class="col-12">
+                                        <input type="hidden" name="deduction" value="1">
+                                        <button type="submit" class="btn btn--danger btn-block winner-btn"  style="height: 45px;">@lang('Cancel Winner')</button>
+                                   </div>
+                                </div>`;
+                        } else {
+                            html = `
+                               <div class="row w-100 align-items-center">
+                                   <div class="col-6">
+                                        <select name="deduction" class="form-control" required style="height: 45px;">
+                                            <option value="0">@lang('Auction deposit deduction')</option>
+                                            <option value="1">@lang('Refund the auction deposit amount')</option>
+                                        </select>
+                                    </div>
+
+                                   <div class="col-6">
+                                        <button type="submit" class="btn btn--danger btn-block winner-btn"  style="height: 45px;">@lang('Cancel Winner')</button>
+                                   </div>
+                               </div>
+                        `;
+                        }
+
+                        modal.find('.modal-footer').html(html);
+                    } else {
+                        modal.find('.modal-footer').html('<button type="submit" class="btn btn--primary btn-block winner-btn" disabled>@lang('Make Winner')</button>');
+                    }
+                } else {
+                    modal.find('.modal-footer').html('<button type="submit" class="btn btn--primary btn-block winner-btn">@lang('Make Winner')</button>');
+                }
+
                 modal.find('.bid-amount').text(data.amount);
                 modal.find('input[name=bid_id]').val(data.bid_id);
                 modal.modal('show');

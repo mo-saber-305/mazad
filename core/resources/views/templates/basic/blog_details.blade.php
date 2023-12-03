@@ -28,7 +28,7 @@
                 <div class="blog-sidebar">
                     <div class="sidebar-item">
                         <div class="recent-post-wrapper">
-                            <h5 class="title mb-4">@lang('Recent Post')</h5>
+                            <h5 class="title mb-4">@lang('Recent Posts')</h5>
 							@foreach ($recentBlogs as $blog)
 								<div class="blog__item recent-blog">
 									<div class="blog__thumb">
@@ -37,7 +37,6 @@
                                         @else
                                             <img src="{{ getImage('placeholder-image/425x285', '425x285') }}" alt="blog">
                                         @endif
-
 									</div>
 									<div class="blog__content">
 										<h6 class="title"><a href="{{ route('blog.details', [$blog->id, slug($blog->data_values->title)]) }}">{{ __($blog->data_values->title) }}</a></h6>

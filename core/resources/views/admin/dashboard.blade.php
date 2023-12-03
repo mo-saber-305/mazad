@@ -268,7 +268,7 @@
                             </div>
                             <div class="details">
                                 <div class="numbers">
-                                    <span class="currency-sign">{{__($general->cur_sym)}}</span>
+{{--                                    <span class="currency-sign">{{__($general->cur_sym)}}</span>--}}
                                     <span class="amount">{{ showAmount($widget['total_bid_amount']) }}</span>
                                 </div>
                                 <div class="desciption">

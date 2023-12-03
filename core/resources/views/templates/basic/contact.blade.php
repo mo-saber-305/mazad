@@ -9,7 +9,7 @@
             <div class="contact-area">
                 <div class="contact-content">
                     <div class="contact-content-top">
-                        <h3 class="title">{{ __($contact->data_values->title) }}</h3>
+                        <h3 class="title">{{ trans($contact->data_values->title) }}</h3>
                         <p>{{ __($contact->data_values->short_details) }}</p>
                     </div>
                     <div class="contact-content-botom">

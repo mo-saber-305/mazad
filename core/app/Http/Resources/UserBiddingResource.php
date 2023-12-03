@@ -19,12 +19,12 @@ class UserBiddingResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'product_id' => $this->product->id,
             'product_name' => __($this->product->name),
             'product_price' => __($general->cur_sym) . ' ' . showAmount($this->product->price),
             'bid_amount' => __($general->cur_sym) . ' ' . showAmount($this->amount),
             'amount' => $this->trx_type . showAmount($this->amount) . ' ' . __($general->cur_text),
             'bid_time' => showDateTime($this->created_at) . ' --- ' . diffForHumans($this->created_at),
-            'view' => route('api.products.show', $this->product->id)
         ];
     }
 }

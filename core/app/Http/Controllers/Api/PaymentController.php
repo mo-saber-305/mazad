@@ -15,11 +15,20 @@ use Illuminate\Support\Facades\Validator;
 class PaymentController extends Controller
 {
 
-    public function depositMethods()
+    public function depositMethods(Request $request)
     {
-        $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
-            $gate->where('status', 1);
-        })->with('method')->orderby('method_code')->get();
+        if ($request->has('payment') && $request->get('payment') != null) {
+            $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
+                $gate->where('status', 1);
+            })->where('method_code', $request->payment)->with('method')->orderby('method_code')->get();
+        } else {
+            $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
+                $gate->where('status', 1);
+            })->with('method')->orderby('method_code')->get();
+        }
+//        $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
+//            $gate->where('status', 1);
+//        })->with('method')->orderby('method_code')->get();
         $data = DepositResource::collection($gatewayCurrency);
         $notify = __('Payment Methods');
 //        $data = [

@@ -12,6 +12,8 @@
                                 <th>@lang('User Name')</th>
                                 <th>@lang('Product Name')</th>
                                 <th>@lang('Winning Date')</th>
+                                <th>@lang('Bid Amount')</th>
+                                <th>@lang('Remaining Amount')</th>
                                 <th>@lang('Product Delivered')</th>
                                 <th>@lang('Action')</th>
                             </tr>
@@ -27,22 +29,29 @@
                                         </a>
                                     </td>
                                     <td data-label="@lang('Winning Date')">{{ showDateTime($winner->created_at) }}</td>
+                                    <td data-label="@lang('Bid Amount')">{{ showAmount($winner->bid->amount) }}</td>
+                                    <td data-label="@lang('Remaining Amount')">{{ $winner->remaining_amount > 0 ? showAmount($winner->remaining_amount) : '-----' }}</td>
                                     <td data-label="@lang('Product Delivered')">
-                                        @if($winner->product_delivered == 0)
-                                            <span class="text--small badge font-weight-normal badge--warning">@lang('Pending')</span>
+                                        {{--                                        @if($winner->product_delivered == 0)--}}
+                                        {{--                                            <span class="text--small badge font-weight-normal badge--warning">@lang('Pending')</span>--}}
+                                        {{--                                        @else--}}
+                                        {{--                                            <span class="text--small badge font-weight-normal badge--success">@lang('Delivered')</span>--}}
+                                        {{--                                        @endif--}}
+
+                                        @if($winner->remaining_amount > 0)
+                                            <span class="text--small badge font-weight-normal badge--primary">@lang('Waiting For Payment')</span>
                                         @else
-                                            <span class="text--small badge font-weight-normal badge--success">@lang('Delivered')</span>
+                                            @if($winner->product_delivered == 0)
+                                                <span class="text--small badge font-weight-normal badge--warning">@lang('Pending')</span>
+                                            @else
+                                                <span class="text--small badge font-weight-normal badge--success">@lang('Delivered')</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td data-label="@lang('Action')">
                                         <button type="button" class="icon-btn bid-details" data-toggle="tooltip" data-original-title="@lang('Details')"
                                                 data-user="{{ $winner->user }}">
                                             <i class="las la-desktop text--shadow"></i>
-                                        </button>
-                                        <button type="button" class="icon-btn btn--success productDeliveredBtn"
-                                                data-toggle="tooltip" data-original-title="@lang('Delivered')"
-                                                data-id="{{ $winner->id }}" {{ $winner->product_delivered ? 'disabled':'' }}>
-                                            <i class="las la-check text--shadow"></i>
                                         </button>
                                     </td>
                                 </tr>

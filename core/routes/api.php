@@ -15,6 +15,7 @@ Route::namespace('Api')->name('api.')->middleware(['api', 'change_lang'])->group
     Route::get('categories', 'CategoryController@categories'); //ok
     Route::get('products', 'ProductController@products')->name('products.index'); //ok
     Route::get('products/{product}', 'ProductController@product')->name('products.show'); //ok
+    Route::post('product/deposit', 'ProductController@deposit')->name('product.deposit');//ok
     Route::get('merchants', 'UserController@merchants')->name('merchants.index'); //ok
     Route::get('merchant/profile', 'UserController@merchantProfile')->name('merchant.profile'); //ok
     Route::get('posts', 'PostController@posts')->name('posts.index'); //ok

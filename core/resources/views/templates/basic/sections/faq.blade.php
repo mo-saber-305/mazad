@@ -26,7 +26,7 @@
                                         <span class="right--icon"></span>
                                     </div>
                                     <div class="faq__content">
-                                        @php echo $faq->data_values->answer @endphp
+                                        @php echo __(strip_tags($faq->data_values->answer)) @endphp
                                     </div>
                                 </div>
                             @endif
@@ -43,7 +43,7 @@
                                         <span class="right--icon"></span>
                                     </div>
                                     <div class="faq__content">
-                                        @php echo $faq->data_values->answer @endphp
+                                        @php echo __(strip_tags($faq->data_values->answer)) @endphp
                                     </div>
                                 </div>
                             @endif
@@ -51,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </section>

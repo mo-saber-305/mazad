@@ -97,7 +97,7 @@
                                                 <input type="number" class="form-control" placeholder="0" name="max_price" value="{{ old('max_price') }}"
                                                        required/>
                                                 <div class="input-group-append">
-                                                    <span class="input-group-text">%</span>
+                                                    <span class="input-group-text">{{ __($general->cur_text) }}</span>
                                                 </div>
                                             </div>
                                         </div>

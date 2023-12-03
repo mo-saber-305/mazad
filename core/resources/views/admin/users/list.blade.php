@@ -1,31 +1,31 @@
 @extends('admin.layouts.app')
 @section('panel')
-    <div class="d-flex justify-content-center align-items-center my-4 products-btn-list">
-        <a href="{{route('admin.users.active')}}" class="btn bg--gradi-1 border-0 mr-3 py-2">
+    <div class="d-flex flex-wrap justify-content-center align-items-center my-4 products-btn-list">
+        <a href="{{route('admin.users.active')}}" class="btn bg--gradi-1 border-0 mr-3 mb-3 py-2">
             @lang('Active Users')
         </a>
-        <a href="{{route('admin.users.banned')}}" class="btn bg--gradi-6 border-0 mr-3 py-2">
+        <a href="{{route('admin.users.banned')}}" class="btn bg--gradi-6 border-0 mr-3 mb-3 py-2">
             @lang('Banned Users')
             @if($banned_users_count)
                 <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$banned_users_count}}</span>
             @endif
         </a>
-        <a href="{{route('admin.users.email.unverified')}}" class="btn bg--gradi-8 border-0 mr-3 py-2">
+        <a href="{{route('admin.users.email.unverified')}}" class="btn bg--gradi-8 border-0 mr-3 mb-3 py-2">
             @lang('Email Unverified')
             @if($email_unverified_users_count)
                 <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$email_unverified_users_count}}</span>
             @endif
         </a>
-        <a href="{{route('admin.users.sms.unverified')}}" class="btn bg--gradi-11 border-0 mr-3 py-2">
+        <a href="{{route('admin.users.sms.unverified')}}" class="btn bg--gradi-11 border-0 mr-3 mb-3 py-2">
             @lang('SMS Unverified')
             @if($sms_unverified_users_count)
                 <span class="menu-badge pill bg--black {{ app()->getLocale() == 'ar' ? 'mr-2' : 'ml-2' }} rounded px-2">{{$sms_unverified_users_count}}</span>
             @endif
         </a>
-        <a href="{{route('admin.users.with.balance')}}" class="btn bg--gradi-9 border-0 mr-3 py-2">
+        <a href="{{route('admin.users.with.balance')}}" class="btn bg--gradi-9 border-0 mr-3 mb-3 py-2">
             @lang('With Balance')
         </a>
-        <a href="{{route('admin.users.email.all')}}" class="btn bg--gradi-10 border-0 mr-3 py-2">
+        <a href="{{route('admin.users.email.all')}}" class="btn bg--gradi-10 border-0 mr-3 mb-3 py-2">
             @lang('Email to All')
         </a>
     </div>

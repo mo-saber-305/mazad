@@ -72,7 +72,7 @@ class ProductController extends Controller
         $imageData = imagePath()['product'];
 
         $seoContents = getSeoContents($product, $imageData, 'image');
-        $max_price = ($product->price / 100) * (int)$product->max_price;
+        $max_price = (int)$product->max_price;
         $deposit_amount = ($product->price / 100) * (int)$product->deposit_amount;
 
         if (auth()->check()) {
@@ -118,19 +118,18 @@ class ProductController extends Controller
             $highest_bidder = $product->bids->max('amount');
 
             if ($highest_bidder > $request->amount) {
-                $notify[] = ['error', __("Bid amount must be greater than highest bidder") . " (" . getAmount($highest_bidder) .")"];
+                $notify[] = ['error', __("Bid amount must be greater than highest bidder") . " (" . getAmount($highest_bidder) . ")"];
                 return back()->withNotify($notify);
             }
 
-            $max_price = ($product->price / 100) * (int)$product->max_price;
+            $max_price = (int)$product->max_price;
 
             $max_bid_price = $highest_bidder + $max_price;
             if ($request->amount > $max_bid_price) {
-                $notify[] = ['error', __("Bid amount must be less than or Equal highest bidder + Max price") . " (" . getAmount($max_bid_price) .")"];
+                $notify[] = ['error', __("Bid amount must be less than or Equal highest bidder + Max price") . " (" . getAmount($max_bid_price) . ")"];
                 return back()->withNotify($notify);
             }
         }
-
 
         $bid_data = Bid::where('product_id', $request->product_id)->where('user_id', $user->id)->first();
 
@@ -250,7 +249,6 @@ class ProductController extends Controller
 
     public function saveProductReview(Request $request)
     {
-
         $request->validate([
             'rating' => 'required|integer|between:1,5',
             'product_id' => 'required|integer'

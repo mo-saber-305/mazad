@@ -46,6 +46,10 @@
                                                 data-user="{{ $winner->user }}">
                                             <i class="las la-desktop text--shadow"></i>
                                         </button>
+                                        <button type="button" class="icon-btn btn--info productDepositBtn" data-toggle="tooltip" data-original-title="@lang('Pay Remaining Amount')"
+                                                data-id="{{ $winner->id }}" {{ $winner->product_delivered || $winner->remaining_amount <= 0 ? 'disabled':'' }}>
+                                            <i class="las la-dollar-sign text--shadow"></i>
+                                        </button>
                                         <button type="button" class="icon-btn btn--success productDeliveredBtn" data-toggle="tooltip" data-original-title="@lang('Delivered')"
                                                 data-id="{{ $winner->id }}" {{ $winner->product_delivered || $winner->remaining_amount > 0 ? 'disabled':'' }}>
                                             <i class="las la-check text--shadow"></i>
@@ -153,6 +157,30 @@
             </div>
         </div>
     </div>
+
+    {{-- Product Deposit Confirmation --}}
+    <div id="productDepositModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@lang('Pay Remaining Amount Confirmation')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{route('admin.product.winner.pay_remaining_amount')}}" method="POST">
+                    @csrf
+                    <input type="hidden" name="id">
+                    <div class="modal-body">
+                        <p class="text-center">@lang('Are you sure to pay the remaining amount to this winner?')</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn--primary btn-block">@lang('Yes')</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('breadcrumb-plugins')
@@ -171,6 +199,14 @@
         </div>
     </div>
 
+@endpush
+
+@push('style')
+    <style>
+        .productDepositBtn:disabled {
+            background-color: #1e9ff2 !important;
+        }
+    </style>
 @endpush
 
 @push('script')
@@ -193,6 +229,13 @@
 
             $('.productDeliveredBtn').click(function () {
                 var modal = $('#productDeliveredModal');
+                modal.find('[name=id]').val($(this).data('id'));
+                modal.modal('show');
+
+            });
+
+            $('.productDepositBtn').click(function () {
+                var modal = $('#productDepositModal');
                 modal.find('[name=id]').val($(this).data('id'));
                 modal.modal('show');
 

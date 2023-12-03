@@ -214,10 +214,13 @@ class ProductController extends Controller
     public function productBids($id)
     {
         $product = Product::with('winner')->findOrFail($id);
+        $winner = $product->winner()->exists() ? 1 : 0;
         $pageTitle = $product->name . ' Bids';
         $emptyMessage = $product->name . ' has no bid yet';
+        $product_deposit_count = ProductDeposit::query()->where('product_id', $product->id)->count();
+        $product_deposit_refunded_count = ProductDeposit::query()->where('product_id', $product->id)->where('refunded', 1)->count();
         $bids = Bid::where('product_id', $id)->with('user', 'product', 'winner')->withCount('winner')->orderBy('winner_count', 'DESC')->latest()->paginate(getPaginate());
-        return view('admin.product.product_bids', compact('pageTitle', 'emptyMessage', 'bids'));
+        return view('admin.product.product_bids', compact('pageTitle', 'emptyMessage', 'bids', 'winner', 'product_deposit_count', 'product_deposit_refunded_count'));
     }
 
     public function bidWinner(Request $request)
@@ -228,73 +231,155 @@ class ProductController extends Controller
 
         $bid = Bid::with('user', 'product')->findOrFail($request->bid_id);
         $product = $bid->product;
-        $winner = Winner::where('product_id', $product->id)->exists();
-
-        if ($winner) {
-            $notify[] = ['error', __('Winner for this product is already selected')];
-            return back()->withNotify($notify);
-        }
-
-        if ($product->expired_at > now()) {
-            $notify[] = ['error', __('This product is not expired till now')];
-            return back()->withNotify($notify);
-        }
-
+        $bid_amount = $bid->amount;
         $user = $bid->user;
         $general = GeneralSetting::first();
 
-        $winner = new Winner();
-        $winner->user_id = $user->id;
-        $winner->product_id = $product->id;
-        $winner->bid_id = $bid->id;
-        $winner->save();
+        if ($request->has('deduction')) {
+            $winner = Winner::where('product_id', $product->id)->first();
+            $product_deposit = ProductDeposit::query()->where('product_id', $product->id)->where('user_id', $user->id)->first();
+            if ($request->deduction == 1) {
+                $amount = $bid_amount - $winner->remaining_amount;
+                $user->balance += $amount;
+                $user->save();
 
-        $deposit_amount = ($product->price / 100) * (int)$product->deposit_amount;
-        $bid_amount = $bid->amount;
-        $amount_deducted = $bid_amount - $deposit_amount;
+                $product_deposit->refunded = 1;
+                $product_deposit->save();
 
-        $user->balance -= $amount_deducted;
-        $user->save();
+                $trx = getTrx();
+                $transaction = new Transaction();
+                $transaction->user_id = $user->id;
+                $transaction->amount = $amount;
+                $transaction->post_balance = $user->balance;
+                $transaction->trx_type = '+';
+                $transaction->details = 'Auction deposit amount';
+                $transaction->trx = $trx;
+                $transaction->save();
+            } else {
+                $amount = $bid_amount - $product_deposit->amount - $winner->remaining_amount;
 
-        $trx2 = getTrx();
-        $transaction = new Transaction();
-        $transaction->user_id = $user->id;
-        $transaction->amount = $amount_deducted;
-        $transaction->post_balance = $user->balance;
-        $transaction->trx_type = '+';
-        $transaction->details = 'Subtracted for a wining auction';
-        $transaction->trx = $trx2;
-        $transaction->save();
+                if ($amount > 0) {
+                    $user->balance += $amount;
+                    $user->save();
 
-        $product_deposit = ProductDeposit::query()->where('product_id', $product->id)->where('user_id', '!=', $user->id)->get();
+                    $trx = getTrx();
+                    $transaction = new Transaction();
+                    $transaction->user_id = $user->id;
+                    $transaction->amount = $amount;
+                    $transaction->post_balance = $user->balance;
+                    $transaction->trx_type = '+';
+                    $transaction->details = 'Auction deposit amount';
+                    $transaction->trx = $trx;
+                    $transaction->save();
+                }
 
-        foreach ($product_deposit as $item) {
-            $user_data = $item->user;
-            $user_data->balance += $item->amount;
-            $user_data->save();
+                $product_deposit->refunded = 1;
+                $product_deposit->save();
+            }
 
-            $item->refunded = 1;
-            $item->save();
+            $winner->delete();
 
-            $trx2 = getTrx();
-            $transaction = new Transaction();
-            $transaction->user_id = $user_data->id;
-            $transaction->amount = $item->amount;
-            $transaction->post_balance = $user_data->balance;
-            $transaction->trx_type = '+';
-            $transaction->details = 'Auction deposit amount';
-            $transaction->trx = $trx2;
-            $transaction->save();
+            $notify[] = ['success', __('The win has been successfully cancelled')];
+        } else {
+
+            $winner = Winner::where('product_id', $product->id)->exists();
+
+            if ($winner) {
+                $notify[] = ['error', __('Winner for this product is already selected')];
+                return back()->withNotify($notify);
+            }
+
+            if ($product->expired_at > now()) {
+                $notify[] = ['error', __('This product is not expired till now')];
+                return back()->withNotify($notify);
+            }
+
+            $winner = new Winner();
+            $winner->user_id = $user->id;
+            $winner->product_id = $product->id;
+            $winner->bid_id = $bid->id;
+            $winner->save();
+
+            $product_deposit_count = ProductDeposit::query()->where('product_id', $product->id)->count();
+            $product_deposit_refunded_count = ProductDeposit::query()->where('product_id', $product->id)->where('refunded', 1)->count();
+
+            if ($product_deposit_count == $product_deposit_refunded_count) {
+                $amount_deducted = $bid_amount;
+            } else {
+                $deposit_amount = ($product->price / 100) * (int)$product->deposit_amount;
+                $amount_deducted = $bid_amount - $deposit_amount;
+            }
+
+            if ($user->balance >= $amount_deducted) {
+                $user->balance -= $amount_deducted;
+                $user->save();
+
+                $trx2 = getTrx();
+                $transaction = new Transaction();
+                $transaction->user_id = $user->id;
+                $transaction->amount = $amount_deducted;
+                $transaction->post_balance = $user->balance;
+                $transaction->trx_type = '-';
+                $transaction->details = 'Subtracted for a wining auction';
+                $transaction->trx = $trx2;
+                $transaction->save();
+            } else {
+                if ($user->balance > 0) {
+                    $remaining_amount = $amount_deducted - $user->balance;
+
+                    $trx2 = getTrx();
+                    $transaction = new Transaction();
+                    $transaction->user_id = $user->id;
+                    $transaction->amount = $user->balance;
+                    $transaction->post_balance = 0;
+                    $transaction->trx_type = '-';
+                    $transaction->details = 'Subtracted for a wining auction';
+                    $transaction->trx = $trx2;
+                    $transaction->save();
+
+                    $user->balance -= $user->balance;
+                    $user->save();
+
+                    $winner->remaining_amount = $remaining_amount;
+                    $winner->save();
+                } else {
+                    $winner->remaining_amount = $amount_deducted;
+                    $winner->save();
+                }
+            }
+
+            if ($product_deposit_count != $product_deposit_refunded_count) {
+                $product_deposit = ProductDeposit::query()->where('product_id', $product->id)->where('user_id', '!=', $user->id)->get();
+
+                foreach ($product_deposit as $item) {
+                    $user_data = $item->user;
+                    $user_data->balance += $item->amount;
+                    $user_data->save();
+
+                    $item->refunded = 1;
+                    $item->save();
+
+                    $trx2 = getTrx();
+                    $transaction = new Transaction();
+                    $transaction->user_id = $user_data->id;
+                    $transaction->amount = $item->amount;
+                    $transaction->post_balance = $user_data->balance;
+                    $transaction->trx_type = '+';
+                    $transaction->details = 'Auction deposit amount';
+                    $transaction->trx = $trx2;
+                    $transaction->save();
+                }
+
+                notify($user, 'BID_WINNER', [
+                    'product' => $product->name,
+                    'product_price' => showAmount($product->price),
+                    'currency' => $general->cur_text,
+                    'amount' => showAmount($bid->amount),
+                ]);
+            }
+
+            $notify[] = ['success', 'Winner selected successfully'];
         }
-
-        notify($user, 'BID_WINNER', [
-            'product' => $product->name,
-            'product_price' => showAmount($product->price),
-            'currency' => $general->cur_text,
-            'amount' => showAmount($bid->amount),
-        ]);
-
-        $notify[] = ['success', 'Winner selected successfully'];
         return back()->withNotify($notify);
     }
 
@@ -317,7 +402,28 @@ class ProductController extends Controller
         $winner->product_delivered = 1;
         $winner->save();
 
+        $product = $winner->product;
+
+        if ($product->merchant) {
+            $product->merchant->balance += $winner->bid->amount;
+            $product->merchant->save();
+        }
+
         $notify[] = ['success', 'Product mark as delivered'];
+        return back()->withNotify($notify);
+    }
+
+    public function payRemainingAmount(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer'
+        ]);
+
+        $winner = Winner::with('product')->whereHas('product')->findOrFail($request->id);
+        $winner->remaining_amount = 0;
+        $winner->save();
+
+        $notify[] = ['success', __('The remaining amount was successfully paid to the winner')];
         return back()->withNotify($notify);
 
     }

@@ -132,6 +132,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('bid/winner', 'ProductController@bidWinner')->name('bid.winner');
         Route::get('product/winners', 'ProductController@productWinner')->name('product.winners');
         Route::post('product/delivered', 'ProductController@deliveredProduct')->name('product.delivered');
+        Route::post('product/winner/pay-remaining-amount', 'ProductController@payRemainingAmount')->name('product.winner.pay_remaining_amount');
         Route::post('product/pay-deposit', 'ProductController@deposit')->name('product.pay-deposit');
 
         Route::get('products/search', 'ProductController@index')->name('product.search');
