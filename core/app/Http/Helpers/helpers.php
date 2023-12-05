@@ -880,6 +880,14 @@ function showAd($size)
             echo $html;
             return true;
         }
+        if ($ad->type == 'video') {
+            $size = explode('x', $size);
+            $html = '<a href="' . route('adRedirect', encrypt($ad->id)) . '" target="_blank">';
+            $html .= '<video width="'. $size[0].'" height="'. $size[1].'" controls style="display: block">';
+            $html .= '<source src="' . asset('assets/images/advertisement/' . $ad->value) . '" id="video_here">' . __("Your browser does not support HTML5 video") . '</video></a>';
+            echo $html;
+            return true;
+        }
         return $ad->value;
     }
     return false;

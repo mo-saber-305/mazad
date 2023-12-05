@@ -18,7 +18,7 @@ use App\Rules\FileTypeValidate;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 
-class ProductController extends Controller
+class ProductImageController extends Controller
 {
     protected $pageTitle;
     protected $emptyMessage;
@@ -148,7 +148,6 @@ class ProductController extends Controller
                 return back()->withNotify($notify);
             }
         }
-
         if ($request->hasFile('video')) {
             try {
                 $product->image = uploadFile($request->file('video'), imagePath()['product']['path']);
@@ -180,26 +179,6 @@ class ProductController extends Controller
         $product->sponsor = $request->sponsor;
         $product->specification = $request->specification ?? null;
         $product->save();
-
-        if ($request->has('images')) {
-            try {
-                if ($product->images) {
-                    $location = imagePath()['product']['path'];
-                    foreach ($product->images as $image) {
-                        removeFile($location . '/' . $image->image);
-                        removeFile($location . '/thumb_' . $image->image);
-                        $image->delete();
-                    }
-                }
-                foreach ($request->images as $image) {
-                    $image = uploadImage($image, imagePath()['product']['path'], imagePath()['product']['size'], null, imagePath()['product']['thumb']);
-                    $product->images()->create(['image' => $image]);
-                }
-            } catch (\Exception $exp) {
-                $notify[] = ['error', 'Image could not be uploaded.'];
-                return back()->withNotify($notify);
-            }
-        }
     }
 
 

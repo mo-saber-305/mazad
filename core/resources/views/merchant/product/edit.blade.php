@@ -143,6 +143,21 @@
                                                 @endif
                                             </div>
                                         </div>
+
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">@lang('Upload Images')</label>
+                                                <input type="file" id="imagesInput" class="form-control border-radius-5" name="images[]" multiple>
+                                                <div id="imagePreviewContainer" class="row mt-4">
+                                                    @foreach($product->images as $image)
+                                                        <div class="image-preview col-lg-4 col-sm-6 position-relative mb-3">
+                                                            <img src="{{ getImage(imagePath()['product']['path'] . '/' . $image->image, imagePath()['product']['size']) }}" class="preview-image">
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="font-weight-bold">@lang('Short Description') <span class="text-danger">*</span></label>
@@ -220,6 +235,16 @@
         .payment-method-item .payment-method-header .thumb .avatar-edit{
             bottom: auto;
             top: 175px;
+        }
+
+        .image-preview .delete-image {
+            position: absolute;
+            right: 20px;
+            top: 5px;
+        }
+
+        .image-preview .delete-image i {
+            margin-right: 0;
         }
     </style>
 @endpush
@@ -386,6 +411,30 @@
                 $source[0].src = URL.createObjectURL(this.files[0]);
                 $source.parent()[0].load();
 
+            });
+
+
+            $('#imagesInput').on('change', function (e) {
+                $('#imagePreviewContainer').html(''); // Clear previous previews
+                var files = e.target.files;
+
+                for (var i = 0; i < files.length; i++) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $('#imagePreviewContainer').append('<div class="image-preview col-lg-4 col-sm-6 position-relative mb-3">' +
+                            '<img src="' + e.target.result + '" class="preview-image">' +
+                            '<button type="button" class="delete-image btn btn-danger"><i class="fas fa-trash-alt"></i></button>' +
+                            '</div>');
+                    };
+
+                    reader.readAsDataURL(files[i]);
+                }
+            });
+
+            // Image deletion
+            $('#imagePreviewContainer').on('click', '.delete-image', function () {
+                $(this).parent().remove();
             });
 
         })(jQuery);

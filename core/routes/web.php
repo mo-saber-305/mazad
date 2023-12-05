@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/clear', function () {
-//    Artisan::call('migrate --path=/database/migrations/2022_02_15_153018_create_deposit_product_table.php');
+//    Artisan::call('migrate --path=/database/migrations/2022_02_24_145314_create_product_images_table.php');
 //    Artisan::call('cache:clear');
 //    Artisan::call('config:clear');
 //    Artisan::call('config:cache');

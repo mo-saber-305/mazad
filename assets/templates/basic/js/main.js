@@ -222,6 +222,27 @@
         }
       }
     })
+
+    $('.product-images-slider').owlCarousel({
+      loop: true,
+      nav: false,
+      dots: false,
+      items: 1,
+      autoplay: true,
+      margin: 15,
+      responsive: {
+        768: {
+          items: 2,
+          margin: 30,
+        },
+        992: {
+          items: 3,
+        },
+        1200: {
+          items: 3,
+        }
+      }
+    })
     $('.close-filter-bar').on('click', function(){
       $('.search-filter').removeClass('active');
       $('.search-filter').hasClass('active') ? $('.header-bottom').css({"opacity": "0", "visibility": "hidden"}) : $('.header-bottom').css({"opacity": "1", "visibility": "visible"});

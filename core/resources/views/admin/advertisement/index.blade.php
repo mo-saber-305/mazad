@@ -126,7 +126,7 @@
                                         <option value="" selected disabled>@lang('---Please Select One -----')</option>
                                         <option value="image">@lang('Image')</option>
                                         <option value="video">@lang('Video')</option>
-                                        <option value="script">@lang('Script')</option>
+                                        {{--                                        <option value="script">@lang('Script')</option>--}}
                                     </select>
                                 </div>
                             </div>
@@ -209,7 +209,7 @@
                                 <div class="form-group">
                                     <label for="" class="font-weight-bold">@lang('Redirect Url') <strong
                                                 class="text-danger">*</strong> </label>
-                                    <input type="text" class="form-control" name="redirect_url"
+                                    <input type="text" class="form-control" name="video_redirect_url"
                                            placeholder="@lang('Redirect Url')">
                                 </div>
                             </div>
@@ -442,7 +442,12 @@
 
 
                 modal.find('form').attr('action', action.replace(":id", advertisement.id));
-                modal.find('input[name=redirect_url]').val(advertisement.redirect_url);
+                if (advertisement.type == "video") {
+                    modal.find('input[name=video_redirect_url]').val(advertisement.redirect_url);
+                } else {
+                    modal.find('input[name=redirect_url]').val(advertisement.redirect_url);
+                }
+
 
 
                 modal.find("#modalLabel").text("@lang('Edit Advertisement')")

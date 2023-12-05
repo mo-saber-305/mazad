@@ -53,6 +53,7 @@ class ProductResource extends JsonResource
             'report_file' => $this->report_file ? asset(imagePath()['reports']['path'] . '/' . $this->report_file) : null,
             'file_type' => $this->file_type,
             'image' => $this->file_type == 'image' ? getImage(imagePath()['product']['path'] . '/' . $this->image, imagePath()['product']['size']) : getImage(imagePath()['product']['path'] . '/' . $this->image),
+            'images' =>  $this->images(),
             'short_description' => __($this->short_description),
             'long_description' => __($this->long_description),
             'specification' => $this->specification,
@@ -121,6 +122,17 @@ class ProductResource extends JsonResource
                     'image' => $image,
                 ]
             ];
+        }
+
+        return $data;
+    }
+
+    public function images(): array
+    {
+        $images = $this->images;
+        $data = [];
+        foreach ($images as $image) {
+            $data[] = getImage(imagePath()['product']['path'] . '/' . $image->image, imagePath()['product']['size']);
         }
 
         return $data;

@@ -55,7 +55,7 @@ class AdvertisementController extends Controller
         $advertisement->type = $request->type;
         $advertisement->value = $value;
         $advertisement->size = $request->size;
-        $advertisement->redirect_url = $request->redirect_url;
+        $advertisement->redirect_url = $request->type == 'video' ? $request->video_redirect_url : $request->redirect_url;
         $advertisement->save();
         $notify[] = ['success', 'Currency Created Successfully'];
         return redirect()->route('admin.advertisement.index')->withNotify($notify);

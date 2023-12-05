@@ -126,6 +126,26 @@ class ProductController extends Controller
         $product->specification = $request->specification ?? null;
 
         $product->save();
+
+        if ($request->has('images')) {
+            try {
+                if ($product->images) {
+                    $location = imagePath()['product']['path'];
+                    foreach ($product->images as $image) {
+                        removeFile($location . '/' . $image->image);
+                        removeFile($location . '/thumb_' . $image->image);
+                        $image->delete();
+                    }
+                }
+                foreach ($request->images as $image) {
+                    $image = uploadImage($image, imagePath()['product']['path'], imagePath()['product']['size'], null, imagePath()['product']['thumb']);
+                    $product->images()->create(['image' => $image]);
+                }
+            } catch (\Exception $exp) {
+                $notify[] = ['error', 'Image could not be uploaded.'];
+                return back()->withNotify($notify);
+            }
+        }
     }
 
 

@@ -87,6 +87,20 @@
                                 @endif
                             </div>
                         </div>
+                        @if($product->images->count())
+                        <div class="product-images-section pt-2 pb-5">
+                            <div class="container">
+                                <div class="product-images-slider owl-theme owl-carousel">
+                                    @foreach ($product->images as $image)
+                                        <div class="partner-thumb">
+                                            <img src="{{ getImage(imagePath()['product']['path'] . '/' . $image->image, imagePath()['product']['size']) }}" alt="partner">
+                                            <img src="{{ getImage(imagePath()['product']['path'] . '/' . $image->image, imagePath()['product']['size']) }}" alt="partner">
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                         <div class="max-banner mb-4">
                             @php
                                 showAd('780x80')
@@ -262,7 +276,7 @@
                             </div>
                             <div class="max-banner mt-5">
                                 @php
-                                    showAd('780x80')
+                                    showAd('300x250')
                                 @endphp
                             </div>
                         </div>
@@ -409,6 +423,20 @@
         /* Firefox */
         input[type=number] {
             -moz-appearance: textfield;
+        }
+
+        .product-images-section .partner-thumb:hover img {
+            -webkit-transform: translateY(210px);
+            -ms-transform: translateY(210px);
+            transform: translateY(210px);
+        }
+
+        .product-images-section .partner-thumb {
+            height: 210px;
+        }
+
+        .product-images-section .partner-thumb img:nth-child(2) {
+            top: -210px;
         }
     </style>
 @endpush
